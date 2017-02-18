@@ -10,7 +10,7 @@
     "nl": "Leest data van de Enelogic P1 energie meter"
   },
 
-  "version": "0.5.0",
+  "version": "1.0.0",
   "compatibility": ">= 1.x",
   "author": {
     "name": "Gruijter",
