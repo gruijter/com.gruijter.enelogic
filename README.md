@@ -33,8 +33,8 @@ the forum.
 Version changelog
 
 ```
-v0.5.0  2017.02.18 Initial release
+v1.0.0  2017.02.18 Initial release
 ```
 [forum]: https://forum.athom.com/discussion/2779
-[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=M9M847YNL7SB2
+[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FV7VNCQ6XBY6L
 [pp-donate-image]: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
