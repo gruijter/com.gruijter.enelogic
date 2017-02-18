@@ -1,0 +1,304 @@
+{
+  "id": "com.gruijter.enelogic",
+  "name": {
+    "en": "Enelogic",
+    "nl": "Enelogic"
+  },
+
+  "description": {
+    "en": "Imports data from the Enelogic P1 energy meter",
+    "nl": "Leest data van de Enelogic P1 energie meter"
+  },
+
+  "version": "0.5.0",
+  "compatibility": ">= 1.x",
+  "author": {
+    "name": "Gruijter",
+    "email": "gruijter@hotmail.com"
+  },
+
+  "images": {
+    "large": "./assets/images/large.jpg",
+    "small": "./assets/images/small.jpg"
+  },
+
+  "category": ["tools","appliances", "energy"],
+
+  "capabilities": {
+    "meter_offPeak": {
+      "type": "boolean",
+      "title": {
+        "en": "Off-peak",
+        "nl": "Laag tarief"
+      },
+      "desc": {
+        "en": "Is off-peak tarriff active?",
+        "nl": "Is laag tarief actief?"
+      },
+      "getable": true,
+      "setable": false
+    },
+    "measure_gas": {
+      "type": "number",
+      "title": {
+        "en": "Gas",
+        "nl": "Gas"
+      },
+      "desc": {
+        "en": "Gas usage (previous hour)",
+        "nl": "Gasverbruik (vorige uur)"
+      },
+      "units": {
+        "en": "m\u00B3",
+        "nl": "m\u00B3"
+      },
+      "getable": true,
+      "setable": false
+    }
+  },
+
+  "drivers": [
+    {
+      "id": "enelogicp1",
+      "name": {
+        "en": "Enelogic P1",
+        "nl": "Enelogic P1"
+      },
+      "images": {
+        "large": "./drivers/enelogicp1/assets/images/large.jpg",
+        "small": "./drivers/enelogicp1/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_offPeak",
+        "measure_gas",
+        "meter_gas",
+        "meter_power",
+        "meter_power.peak",
+        "meter_power.offPeak",
+        "meter_power.producedPeak",
+        "meter_power.producedOffPeak"
+      ],
+      "capabilitiesOptions": {
+  			"meter_power.peak": {
+  				"title": {
+  					"en": "Power meter peak",
+  					"nl": "Stroommeter piek"
+  				}
+        },
+        "meter_power.offPeak": {
+          "title": {
+            "en": "Power meter off-peak",
+            "nl": "Stroommeter dal"
+          }
+        },
+        "meter_power.producedPeak": {
+          "title": {
+            "en": "Production peak",
+            "nl": "Productie piek"
+          }
+        },
+        "meter_power.producedOffPeak": {
+          "title": {
+            "en": "Production off-peak",
+            "nl": "Productie dal"
+          }
+        }
+      },
+
+      "mobile": {
+        "components": [
+          {
+            "id": "icon",
+            "capabilities": [ ]
+          },
+          {
+            "id": "sensor",
+            "capabilities": [
+              "measure_power",
+              "meter_offPeak",
+              "measure_gas",
+              "meter_gas",
+              "meter_power",
+              "meter_power.peak",
+              "meter_power.offPeak",
+              "meter_power.producedPeak",
+              "meter_power.producedOffPeak"
+            ],
+            "options": {
+              "icons": {
+                "measure_gas": "./drivers/enelogicp1/assets/images/gas_icon.svg",
+                "meter_offPeak": "./drivers/enelogicp1/assets/images/offPeak_icon.svg"
+              },
+              "meter_offPeak":{
+                "noblink": true,
+                "invert": false,
+                "label": {
+                  "true": {
+                    "en": "true",
+                    "nl": "ja"
+                  },
+                  "false": {
+                    "en": "false",
+                    "nl": "nee"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+
+      "pair": [
+          {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Enelogic P1 settings",
+            "nl": "Enelogic P1 instellingen"
+          },
+          "children": [
+            {
+              "id": "enelogicIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "enelec"
+            },
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Ledring screensaver max power (W)",
+                "nl": "Ledring screensaver max gebruik (W)"
+              },
+              "attr": { "min": 0 },
+              "value": 3000
+            },
+            {
+              "id": "ledring_production_limit",
+              "type": "number",
+              "label": {
+                "en": "Ledring screensaver max production (W)",
+                "nl": "Ledring screensaver max productie (W)"
+              },
+              "attr": { "min": 0 },
+              "value": 3000
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "flow":	{
+    "triggers":[
+      {
+        "id":"tariff_changed",
+        "title": {
+          "en":"Tariff has changed",
+          "nl":"Tarief is gewijzigd"
+        },
+        "args": [
+          {
+            "name": "enelogic",
+            "type": "device",
+            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp1",
+            "placeholder": {
+              "en": "Which enelogic device",
+              "nl": "Welk enelogic apparaat"
+             }
+          }
+        ],
+        "tokens":[
+          {
+            "name":"tariff",
+            "type": "boolean",
+            "title": {
+              "en":"off-peak",
+              "nl":"dal"
+            },
+            "example" : false
+          }
+        ]
+      },
+      {
+        "id":"power_changed",
+        "title": {
+          "en":"Power use changed",
+          "nl":"Stroomverbruik gewijzigd"
+        },
+        "args": [
+          {
+            "name": "enelogic",
+            "type": "device",
+            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp1",
+            "placeholder": {
+              "en": "Which enelogic device",
+              "nl": "Welk enelogic apparaat"
+             }
+          }
+        ],
+        "tokens":[
+          {
+            "name":"power",
+            "type": "number",
+            "title": {
+              "en":"Watt",
+              "nl":"Watt"
+            },
+            "example" : 850
+          },
+          {
+            "name":"power_delta",
+            "type": "number",
+            "title": {
+              "en":"+- W",
+              "nl":"+- W"
+            },
+          "example" : 18
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "offPeak",
+        "title": {
+          "en": "Tariff !{{is|isn't}} off-peak",
+          "nl": "Tarief !{{is|is niet}} dal"
+        },
+        "args": [
+          {
+            "name": "enelogic",
+            "type": "device",
+            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp1",
+            "placeholder": {
+              "en": "Which enelogic device",
+              "nl": "Welk enelogic apparaat"
+             }
+          }
+        ]
+      }
+    ]
+  },
+  "screensavers": [
+		{
+			"name": "enelogic_power",
+			"title": {
+				"en": "Enelogic P1 Power",
+				"nl": "Enelogic P1 Energie"
+			}
+		}
+  ],
+  "permissions": [
+    "homey:manager:ledring"
+  ]
+}
