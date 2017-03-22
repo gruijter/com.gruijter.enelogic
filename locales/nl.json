@@ -1,6 +1,6 @@
 {
     "pair": {
-        "title": "Voer het IP adres of URL in van de Enelogic P1:",
+        "title": "Voer het IP adres of URL in:",
         "sip": "IP addres (0.0.0.0)"
       }
 }

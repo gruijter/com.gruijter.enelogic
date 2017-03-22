@@ -1,7 +1,8 @@
 # Enelogic #
 
-Homey app to integrate Enelogic P1 energy meter. A direct connection over
-IP is used, so there is no dependency on the Enelogic cloud service.
+Homey app to integrate Enelogic P1 and YouLess LS120 (P1) energy meter.
+A direct connection over IP is used, so there is no dependency on the Enelogic
+cloud service.
 
 The app logs and provides flow cards for the following data:
 - Actual power usage/production (W, 10s interval)
@@ -20,7 +21,7 @@ peak hours. Production to the powergrid is displayed as negative watts.
 Only changed values are logged.
 
 To setup go to "Devices" and enter the IP-address (preferred) or use the default
-url 'enelogic'.
+url 'enelogic' or 'youless'.
 
 ##### Donate: #####
 If you like the app you can show your appreciation by posting it in the [forum],
@@ -33,6 +34,7 @@ the forum.
 Version changelog
 
 ```
+v1.0.2  2017.03.22 Added support for YouLess LS-120 (P1)
 v1.0.0  2017.02.18 Initial release
 ```
 [forum]: https://forum.athom.com/discussion/2779
