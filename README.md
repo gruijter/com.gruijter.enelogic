@@ -34,6 +34,7 @@ the forum.
 Version changelog
 
 ```
+v1.0.3  2017.04.08 Compensate 0 production readings. JSON.parse bugfix.
 v1.0.2  2017.03.22 Added support for YouLess LS-120 (P1)
 v1.0.0  2017.02.18 Initial release
 ```
