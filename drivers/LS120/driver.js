@@ -219,8 +219,7 @@ function validateConnection(server_data, callback) {  // Validate enelogic conne
 
         res.on('end', function() {
             Homey.log(body);
-            let safeBody = escapeSpecialChars(body);
-            let result = JSON.parse(safeBody)[0];
+            let result = tryParseJSON(body)[0];
             Homey.log(util.inspect(result, false, 10, true));
             if (safeRead(result, 'tm') != undefined){   // check if json data exists
               Homey.log('Connecting successful!');
@@ -290,13 +289,22 @@ function safeRead (instance, path) {
   return path.split('.').reduce((p, c) => p ? p[c] : undefined,instance);
 };
 
-//function to escape special characters before passing string to JSON.parse to prevent "Unexpected token"
-function escapeSpecialChars(jsonString) {
-  return jsonString.replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
-    .replace(/\t/g, "\\t")
-    .replace(/\f/g, "\\f");
-}
+//function to prevent "Unexpected token" errors
+function tryParseJSON (jsonString){
+    try {
+        var o = JSON.parse(jsonString);
+        if (o && typeof o === "object" && o !== null) {
+            //Homey.log("JSON past")
+            return o;
+        } else {
+            Homey.log("Not a valid JSON")
+        }
+    }
+    catch (e) {
+        Homey.log("Not a valid JSON")
+    }
+    return false;
+};
 
 function checkProduction(device_data, callback) {
 // Homey.log("checking e-meter for "+device_data)
@@ -314,8 +322,7 @@ function checkProduction(device_data, callback) {
 
     res.on('end', function() {
       //Homey.log(body);
-      let safeBody = escapeSpecialChars(body);
-      let result = JSON.parse(safeBody)[0];
+      let result = tryParseJSON(body)[0];
       //app is initializing or data is corrupt
       if (safeRead(result, 'tm') != undefined){   // check if json data exists
         //Homey.log('New enelogic data received');
@@ -394,7 +401,7 @@ function handleNewReadings ( device_data ) {
   };
 
  //correct measure_power with average measure_power_produced in case point_meter_produced is always zero
-  if (measure_power==0 && electricity_point_meter_consumed==0) {
+  if (measure_power == 0 && electricity_point_meter_produced > 0) {
     measure_power = 0 - electricity_point_meter_produced;
   };
 
