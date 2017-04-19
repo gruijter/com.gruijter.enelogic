@@ -88,6 +88,10 @@ module.exports.settings = function(device_data, newSettingsObj, oldSettingsObj, 
     devices[device_data.id].ledring_usage_limit=newSettingsObj.ledring_usage_limit;
     devices[device_data.id].ledring_production_limit=newSettingsObj.ledring_production_limit;
     callback(null, true); 	// always fire the callback, or the settings won't change!
+    clearInterval(intervalId[device_data.id]);                //end polling of device for readings
+    setTimeout(function() {                                   //wait for running poll to end
+      initDevice(devices[device_data.id].homey_device)        // init device and start polling again
+    },5000);
     return
   }
   else {
@@ -97,8 +101,11 @@ module.exports.settings = function(device_data, newSettingsObj, oldSettingsObj, 
         devices[device_data.id].enelogicIp=newSettingsObj.enelogicIp;
         devices[device_data.id].ledring_usage_limit=newSettingsObj.ledring_usage_limit;
         devices[device_data.id].ledring_production_limit=newSettingsObj.ledring_production_limit;
-
         callback(null, true); 	// always fire the callback, or the settings won't change!
+        clearInterval(intervalId[device_data.id]);                //end polling of device for readings
+        setTimeout(function() {                                   //wait for running poll to end
+          initDevice(devices[device_data.id].homey_device)        // init device and start polling again
+        },5000)
       }
       if (error) {
         Homey.log('Connection is invalid, ignoring new settings');
@@ -247,6 +254,9 @@ function initDevice(device_data) {
     } else {    // after settings received build the new device object
       Homey.log("retrieved settings are:");
       Homey.log(util.inspect(settings, true, 10, true));
+      if (settings.pollingInterval == undefined) {    //needed to migrate from v1.0.3 to 1.0.4
+        settings.pollingInterval = 10
+      };
       buildDevice(device_data, settings);
       startPolling(device_data);
     }
@@ -258,6 +268,7 @@ function buildDevice (device_data, settings){
     id         : device_data.id,
     name       : settings.name,
     enelogicIp    : settings.enelogicIp,
+    pollingInterval                   : settings.pollingInterval,
     ledring_usage_limit               : settings.ledring_usage_limit,
     ledring_production_limit          : settings.ledring_production_limit,
     last_measure_gas                  : 0,       //"measure_gas" (m3)
@@ -269,7 +280,7 @@ function buildDevice (device_data, settings){
     last_meter_power_peak_produced    : null,    //"meter_power_peak_produced" (kWh)
     last_meter_power_offpeak_produced : null,    //"meter_power_offpeak_produced" (kWh)
     last_meter_power_interval         : null,    // meter_power at last interval (kWh)
-    last_meter_power_interval_tm        : null,    // timestamp
+    last_meter_power_interval_tm      : null,    // timestamp
     last_offPeak                      : null,//"meter_power_offpeak" (true/false)
     readings                          : {},   //or settings.readings
     homey_device                      : device_data // device_data object from moment of pairing
@@ -278,10 +289,10 @@ function buildDevice (device_data, settings){
   Homey.log(devices[device_data.id] );
 }
 
-function startPolling(device_data){     //start polling device for readings every 10 seconds
+function startPolling(device_data){     //start polling device for readings every 10+ seconds
   intervalId[device_data.id] = setInterval(function () {
     checkProduction(devices[device_data.id])
-    }, 10000);
+  }, 1000*devices[device_data.id].pollingInterval);
 }
 
 //function to safely get property without risk of "Cannot read property"
@@ -307,7 +318,7 @@ function tryParseJSON (jsonString){
 };
 
 function checkProduction(device_data, callback) {
-// Homey.log("checking e-meter for "+device_data)
+ //Homey.log("checking e-meter for "+device_data.id)
   let options = {
       host: device_data.enelogicIp,
       port: 80,

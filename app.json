@@ -173,6 +173,16 @@
               "value": "enelec"
             },
             {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (seconds)",
+                "nl": "Polling interval (seconden)"
+              },
+              "attr": { "min": 10 },
+              "value": 10
+            },
+            {
               "id": "ledring_usage_limit",
               "type": "number",
               "label": {
@@ -310,6 +320,16 @@
                 "nl": "URL of IP adres"
               },
               "value": "enelec"
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (seconds)",
+                "nl": "Polling interval (seconden)"
+              },
+              "attr": { "min": 10 },
+              "value": 10
             },
             {
               "id": "ledring_usage_limit",
