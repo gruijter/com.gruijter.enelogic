@@ -10,7 +10,7 @@
     "nl": "Leest data van de Enelogic en YouLess P1 energie meter"
   },
 
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": ">= 1.x",
   "author": {
     "name": "Gruijter",

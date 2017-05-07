@@ -343,7 +343,7 @@ function checkProduction(device_data, callback) {
         return;
       }
       Homey.log('Error reading device');
-      module.exports.setUnavailable(devices[device_data.id].homey_device, err );
+      module.exports.setUnavailable(devices[device_data.id].homey_device, 'Error reading device' );
     })
 
   }).on('error', function(err) {
