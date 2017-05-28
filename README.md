@@ -29,9 +29,9 @@ and if you really like it you can donate. Feature requests can also be placed on
 the forum.
 
 [![Paypal donate][pp-donate-image]][pp-donate-link]
-btc: 14VR1QCpqWUWiSLa1sn3Dpzq3Wrp83zFfC
-eth: 0xEcF4747203Eba214c071fDAa4825cD867B410d70
-ltc: LfGJu1AdnPFMoBXwHvf2qG9sCV1onyXDvd
+btc- 14VR1QCpqWUWiSLa1sn3Dpzq3Wrp83zFfC
+eth- 0xEcF4747203Eba214c071fDAa4825cD867B410d70
+ltc- LfGJu1AdnPFMoBXwHvf2qG9sCV1onyXDvd
 ===============================================================================
 
 Version changelog
