@@ -35,6 +35,7 @@ the forum.
 <sup>eth: 0xEcF4747203Eba214c071fDAa4825cD867B410d70</sup>
 
 <sup>ltc: LfGJu1AdnPFMoBXwHvf2qG9sCV1onyXDvd</sup>
+
 ===============================================================================
 
 Version changelog
