@@ -459,9 +459,7 @@ function handleNewReadings ( device_data ) {
       devices[device_data.id].homey_device
     );
 //adapt ledring to match
-      ledring.change(devices[device_data.id], measure_power, function (returntext) {
-        //reseved for callback;
-      });
+      ledring.change(devices[device_data.id], measure_power);
   };
 
 //  Homey.log(meter_power);

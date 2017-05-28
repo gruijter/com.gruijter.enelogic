@@ -29,14 +29,17 @@ and if you really like it you can donate. Feature requests can also be placed on
 the forum.
 
 [![Paypal donate][pp-donate-image]][pp-donate-link]
+btc: 14VR1QCpqWUWiSLa1sn3Dpzq3Wrp83zFfC
+eth: 0xEcF4747203Eba214c071fDAa4825cD867B410d70
+ltc: LfGJu1AdnPFMoBXwHvf2qG9sCV1onyXDvd
 ===============================================================================
 
 Version changelog
 
 ```
-v1.0.5  2017.05.07 small bugfix (error reading device)
+v1.0.5  2017.05.28 small bugfix (error reading device). Code cleanup
 v1.0.4  2017.04.19 Added polling interval setting
-v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bugfix.
+v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bugfix
 v1.0.2  2017.03.22 Added support for YouLess LS-120 (P1)
 v1.0.0  2017.02.18 Initial release
 ```
