@@ -6,14 +6,14 @@
   },
 
   "description": {
-    "en": "Imports data from the Enelogic and YouLess P1 energy meter",
-    "nl": "Leest data van de Enelogic en YouLess P1 energie meter"
+    "en": "Imports data from the Enelogic and YouLess energy meter",
+    "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "1.0.6",
+  "version": "1.0.7",
   "compatibility": ">= 1.x",
   "author": {
-    "name": "Gruijter",
+    "name": "Robin Gruijter",
     "email": "gruijter@hotmail.com"
   },
 
@@ -49,8 +49,8 @@
         "nl": "Gasverbruik (vorige uur)"
       },
       "units": {
-        "en": "m\u00B3",
-        "nl": "m\u00B3"
+        "en": "m\u00B3 /hr",
+        "nl": "m\u00B3 /uur"
       },
       "getable": true,
       "setable": false
@@ -164,7 +164,7 @@
           },
           "children": [
             {
-              "id": "enelogicIp",
+              "id": "youLessIp",
               "type": "text",
               "label": {
                 "en": "URL or IP address",
@@ -207,11 +207,89 @@
       ]
     },
 
+		{
+      "id": "LS110",
+      "name": {
+        "en": "LS110/120 E",
+        "nl": "LS110/120 E"
+      },
+      "images": {
+        "large": "./drivers/LS110/assets/images/large.jpg",
+        "small": "./drivers/LS110/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_power"
+      ],
+      "mobile": {
+        "components": [
+          {
+            "id": "icon",
+            "capabilities": [ ]
+          },
+          {
+            "id": "sensor",
+            "capabilities": [
+              "measure_power",
+              "meter_power"
+            ]
+          }
+        ]
+      },
+
+      "pair": [
+          {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "YouLess LS110/120 E settings",
+            "nl": "YouLess LS110/120 E instellingen"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (seconds)",
+                "nl": "Polling interval (seconden)"
+              },
+              "attr": { "min": 10 },
+              "value": 10
+            },
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Ledring screensaver max power (W)",
+                "nl": "Ledring screensaver max gebruik (W)"
+              },
+              "attr": { "min": 0 },
+              "value": 3000
+            }
+          ]
+        }
+      ]
+    },
+
     {
       "id": "LS120",
       "name": {
-        "en": "LS-120 (P1)",
-        "nl": "LS-120 (P1)"
+        "en": "LS120 P1",
+        "nl": "LS120 P1"
       },
       "images": {
         "large": "./drivers/LS120/assets/images/large.jpg",
@@ -308,18 +386,18 @@
         {
           "type": "group",
           "label": {
-            "en": "YouLess LS-120 settings",
-            "nl": "YouLess LS-120 instellingen"
+            "en": "YouLess LS120 P1 settings",
+            "nl": "YouLess LS120 P1 instellingen"
           },
           "children": [
             {
-              "id": "enelogicIp",
+              "id": "youLessIp",
               "type": "text",
               "label": {
                 "en": "URL or IP address",
                 "nl": "URL of IP adres"
               },
-              "value": "enelec"
+              "value": "youless"
             },
             {
               "id": "pollingInterval",
@@ -353,6 +431,175 @@
             }
           ]
         }
+      ]
+    },
+
+		{
+      "id": "LS110Water",
+      "name": {
+        "en": "LS110/120 W",
+        "nl": "LS110/120 W"
+      },
+      "images": {
+        "large": "./drivers/LS110Water/assets/images/large.jpg",
+        "small": "./drivers/LS110Water/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_water",
+        "meter_water"
+			],
+			"capabilitiesOptions": {
+				"measure_water": {
+					"type": "number",
+					"title": {
+						"en": "Water flow",
+						"nl": "Waterdoorstroming"
+					},
+					"units": {
+						"en": "L/min"
+					},
+					"desc": {
+						"en": "Water flow in Liters per minute (L/min)",
+						"nl": "Waterdoorstroming in Liters per minuut (L/min)"
+					},
+					"chartType": "stepLine",
+					"decimals": 1,
+					"getable": true,
+					"setable": false
+				}
+      },
+      "mobile": {
+        "components": [
+          {
+            "id": "icon",
+            "capabilities": [ ]
+          },
+          {
+            "id": "sensor",
+            "capabilities": [
+              "measure_water",
+              "meter_water"
+            ],
+						"options": {
+							"icons": {
+								"measure_water": "./drivers/LS110Water/assets/images/measure_water_icon.svg"
+							}
+						}
+          }
+        ]
+      },
+
+      "pair": [
+          {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Device settings",
+            "nl": "Device instellingen"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+						{
+							"id": "pollingInterval",
+							"type": "number",
+							"label": {
+								"en": "Polling interval (miliseconds)",
+								"nl": "Polling interval (miliseconden)"
+							},
+							"attr": { "min": 100 },
+							"value": 350
+						}
+					]
+				},
+				{
+          "type": "group",
+          "label": {
+            "en": "Water meter settings",
+            "nl": "Watermeter instellingen"
+          },
+          "children": [
+            {
+              "id": "meter_water_offset",
+              "type": "number",
+              "label": {
+                "en": "Set watermeter (m\u00B3)",
+                "nl": "Stand instellen (m\u00B3)"
+              },
+              "attr": { "min": 0, "step": 0.0001},
+              "value": 0
+            },
+						{
+							"id": "optical_sensor_pulse",
+							"type": "number",
+							"label": {
+								"en": "Pulses per m\u00B3",
+								"nl": "Pulsen per m\u00B3"
+							},
+							"attr": { "min": 0 },
+							"value": 1000
+						}
+          ]
+        },
+				{
+					"type": "group",
+					"label": {
+						"en": "Optical sensor settings",
+						"nl": "Optische sensor instellingen"
+					},
+					"children": [
+						{
+							"id": "optical_sensor_raw_max",
+							"type": "number",
+							"label": {
+								"en": "Peak value",
+								"nl": "Maximale waarde"
+							},
+							"attr": { "min": 0, "max": 1000 },
+							"value": 700
+						},
+						{
+							"id": "optical_sensor_raw_min",
+							"type": "number",
+							"label": {
+								"en": "Minimum value",
+								"nl": "Minimale waarde"
+							},
+							"attr": { "min": 0, "max": 1000 },
+							"value": 600
+						},
+						{
+							"id": "auto_calibrate",
+							"type": "checkbox",
+							"value": true,
+							"label": {
+									"en": "Automatic calibration",
+									"nl": "Automatisch calibreren"
+							}
+						},
+						{
+							"id": "log_raw",
+							"type": "checkbox",
+							"value": false,
+							"label": {
+									"en": "Log raw sensor data",
+									"nl": "Ruwe sensordata loggen"
+							}
+						}
+					]
+				}
       ]
     }
   ],
@@ -398,7 +645,7 @@
           {
             "name": "enelogic",
             "type": "device",
-            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS120",
+            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp",
             "placeholder": {
               "en": "Which enelogic device",
               "nl": "Welk enelogic apparaat"
@@ -435,12 +682,12 @@
         },
         "args": [
           {
-            "name": "enelogic",
+            "name": "LS120",
             "type": "device",
             "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS120",
             "placeholder": {
-              "en": "Which enelogic device",
-              "nl": "Welk enelogic apparaat"
+              "en": "Which device",
+              "nl": "Welk apparaat"
              }
           }
         ],
@@ -464,12 +711,12 @@
         },
         "args": [
           {
-            "name": "enelogic",
+            "name": "LS120",
             "type": "device",
             "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS120",
             "placeholder": {
-              "en": "Which enelogic device",
-              "nl": "Welk enelogic apparaat"
+              "en": "Which device",
+              "nl": "Welk apparaat"
              }
           }
         ],
@@ -493,7 +740,74 @@
           "example" : 18
           }
         ]
-      }
+      },
+			{
+				"id":"power_changed",
+				"title": {
+					"en":"Power use changed",
+					"nl":"Stroomverbruik gewijzigd"
+				},
+				"args": [
+					{
+						"name": "LS110",
+						"type": "device",
+						"filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS110",
+						"placeholder": {
+							"en": "Which YouLess device",
+							"nl": "Welk YouLess apparaat"
+						 }
+					}
+				],
+				"tokens":[
+					{
+						"name":"power",
+						"type": "number",
+						"title": {
+							"en":"Watt",
+							"nl":"Watt"
+						},
+						"example" : 850
+					},
+					{
+						"name":"power_delta",
+						"type": "number",
+						"title": {
+							"en":"+- W",
+							"nl":"+- W"
+						},
+					"example" : 18
+					}
+				]
+			},
+			{
+				"id":"measure_water_changed",
+				"title": {
+					"en":"Water flow changed",
+					"nl":"Waterdoorstroming gewijzigd"
+				},
+				"args": [
+					{
+						"name": "LS110Water",
+						"type": "device",
+						"filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS110Water",
+						"placeholder": {
+							"en": "Which YouLess device",
+							"nl": "Welk YouLess apparaat"
+						 }
+					}
+				],
+				"tokens":[
+					{
+						"name":"flow",
+						"type": "number",
+						"title": {
+							"en":"L/min",
+							"nl":"L/min"
+						},
+						"example" : 9.8
+					}
+				]
+			}
     ],
     "conditions": [
       {
@@ -522,12 +836,12 @@
         },
         "args": [
           {
-            "name": "enelogic",
+            "name": "LS120",
             "type": "device",
             "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS120",
             "placeholder": {
-              "en": "Which enelogic device",
-              "nl": "Welk enelogic apparaat"
+              "en": "Which device",
+              "nl": "Welk apparaat"
              }
           }
         ]

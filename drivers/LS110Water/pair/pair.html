@@ -56,19 +56,17 @@ $(function(){
 				$('.settings-err-msg').html('');
 
 				var device_data_init = {
-					id: `LS120P1@${youLessIp}`
+					id: `LS110Water@${youLessIp}`
 				};
 
 				var settings_init = {
-					name: `LS120P1@${youLessIp}`,
-					youLessIp	: youLessIp,
-					ledring_usage_limit : 3000,
-					ledring_production_limit : 3000//,
+					name: `LS110Water@${youLessIp}`,
+					youLessIp: youLessIp
 				};
 
 				Homey.addDevice({
 					data	: device_data_init,
-					name	: `LS120P1@${youLessIp}`,
+					name	: `LS110Water@${youLessIp}`,
 					settings: settings_init
 					}, function( err, result ){
 						if( err ) {
