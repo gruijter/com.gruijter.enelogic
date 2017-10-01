@@ -4,8 +4,13 @@ Homey app to integrate Enelogic P1 and YouLess LS110/LS120 energy meters.
 A direct connection over IP is used, so there is no dependency on the Enelogic
 cloud service.
 
-### Energy meter ###
+### Analogue Energy meter ###
 The LS110/LS120 driver provides logs and flow cards for the following data:
+- Actual power usage/production (W, 10s interval)
+- Totalized power meter (kWh, 10s updates)
+
+### S0 Energy meter ###
+The LS120 S0 driver provides logs and flow cards for the following data:
 - Actual power usage/production (W, 10s interval)
 - Totalized power meter (kWh, 10s updates)
 
@@ -70,7 +75,8 @@ If you really like the app you can buy me a beer.
 Version changelog
 
 ```
-v1.0.7	2017.06.26 improved gas usage logging, added LS110 driver, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
+v1.1.1	2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
+v1.0.7	2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
 v1.0.6  2017.05.28 small bug fix (error reading device). Code cleanup
 v1.0.4  2017.04.19 Added polling interval setting
 v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bug fix

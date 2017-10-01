@@ -130,7 +130,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 	const options = {
 		host: serverData.youLessIp,
 		port: 80,
-		path: '/a?f=j',
+		path: '/e',
 	};
 
 	http.get(options, (res) => {
@@ -141,9 +141,9 @@ function validateConnection(serverData, callback) {  // Validate connection data
 
 		res.on('end', () => {
 			Homey.log(body);
-			const result = tryParseJSON(body);
+			const result = tryParseJSON(body)[0];
 			Homey.log(util.inspect(result, false, 10, true));
-			if (safeRead(result, 'con') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'ts0') !== undefined) { // check if S0 json data exists
 				Homey.log('Connecting successful!');
 				callback(null, result);
 				return;
@@ -156,7 +156,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 		Homey.log('Error during connecting');
 		callback(err, null);
 	});
-}  // end validate routine
+} // end validate routine
 
 
 function initDevice(deviceData) {
@@ -226,7 +226,7 @@ function checkProduction(deviceData) {
 	const options = {
 		host: deviceData.youLessIp,
 		port: 80,
-		path: '/a?f=j',
+		path: '/e',
 	};
 
 	http.get(options, (res) => {
@@ -237,9 +237,9 @@ function checkProduction(deviceData) {
 
 		res.on('end', () => {
 			// Homey.log(body);
-			const result = tryParseJSON(body);
+			const result = tryParseJSON(body)[0];
 			// app is initializing or data is corrupt
-			if (safeRead(result, 'con') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'ts0') !== undefined) {   // check if s0 json data exists
 				// Homey.log('New data received');
 				module.exports.setAvailable(devices[deviceData.id].homey_device);
 				deviceData.readings = result;
@@ -260,7 +260,7 @@ function checkProduction(deviceData) {
 
 function handleNewReadings(deviceData) {
   // Homey.log('storing new readings');
-//  Homey.log(util.inspect(deviceData, false, 10, true));
+ // Homey.log(util.inspect(deviceData, false, 10, true));
 
   // app is initializing or data is corrupt
 	if (safeRead(deviceData, 'readings') === undefined) {
@@ -272,8 +272,8 @@ function handleNewReadings(deviceData) {
 	let meterPower = deviceData.lastMeterPower;
 
 // electricity readings from device
-	measurePower = Number(safeRead(deviceData, 'readings.pwr'));
-	meterPower = Number(safeRead(deviceData, 'readings.cnt').toString().replace(',', '.'));
+	measurePower = Number(safeRead(deviceData, 'readings.ps0'));
+	meterPower = Number(safeRead(deviceData, 'readings.cs0').toString().replace(',', '.'));
 
 	if (measurePower > 20000) return;	// ignore invalid readings
 

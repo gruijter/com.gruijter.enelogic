@@ -1,0 +1,92 @@
+<style type="text/css">
+	.input-wrap {
+		position: relative;
+	}
+	.fa {
+		position: absolute;
+		margin-left: 5px;
+		margin-top: 7px;
+
+		opacity: 0;
+		visibility: hidden;
+		transition: all 0.3s;
+	}
+	.fa.visible {
+		opacity: 1;
+		visibility: visible;
+	}
+	.form-group input[type="text"] {
+		width: 160px;
+	}
+</style>
+
+<p class="form-group">
+	<label for="address"><span data-i18n="pair.title"></span></label>
+
+	<span class="input-wrap">
+		<input type="text" id="sip" placeholder="IP address (e.g. 10.0.0.5)" value="youless" />
+	</span>
+
+	<button class="button" id="validate">Connect</button>
+	<i class="settings-status settings-loading fa fa-circle-o-notch fa-spin"></i>
+	<i class="settings-status settings-ok fa fa-check" style="color: #96ff00;"></i>
+	<i class="settings-status settings-err fa fa-times" style="color: #ff6300;"></i>
+
+</p>
+<p class="settings-err-msg" style="color: #ff6300;">
+</p>
+
+<script type="text/javascript">
+
+$(function(){
+	$('#validate').click(function(){
+
+		var youLessIp = $('#sip').val();
+
+		$('.settings-status').removeClass('visible');
+		$('.settings-loading').addClass('visible');
+
+		Homey.emit('validate', {
+			youLessIp: youLessIp
+			}, function( err, result ){
+
+			$('.settings-status').removeClass('visible');
+			if(!err) {																// connection validation successful, start device pairing
+				$('.settings-ok').addClass('visible');
+				$('.settings-err-msg').html('');
+
+				var device_data_init = {
+					id: `LS120S0@${youLessIp}`
+				};
+
+				var settings_init = {
+					name: `LS120S0@${youLessIp}`,
+					youLessIp: youLessIp,
+					ledring_usage_limit: 3000
+				};
+
+				Homey.addDevice({
+					data	: device_data_init,
+					name	: `LS120S0@${youLessIp}`,
+					settings: settings_init
+					}, function( err, result ){
+						if( err ) {
+							return Homey.alert(err.message || err.toString());
+						} else {
+
+									Homey.done()	}	// Close the pairing window
+
+					})		// end of addDevice
+
+				} else {			//connection validation unsuccessfull
+					$('.settings-err').addClass('visible');
+					$('.settings-err-msg').html( err.message || err.toString() );
+				}
+			})	//end of validate / pairing procedure
+
+		});
+	})
+
+	</script>
+
+	</script>

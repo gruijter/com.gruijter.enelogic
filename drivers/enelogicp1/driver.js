@@ -350,7 +350,9 @@ let options = {
       }).on('error', function(err) {
             Homey.log("Got error: " + err.message);
             Homey.log('Error reading enelogic');
-            module.exports.setUnavailable(devices[device_data.id].homey_device, err.message);
+						if ( devices[device_data.id] !== undefined ) {
+	            module.exports.setUnavailable(devices[device_data.id].homey_device, err.message);
+						}
           });
 
 // Homey.log("checking g-meter for "+device_data)

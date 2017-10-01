@@ -10,7 +10,7 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "1.0.7",
+  "version": "1.1.1",
   "compatibility": ">= 1.x",
   "author": {
     "name": "Robin Gruijter",
@@ -435,6 +435,84 @@
     },
 
 		{
+			"id": "LS120S0",
+			"name": {
+				"en": "LS120 S0",
+				"nl": "LS120 S0"
+			},
+			"images": {
+				"large": "./drivers/LS120S0/assets/images/large.jpg",
+				"small": "./drivers/LS120S0/assets/images/small.jpg"
+			},
+			"class": "sensor",
+			"capabilities": [
+				"measure_power",
+				"meter_power"
+			],
+			"mobile": {
+				"components": [
+					{
+						"id": "icon",
+						"capabilities": [ ]
+					},
+					{
+						"id": "sensor",
+						"capabilities": [
+							"measure_power",
+							"meter_power"
+						]
+					}
+				]
+			},
+
+			"pair": [
+					{
+					"id": "pair"
+				}
+			],
+			"settings": [
+				{
+					"type": "group",
+					"label": {
+						"en": "YouLess LS120 S0 settings",
+						"nl": "YouLess LS120 S0 instellingen"
+					},
+					"children": [
+						{
+							"id": "youLessIp",
+							"type": "text",
+							"label": {
+								"en": "URL or IP address",
+								"nl": "URL of IP adres"
+							},
+							"value": "youless"
+						},
+						{
+							"id": "pollingInterval",
+							"type": "number",
+							"label": {
+								"en": "Polling interval (seconds)",
+								"nl": "Polling interval (seconden)"
+							},
+							"attr": { "min": 10 },
+							"value": 10
+						},
+						{
+							"id": "ledring_usage_limit",
+							"type": "number",
+							"label": {
+								"en": "Ledring screensaver max power (W)",
+								"nl": "Ledring screensaver max gebruik (W)"
+							},
+							"attr": { "min": 0 },
+							"value": 3000
+						}
+					]
+				}
+			]
+		},
+
+		{
       "id": "LS110Water",
       "name": {
         "en": "LS110/120 W",
@@ -703,6 +781,7 @@
           }
         ]
       },
+
       {
         "id":"power_changed",
         "title": {
@@ -741,6 +820,7 @@
           }
         ]
       },
+
 			{
 				"id":"power_changed",
 				"title": {
@@ -779,6 +859,46 @@
 					}
 				]
 			},
+
+			{
+				"id":"power_changed",
+				"title": {
+					"en":"Power use changed",
+					"nl":"Stroomverbruik gewijzigd"
+				},
+				"args": [
+					{
+						"name": "LS120S0",
+						"type": "device",
+						"filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=LS120S0",
+						"placeholder": {
+							"en": "Which YouLess device",
+							"nl": "Welk YouLess apparaat"
+						 }
+					}
+				],
+				"tokens":[
+					{
+						"name":"power",
+						"type": "number",
+						"title": {
+							"en":"Watt",
+							"nl":"Watt"
+						},
+						"example" : 850
+					},
+					{
+						"name":"power_delta",
+						"type": "number",
+						"title": {
+							"en":"+- W",
+							"nl":"+- W"
+						},
+					"example" : 18
+					}
+				]
+			},
+
 			{
 				"id":"measure_water_changed",
 				"title": {
