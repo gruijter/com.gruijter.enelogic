@@ -9,7 +9,7 @@ const ledring = require("../../ledring.js");
 var devices = {};
 var intervalId = {};
 
-module.exports.init = function(devices_data, callback) {
+module.exports.init = function Init(devices_data, callback) {
     Homey.log("init in driver.js started");
     devices_data.forEach(initDevice);
 
@@ -412,9 +412,11 @@ function handleNewReadings ( device_data ) {
 
 // gas readings from device
   let meter_gas = Number(safeRead(device_data,'readings.g.0._')); //gas_cumulative_meter
-  if (device_data.last_meter_gas != null) {
+	if (device_data.last_meter_gas === null) { // first reading after init
+		measure_gas = 0;
+	} else {
     measure_gas = Math.round((meter_gas-device_data.last_meter_gas) * 100) / 100; //gas_interval_meter (1h)
-  };
+  }
 
 // electricity readings from device
   electricity_point_meter_produced = Number(safeRead(device_data,'readings.e.5._'))*1000; //electricity_point_meter_produced

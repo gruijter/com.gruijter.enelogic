@@ -10,12 +10,19 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "1.1.1",
+  "version": "1.1.2",
   "compatibility": ">= 1.x",
   "author": {
     "name": "Robin Gruijter",
     "email": "gruijter@hotmail.com"
   },
+	"contributing": {
+		"donate": {
+			"paypal": {
+				"username": "gruijter"
+			}
+		}
+	},
 
   "images": {
     "large": "./assets/images/large.jpg",
@@ -723,7 +730,7 @@
           {
             "name": "enelogic",
             "type": "device",
-            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp",
+            "filter": "driver_uri=homey:app:com.gruijter.enelogic&driver_id=enelogicp1",
             "placeholder": {
               "en": "Which enelogic device",
               "nl": "Welk enelogic apparaat"

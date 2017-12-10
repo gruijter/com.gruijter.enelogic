@@ -22,7 +22,7 @@ module.exports.init = function Init(devicesData, callback) {
 };
 
 module.exports.pair = function Pair(socket) {
-  // Validate device connection data
+	// Validate device connection data
 	socket.on('validate', (serverData, callback) => {
 		validateConnection(serverData, (error, result) => {
 			if (!error) {
@@ -47,7 +47,7 @@ module.exports.added = (deviceData, callback) => {
 module.exports.deleted = (deviceData, callback) => {
 	Homey.log(`Deleting ${deviceData.id}`);
 	clearInterval(intervalId[deviceData.id]); // end polling of device for readings
-	setTimeout(() => {         // wait for running poll to end
+	setTimeout(() => { // wait for running poll to end
 		delete devices[deviceData.id];
 	}, 5000);
 	callback(null, true);
@@ -86,9 +86,9 @@ module.exports.settings = (deviceData, newSettingsObj, oldSettingsObj, changedKe
 		devices[deviceData.id].ledring_usage_limit = newSettingsObj.ledring_usage_limit;
 		devices[deviceData.id].ledring_production_limit = newSettingsObj.ledring_production_limit;
 		callback(null, true); 	// always fire the callback, or the settings won't change!
-		clearInterval(intervalId[deviceData.id]);                // end polling of device for readings
-		setTimeout(() => {                                   // wait for running poll to end
-			initDevice(devices[deviceData.id].homey_device);        // init device and start polling again
+		clearInterval(intervalId[deviceData.id]);          // end polling of device for readings
+		setTimeout(() => {                                 // wait for running poll to end
+			initDevice(devices[deviceData.id].homey_device); // init device and start polling again
 		}, 5000);
 		return;
 	}
@@ -100,9 +100,9 @@ module.exports.settings = (deviceData, newSettingsObj, oldSettingsObj, changedKe
 			devices[deviceData.id].ledring_usage_limit = newSettingsObj.ledring_usage_limit;
 			devices[deviceData.id].ledring_production_limit = newSettingsObj.ledring_production_limit;
 			callback(null, true); 	// always fire the callback, or the settings won't change!
-			clearInterval(intervalId[deviceData.id]);                // end polling of device for readings
-			setTimeout(() => {                                   // wait for running poll to end
-				initDevice(devices[deviceData.id].homey_device);        // init device and start polling again
+			clearInterval(intervalId[deviceData.id]);          // end polling of device for readings
+			setTimeout(() => {                                 // wait for running poll to end
+				initDevice(devices[deviceData.id].homey_device); // init device and start polling again
 			}, 5000);
 		} else {
 			Homey.log('Connection is invalid, ignoring new settings');
@@ -205,7 +205,7 @@ module.exports.capabilities = {
 	},
 };
 
-function validateConnection(serverData, callback) {  // Validate connection data
+function validateConnection(serverData, callback) { // Validate connection data
 	Homey.log('Validating', serverData);
 
 	const options = {
@@ -224,7 +224,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 			Homey.log(body);
 			const result = tryParseJSON(body)[0];
 			Homey.log(util.inspect(result, false, 10, true));
-			if (safeRead(result, 'tm') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'tm') !== undefined) { // check if json data exists
 				Homey.log('Connecting successful!');
 				callback(null, result);
 				return;
@@ -237,7 +237,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 		Homey.log('Error during connecting');
 		callback(err, null);
 	});
-}  // end validate routine
+} // end validate routine
 
 
 function initDevice(deviceData) {
@@ -247,10 +247,10 @@ function initDevice(deviceData) {
 	module.exports.getSettings(deviceData, (err, settings) => {
 		if (err) {
 			Homey.log('error retrieving device settings');
-		} else {    // after settings received build the new device object
+		} else { // after settings received build the new device object
 			Homey.log('retrieved settings are:');
 			Homey.log(util.inspect(settings, true, 10, true));
-			if (settings.pollingInterval === undefined) {    // needed to migrate from v1.0.3 to 1.0.4
+			if (settings.pollingInterval === undefined) { // needed to migrate from v1.0.3 to 1.0.4
 				settings.pollingInterval = 10;
 			}
 			buildDevice(deviceData, settings);
@@ -286,7 +286,7 @@ function buildDevice(deviceData, settings) {
 	Homey.log(devices[deviceData.id]);
 }
 
-function startPolling(deviceData) {     // start polling device for readings every 10+ seconds
+function startPolling(deviceData) { // start polling device for readings every 10+ seconds
 	intervalId[deviceData.id] = setInterval(() => {
 		checkProduction(devices[deviceData.id]);
 	}, 1000 * devices[deviceData.id].pollingInterval);
@@ -313,7 +313,7 @@ function tryParseJSON(jsonString) {
 }
 
 function checkProduction(deviceData) {
- // Homey.log('checking e-meter for '+deviceData.id)
+	// Homey.log('checking e-meter for '+deviceData.id)
 	const options = {
 		host: deviceData.youLessIp,
 		port: 80,
@@ -330,7 +330,7 @@ function checkProduction(deviceData) {
 			// Homey.log(body);
 			const result = tryParseJSON(body)[0];
 			// app is initializing or data is corrupt
-			if (safeRead(result, 'tm') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'tm') !== undefined) { // check if json data exists
 				// Homey.log('New data received');
 				module.exports.setAvailable(devices[deviceData.id].homey_device);
 				deviceData.readings = result;
@@ -354,15 +354,61 @@ function toEpoch(time) {
 	return tm;
 }
 
-function handleNewReadings(deviceData) {
-  // Homey.log('storing new readings');
-//  Homey.log(util.inspect(deviceData, false, 10, true));
+function isValidReading(deviceData) {
+	let validReading = true;
+	// check if gas readings make sense
+	const meterGas = Number(safeRead(deviceData, 'readings.gas'));
+	if (meterGas < deviceData.lastMeterGas) {
+		console.log('negative gas usage');
+		validReading = false;
+	}
+	if (meterGas - deviceData.lastMeterGas > 40) {
+		console.log('unrealistic high gas usage > G25');
+		validReading = false;
+	}
+	// check if power readings make sense
+	if (Math.abs(Number(safeRead(deviceData, 'readings.pwr'))) > 56000) {
+		console.log('unrealistic high power >3X80A');
+		validReading = false;
+	}
+	const n1 = Number(safeRead(deviceData, 'readings.n1'));
+	const n2 = Number(safeRead(deviceData, 'readings.n2'));
+	const p1 = Number(safeRead(deviceData, 'readings.p1'));
+	const p2 = Number(safeRead(deviceData, 'readings.p2'));
+	const net = Number(safeRead(deviceData, 'readings.net'));
+	if (Math.abs(p1 + p2 - n1 - n2 - net) > 0.1) {
+		console.log('power meters do not add up');
+		console.log(p1 + p2 - n1 - n2);
+		console.log(net);
+		validReading = false;
+	}
+	// check if timestamps make sense
+	const tm = safeRead(deviceData, 'readings.tm'); // power reading timestamp
+	const gts = Number(safeRead(deviceData, 'readings.gts')); // gas_meter_timestamp
+	if (tm - deviceData.lastMeterPowerInterval_tm < 0) {
+		console.log('power time is negative');
+		validReading = false;
+	}
+	if (gts - deviceData.lastMeterGas_tm < 0) {
+		console.log('gas time is negative');
+		validReading = false;
+	}
+	return validReading;
+}
 
-  // app is initializing or data is corrupt
+function handleNewReadings(deviceData) {
+// Homey.log('storing new readings');
+// Homey.log(util.inspect(deviceData, false, 10, true));
+
+	// app is initializing or data is corrupt
 	if (safeRead(deviceData, 'readings') === undefined) {
 		return;
 	}
-	if (Number(safeRead(deviceData, 'readings.pwr')) > 20000) return;	// ignore invalid readings
+	// ignore readings if data is corrupt (probably caused by DSMR without CRC)
+	if (deviceData.lastMeterPower !== null && !isValidReading(deviceData)) {
+		console.log('ignoring invalid readings');
+		return;
+	}
 
 	// init all readings
 	let electricityPointMeterConsumed = 0;
@@ -386,7 +432,7 @@ function handleNewReadings(deviceData) {
 		measureGas = Math.round((meterGas - deviceData.lastMeterGas) / passedHours * 1000) / 1000; // gas_interval_meter
 	}
 
-// electricity readings from device
+	// electricity readings from device
 	// electricityPointMeterProduced = Number(safeRead(deviceData,'readings.pwr'));
 	electricityPointMeterConsumed = Number(safeRead(deviceData, 'readings.pwr'));
 	electricityCumulativeMeterOffpeakProduced = Number(safeRead(deviceData, 'readings.n1'));
@@ -395,7 +441,7 @@ function handleNewReadings(deviceData) {
 	electricityCumulativeMeterPeakConsumed = Number(safeRead(deviceData, 'readings.p2'));
 	lastMeterPowerTimestamp = safeRead(deviceData, 'readings.tm');
 
-// constructed electricity readings
+	// constructed electricity readings
 	const meterPower = (electricityCumulativeMeterOffpeakConsumed + electricityCumulativeMeterPeakConsumed
 		- electricityCumulativeMeterOffpeakProduced - electricityCumulativeMeterPeakProduced);
 	let measurePower = electricityPointMeterConsumed; // - electricityPointMeterProduced;
@@ -409,7 +455,7 @@ function handleNewReadings(deviceData) {
 		|| (electricityCumulativeMeterOffpeakConsumed - deviceData.lastMeterPowerOffpeak) > 0);
 	}
 
-  // measurePower_produced 2 minutes average
+	// measurePower_produced 2 minutes average
 	if (deviceData.lastMeterPowerInterval_tm === null) {
 		deviceData.lastMeterPowerInterval = meterPower;
 		deviceData.lastMeterPowerInterval_tm = lastMeterPowerTimestamp;
@@ -421,12 +467,12 @@ function handleNewReadings(deviceData) {
 		deviceData.lastMeterPowerInterval_tm = lastMeterPowerTimestamp;
 	}
 
- // correct measurePower with average measurePower_produced in case point_meter_produced is always zero
+	// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
 	if (measurePower === 0 && electricityPointMeterProduced > 0) {
 		measurePower = 0 - electricityPointMeterProduced;
 	}
 
-  // Homey.log(deviceData.lastOffpeak);
+	// Homey.log(deviceData.lastOffpeak);
 	if (offPeak !== deviceData.lastOffpeak) {
 		module.exports.realtime(devices[deviceData.id].homey_device, 'meter_offPeak', offPeak);
 		// Trigger flow for tariff_changed
@@ -434,21 +480,21 @@ function handleNewReadings(deviceData) {
 			null,	devices[deviceData.id].homey_device);
 	}
 
-//  Homey.log(measurePower);
+	// Homey.log(measurePower);
 	if (measurePower !== deviceData.lastMeasurePower) {
-    // Homey.log.log(measurePowerDelta);
+		// Homey.log.log(measurePowerDelta);
 		module.exports.realtime(devices[deviceData.id].homey_device, 'measure_power', measurePower);
-// Trigger flow for power_changed
+		// Trigger flow for power_changed
 		Homey.manager('flow').triggerDevice('power_changed', {
 			power: measurePower,
 			power_delta: measurePowerDelta,
 		}, null, devices[deviceData.id].homey_device);
 
-// adapt ledring to match
+		// adapt ledring to match
 		ledring.change(devices[deviceData.id], measurePower);
 	}
 
-//  Homey.log(meterPower);
+	//  Homey.log(meterPower);
 	if (meterPower !== deviceData.lastMeterPower) {
 		module.exports.realtime(devices[deviceData.id].homey_device, 'meter_power', meterPower);
 	}
@@ -464,7 +510,7 @@ function handleNewReadings(deviceData) {
 	if (electricityCumulativeMeterOffpeakProduced !== deviceData.lastMeterPowerOffpeakProduced) {
 		module.exports.realtime(devices[deviceData.id].homey_device, 'meter_power.producedOffPeak', electricityCumulativeMeterOffpeakProduced);
 	}
-//  Homey.log(meterGas);
+	//  Homey.log(meterGas);
 	if (meterGas !== deviceData.lastMeterGas) {
 		module.exports.realtime(devices[deviceData.id].homey_device, 'meter_gas', meterGas);
 		module.exports.realtime(devices[deviceData.id].homey_device, 'measure_gas', measureGas);
@@ -481,6 +527,6 @@ function handleNewReadings(deviceData) {
 	deviceData.lastMeterGas_tm = meterGasTm;
 	deviceData.lastOffpeak = offPeak;
 
-  // Homey.log(deviceData);
+	// Homey.log(deviceData);
 
 }
