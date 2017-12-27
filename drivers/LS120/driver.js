@@ -277,7 +277,7 @@ function buildDevice(deviceData, settings) {
 		lastMeterPowerPeakProduced: null,    		// 'meterPower_peak_produced' (kWh)
 		lastMeterPowerOffpeakProduced: null,		// 'meterPower_offpeak_produced' (kWh)
 		lastMeterPowerInterval: null,    				// meterPower at last interval (kWh)
-		lastMeterPowerInterval_tm: null,    		// timestamp
+		lastMeterPowerInterval_tm: null,    		// timestamp epoch, e.g. 1514394325
 		lastOffpeak: null,											// 'meterPower_offpeak' (true/false)
 		readings: {},   												// or settings.readings
 		homey_device: deviceData,								// deviceData object from moment of pairing
@@ -348,9 +348,9 @@ function checkProduction(deviceData) {
 	});
 }
 
-function toEpoch(time) {
+function toEpoch(time) {	// yymmddhhmm
 	const tmString = time.toString();
-	const tm = new Date(`20${tmString.slice(0, 2)}`, tmString.slice(2, 4), tmString.slice(4, 6), tmString.slice(6, 8));
+	const tm = new Date(`20${tmString.slice(0, 2)}`, tmString.slice(2, 4) - 1, tmString.slice(4, 6), tmString.slice(6, 8));
 	return tm;
 }
 
@@ -364,6 +364,17 @@ function isValidReading(deviceData) {
 	}
 	if (meterGas - deviceData.lastMeterGas > 40) {
 		console.log('unrealistic high gas usage > G25');
+		validReading = false;
+	}
+	// check if timestamps make sense
+	const tm = safeRead(deviceData, 'readings.tm'); // power reading timestamp
+	const gts = Number(safeRead(deviceData, 'readings.gts')); // gas_meter_timestamp
+	if (tm - deviceData.lastMeterPowerInterval_tm < 0) {
+		console.log('power time is negative');
+		validReading = false;
+	}
+	if (gts - deviceData.lastMeterGas_tm < 0) {
+		console.log('gas time is negative');
 		validReading = false;
 	}
 	// check if power readings make sense
@@ -382,15 +393,9 @@ function isValidReading(deviceData) {
 		console.log(net);
 		validReading = false;
 	}
-	// check if timestamps make sense
-	const tm = safeRead(deviceData, 'readings.tm'); // power reading timestamp
-	const gts = Number(safeRead(deviceData, 'readings.gts')); // gas_meter_timestamp
-	if (tm - deviceData.lastMeterPowerInterval_tm < 0) {
-		console.log('power time is negative');
-		validReading = false;
-	}
-	if (gts - deviceData.lastMeterGas_tm < 0) {
-		console.log('gas time is negative');
+	const timeDelta = tm - deviceData.lastMeterPowerInterval_tm; // in seconds
+	if (Math.abs(net - deviceData.lastMeterPower) / (timeDelta / 60 / 60) > 56) {
+		console.log('unrealistic high power meter delta >3X80A / 56KWh');
 		validReading = false;
 	}
 	return validReading;
@@ -423,13 +428,17 @@ function handleNewReadings(deviceData) {
 
 	// gas readings from device
 	const meterGas = Number(safeRead(deviceData, 'readings.gas')); // gas_cumulative_meter
-	const meterGasTm = Number(safeRead(deviceData, 'readings.gts')); // gas_meter_timestamp
+	const meterGasTm = Number(safeRead(deviceData, 'readings.gts')); // gas_meter_timestamp, youless fw ^1.3.4
 	if (deviceData.lastMeterGas_tm === null) { deviceData.lastMeterGas_tm = meterGasTm; } // first reading after init
 	// constructed gas readings
-	if ((deviceData.lastMeterGas !== meterGas) || (deviceData.lastMeterGas_tm !== meterGasTm)) {
-		let passedHours = (toEpoch(meterGasTm) - toEpoch(deviceData.lastMeterGas_tm)) / 1000 / 60 / 60;
-		if (meterGasTm === undefined) { passedHours = 1; }
-		measureGas = Math.round((meterGas - deviceData.lastMeterGas) / passedHours * 1000) / 1000; // gas_interval_meter
+	if ((deviceData.lastMeterGas !== meterGas)) { // || (deviceData.lastMeterGas_tm !== meterGasTm)) {
+		let passedHours = 1;
+		if (meterGasTm !== undefined) {
+			passedHours = (toEpoch(meterGasTm) - toEpoch(deviceData.lastMeterGas_tm)) / 1000 / 60 / 60;
+		}
+		if (passedHours !== 0) {
+			measureGas = Math.round((meterGas - deviceData.lastMeterGas) / passedHours * 1000) / 1000; // gas_interval_meter
+		}
 	}
 
 	// electricity readings from device

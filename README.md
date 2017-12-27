@@ -75,7 +75,7 @@ If you really like the app you can buy me a beer.
 Version changelog
 
 ```
-v1.1.2	2017.12.10 fix gas usage for enelogic driver. Ignore invalid readings from youless P1
+v1.1.2	2017.12.27 fix gas usage. Ignore invalid readings from youless P1
 v1.1.1	2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
 v1.0.7	2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
 v1.0.6  2017.05.28 small bug fix (error reading device). Code cleanup
