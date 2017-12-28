@@ -19,7 +19,7 @@ module.exports.init = function Init(devicesData, callback) {
 };
 
 module.exports.pair = function Pair(socket) {
-  // Validate connection data
+	// Validate connection data
 	socket.on('validate', (serverData, callback) => {
 		validateConnection(serverData, (error, result) => {
 			if (!error) {
@@ -47,7 +47,7 @@ module.exports.deleted = (deviceData, callback) => {
 	clearInterval(intervalIdSlow[deviceData.id]); // end slow polling of device for readings
 	clearInterval(intervalIdFlow[deviceData.id]); // end calculating average flow
 	clearTimeout(TimeoutIdBurstDelay[deviceData.id]);	// reset 5 seconds delay timer
-	setTimeout(() => {         // wait for running poll to end
+	setTimeout(() => { // wait for running poll to end
 		delete devices[deviceData.id];
 	}, 5000);
 	callback(null, true);
@@ -86,9 +86,9 @@ module.exports.settings = (deviceData, newSettingsObj, oldSettingsObj, changedKe
 		devices[deviceData.id].log_raw = newSettingsObj.log_raw;
 
 		callback(null, true); 	// always fire the callback, or the settings won't change!
-		clearInterval(intervalIdFast[deviceData.id]);                // end polling of device for readings
-		setTimeout(() => {                                   // wait for running poll to end
-			initDevice(devices[deviceData.id].homey_device);        // init device and start polling again
+		clearInterval(intervalIdFast[deviceData.id]); // end polling of device for readings
+		setTimeout(() => { // wait for running poll to end
+			initDevice(devices[deviceData.id].homey_device); // init device and start polling again
 		}, 5000);
 		return;
 	}
@@ -105,7 +105,7 @@ module.exports.settings = (deviceData, newSettingsObj, oldSettingsObj, changedKe
 			devices[deviceData.id].auto_calibrate = newSettingsObj.auto_calibrate;
 			devices[deviceData.id].log_raw = newSettingsObj.log_raw;
 			callback(null, true); 	// always fire the callback, or the settings won't change!
-			initDevice(devices[deviceData.id].homey_device);        // init device and start polling again
+			initDevice(devices[deviceData.id].homey_device); // init device and start polling again
 		} else {
 			Homey.log('Connection is invalid, ignoring new settings');
 			callback(error, null); //  settings must not be saved
@@ -136,7 +136,7 @@ module.exports.capabilities = {
 	},
 };
 
-function validateConnection(serverData, callback) {  // Validate connection data
+function validateConnection(serverData, callback) { // Validate connection data
 	Homey.log('Validating', serverData);
 
 	const options = {
@@ -155,7 +155,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 			Homey.log(body);
 			const result = tryParseJSON(body);
 			Homey.log(util.inspect(result, false, 10, true));
-			if (safeRead(result, 'raw') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'raw') !== undefined) { // check if json data exists
 				Homey.log('Connecting successful!');
 				callback(null, result);
 				return;
@@ -168,7 +168,7 @@ function validateConnection(serverData, callback) {  // Validate connection data
 		Homey.log('Error during connecting');
 		callback(err, null);
 	});
-}  // end validate routine
+} // end validate routine
 
 
 function initDevice(deviceData) {
@@ -182,10 +182,10 @@ function initDevice(deviceData) {
 	module.exports.getSettings(deviceData, (err, settings) => {
 		if (err) {
 			Homey.log('error retrieving device settings');
-		} else {    // after settings received build the new device object
+		} else { // after settings received build the new device object
 			Homey.log('retrieved settings are:');
 			Homey.log(util.inspect(settings, true, 10, true));
-			if (settings.pollingInterval === undefined) {    // needed to migrate from v1.0.3 to 1.0.4
+			if (settings.pollingInterval === undefined) { // needed to migrate from v1.0.3 to 1.0.4
 				settings.pollingInterval = 10;
 			}
 			buildDevice(deviceData, settings);
@@ -202,31 +202,31 @@ function buildDevice(deviceData, settings) {
 		name: settings.name,
 		youLessIp: settings.youLessIp,
 		pollingInterval: settings.pollingInterval,
-		last_meter_water: settings.meter_water_offset,   // meter_water (m3)
-		last_measure_water: null,    // flow (l/min)
+		last_meter_water: settings.meter_water_offset, // meter_water (m3)
+		last_measure_water: null, // flow (l/min)
 		last_measure_water_timestamp: null, // timestamp
-		last_measure_water_meter: null,    	// meter_water at timestamp
-		last_optical_sensor_raw: null,   // reflectiveness integer
-		optical_sensor_raw_max: settings.optical_sensor_raw_max,    // max reflectiveness integer
-		optical_sensor_raw_min: settings.optical_sensor_raw_min,    // min reflectiveness integer
+		last_measure_water_meter: null, // meter_water at timestamp
+		last_optical_sensor_raw: null, // reflectiveness integer
+		optical_sensor_raw_max: settings.optical_sensor_raw_max, // max reflectiveness integer
+		optical_sensor_raw_min: settings.optical_sensor_raw_min, // min reflectiveness integer
 		optical_sensor_pulse: settings.optical_sensor_pulse * 2, // number of pulses per m3, both rising and falling edge
 		auto_calibrate: settings.auto_calibrate,	// true or false
 		log_raw: settings.log_raw,		// true or false
-		readingsW: {},   // or settings.readings
+		readingsW: {}, // or settings.readings
 		homey_device: deviceData,								// deviceData object from moment of pairing
 	};
 	Homey.log('init buildDevice is: ');
 	Homey.log(devices[deviceData.id]);
 }
 
-function startPolling(deviceData) {     // start polling device for readings
+function startPolling(deviceData) { // start polling device for readings
 	intervalIdFast[deviceData.id] = setInterval(() => {
 		checkWater(devices[deviceData.id]);
 	}, devices[deviceData.id].pollingInterval);
 	intervalIdSlow[deviceData.id] = setInterval(() => {
 		checkWaterSlow(devices[deviceData.id]);
 	}, 3000);
-	intervalIdFlow[deviceData.id] = setInterval(() => {  // start calculating average flow every 60 seconds
+	intervalIdFlow[deviceData.id] = setInterval(() => { // start calculating average flow every 60 seconds
 		calculateFlow(devices[deviceData.id]);
 		saveMeterSettings(devices[deviceData.id]);
 	}, 60000);
@@ -268,18 +268,34 @@ function checkWater(deviceData) {
 		port: 80,
 		path: '/a?f=j',
 	};
-
-	http.get(options, (res) => {
+	const request = http.get(options, (res) => {
 		let body = '';
 		res.on('data', (data) => {
 			body += data;
 		});
-
+		const { statusCode } = res;
+		const contentType = res.headers['content-type'];
+		let error;
+		if (statusCode !== 200) {
+			error = new Error('Request Failed.\n' +
+												`Status Code: ${statusCode}`);
+		} else if (!/^application\/json/.test(contentType)) {
+			error = new Error('Invalid content-type.\n' +
+												`Expected application/json but received ${contentType}`);
+		}
+		if (error) {
+			console.error(error.message);
+			Homey.log(`Error reading device ${error.message}`);
+			module.exports.setUnavailable(devices[deviceData.id].homey_device, error.message);
+			// consume response data to free up memory
+			res.resume();
+			return;
+		}
 		res.on('end', () => {
 			// Homey.log(body);
 			const result = tryParseJSON(body);
 			// app is initializing or data is corrupt
-			if (safeRead(result, 'raw') !== undefined) {   // check if json data exists
+			if (safeRead(result, 'raw') !== undefined) { // check if json data exists
 				// Homey.log('New data received');
 				module.exports.setAvailable(devices[deviceData.id].homey_device);
 				deviceData.readingsW = result;
@@ -289,20 +305,23 @@ function checkWater(deviceData) {
 			Homey.log('Error reading device');
 			module.exports.setUnavailable(devices[deviceData.id].homey_device, 'Error reading device');
 		});
-
 	}).on('error', (err) => {
 		Homey.log(`Got error: ${err.message}`);
 		Homey.log('Error reading device');
 		module.exports.setUnavailable(devices[deviceData.id].homey_device, err.message);
 	});
+	request.setTimeout(200, () => {
+		Homey.log('Timeout on reading device');
+		request.abort();
+	});
 }
 
 function calculateFlow(deviceData) {
-  // app is initializing or data is corrupt
+	// app is initializing or data is corrupt
 	if (safeRead(deviceData, 'readingsW') === undefined) {
 		return;
 	}
-  // calculate average flow in liters per minute
+	// calculate average flow in liters per minute
 	const timestamp = new Date(); // .getTime();
 	const timePast = timestamp - deviceData.last_measure_water_timestamp;
 	let measureWater = 0;
@@ -353,7 +372,7 @@ function logRaw(opticalSensorRaw) {
 }
 
 function handleNewWaterReadings(deviceData) {
-  // app is initializing or data is corrupt
+	// app is initializing or data is corrupt
 	if (safeRead(deviceData, 'readingsW') === undefined) {
 		return;
 	}
@@ -365,7 +384,7 @@ function handleNewWaterReadings(deviceData) {
 	const opticalSensorRaw = Number(safeRead(deviceData, 'readingsW.raw'));
 
 	// check if water is flowing
-	if (Math.abs(opticalSensorRaw - deviceData.last_optical_sensor_raw) > 3) {  // filter out small noise
+	if (Math.abs(opticalSensorRaw - deviceData.last_optical_sensor_raw) > 3) { // filter out small noise
 		burst[deviceData.id] = true;
 		// Homey.log('burstmode on');
 		clearTimeout(TimeoutIdBurstDelay[deviceData.id]);	// reset 5 seconds delay timer

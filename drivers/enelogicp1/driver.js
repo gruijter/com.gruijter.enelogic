@@ -317,77 +317,109 @@ function safeRead (instance, path) {
 };
 
 function checkProduction(device_data, callback) {
-// Homey.log("checking e-meter for "+device_data)
-let options = {
-    host: device_data.enelogicIp,
-    port: 1000,
-    path: '/cgi/electricityMeter/update',
-    };
+	// Homey.log("checking e-meter for "+device_data)
+	const options = {
+		host: device_data.enelogicIp,
+		port: 1000,
+		path: '/cgi/electricityMeter/update',
+	};
+	const request = http.get(options, (res) => {
+		const { statusCode } = res;
+		// console.log(contentType);
+		let error;
+		if (statusCode !== 200) {
+			error = new Error(`Request Failed.\n Status Code: ${statusCode}`);
+		}
+		if (error) {
+			console.error(error.message);
+			Homey.log(`Error reading device ${error.message}`);
+			module.exports.setUnavailable(devices[device_data.id].homey_device, error.message);
+			// consume response data to free up memory
+			res.resume();
+			return;
+		}
+		let body = '';
+		res.on('data', (data) => {
+			body += data;
+		});
+		res.on('end', () => {
+			// Homey.log(body);
+			parseString(body, (err, result) => {
+			// app is initializing or data is corrupt
+				if (safeRead(result, 'update.detected') === 'true') { // check if json data exists
+					// Homey.log('New enelogic data received');
+					module.exports.setAvailable(devices[device_data.id].homey_device);
+					device_data.readings.e = result.update.reading;
+					handleNewReadings(device_data);
+					return;
+				}
+				Homey.log('Error reading enelogic');
+				module.exports.setUnavailable(devices[device_data.id].homey_device, err);
+			});
+		});
+	}).on('error', (err) => {
+		Homey.log(`Got error: ${err.message}`);
+		Homey.log('Error reading enelogic');
+		if (devices[device_data.id] !== undefined) {
+			module.exports.setUnavailable(devices[device_data.id].homey_device, err.message);
+		}
+	});
+	request.setTimeout(3000, () => {
+		Homey.log('Timeout on reading device');
+		request.abort();
+	});
 
-  http.get(options, function(res){
-      let body = "";
-      res.on('data', function(data) {
-          body += data;
-      });
-
-      res.on('end', function() {
-          //Homey.log(body);
-
-          parseString(body, function (err, result) {
-            //app is initializing or data is corrupt
-            if (safeRead(result, 'update.detected') == 'true'){   // check if json data exists
-              //Homey.log('New enelogic data received');
-              module.exports.setAvailable(devices[device_data.id].homey_device);
-              device_data.readings.e=result.update.reading;
-              handleNewReadings(device_data);
-              return;
-            }
-            Homey.log('Error reading enelogic');
-            module.exports.setUnavailable(devices[device_data.id].homey_device, err );
-          })
-      })
-
-      }).on('error', function(err) {
-            Homey.log("Got error: " + err.message);
-            Homey.log('Error reading enelogic');
-						if ( devices[device_data.id] !== undefined ) {
-	            module.exports.setUnavailable(devices[device_data.id].homey_device, err.message);
-						}
-          });
-
-// Homey.log("checking g-meter for "+device_data)
-  let options2 = {
-      host: device_data.enelogicIp,
-      port: 1000,
-      path: '/cgi/gasMeter/update',
-      };
-
-    http.get(options2, function(res){
-        let body = "";
-        res.on('data', function(data) {
-            body += data;
-        });
-
-        res.on('end', function() {
-            //Homey.log(body);
-
-            parseString(body, function (err, result) {
-              //app is initializing or data is corrupt
-              if (safeRead(result, 'update.detected') == 'true'){   // check if json data exists
-                //Homey.log('New enelogic data received');
-                module.exports.setAvailable(devices[device_data.id].homey_device);
-                device_data.readings.g=result.update.reading;
-//                handleNewReadings(device_data);
-                return;
-              }
-              Homey.log('Error reading gas meter');
-            })
-        })
-
-        }).on('error', function(err) {
-              Homey.log("Got error: " + err.message);
-              Homey.log('Error reading gas meter');
-            });
+	// Homey.log("checking g-meter for "+device_data)
+	const options2 = {
+		host: device_data.enelogicIp,
+		port: 1000,
+		path: '/cgi/gasMeter/update',
+	};
+	const request2 = http.get(options, (res) => {
+		const { statusCode } = res;
+		// console.log(contentType);
+		let error;
+		if (statusCode !== 200) {
+			error = new Error(`Request Failed.\n Status Code: ${statusCode}`);
+		}
+		if (error) {
+			console.error(error.message);
+			Homey.log(`Error reading device ${error.message}`);
+			module.exports.setUnavailable(devices[device_data.id].homey_device, error.message);
+			// consume response data to free up memory
+			res.resume();
+			return;
+		}
+		let body = '';
+		res.on('data', (data) => {
+			body += data;
+		});
+		res.on('end', () => {
+			// Homey.log(body);
+			parseString(body, (err, result) => {
+			// app is initializing or data is corrupt
+				if (safeRead(result, 'update.detected') === 'true') { // check if json data exists
+					// Homey.log('New enelogic data received');
+					module.exports.setAvailable(devices[device_data.id].homey_device);
+					device_data.readings.g = result.update.reading;
+					// handleNewReadings(device_data);
+					return;
+				}
+				Homey.log('Error reading gas meter');
+				module.exports.setUnavailable(devices[device_data.id].homey_device, err);
+			});
+		});
+	}).on('error', (err) => {
+		Homey.log(`Got error: ${err.message}`);
+		Homey.log('Error reading gas meter');
+		if (devices[device_data.id] !== undefined) {
+			module.exports.setUnavailable(devices[device_data.id].homey_device, err.message);
+		}
+	});
+	request2.setTimeout(3000, () => {
+		Homey.log('Timeout on reading device');
+		request.abort();
+	});
 
 }
 

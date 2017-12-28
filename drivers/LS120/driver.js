@@ -207,19 +207,16 @@ module.exports.capabilities = {
 
 function validateConnection(serverData, callback) { // Validate connection data
 	Homey.log('Validating', serverData);
-
 	const options = {
 		host: serverData.youLessIp,
 		port: 80,
 		path: '/e',
 	};
-
 	http.get(options, (res) => {
 		let body = '';
 		res.on('data', (data) => {
 			body += data;
 		});
-
 		res.on('end', () => {
 			Homey.log(body);
 			const result = tryParseJSON(body)[0];
@@ -319,13 +316,30 @@ function checkProduction(deviceData) {
 		port: 80,
 		path: '/e',
 	};
-
-	http.get(options, (res) => {
+	const request = http.get(options, (res) => {
+		const { statusCode } = res;
+		const contentType = res.headers['content-type'];
+		// console.log(contentType);
+		let error;
+		if (statusCode !== 200) {
+			error = new Error('Request Failed.\n' +
+												`Status Code: ${statusCode}`);
+		} else if (!/^application\/json/.test(contentType)) {
+			error = new Error('Invalid content-type.\n' +
+												`Expected application/json but received ${contentType}`);
+		}
+		if (error) {
+			console.error(error.message);
+			Homey.log(`Error reading device ${error.message}`);
+			module.exports.setUnavailable(devices[deviceData.id].homey_device, error.message);
+			// consume response data to free up memory
+			res.resume();
+			return;
+		}
 		let body = '';
 		res.on('data', (data) => {
 			body += data;
 		});
-
 		res.on('end', () => {
 			// Homey.log(body);
 			const result = tryParseJSON(body)[0];
@@ -340,11 +354,14 @@ function checkProduction(deviceData) {
 			Homey.log('Error reading device');
 			module.exports.setUnavailable(devices[deviceData.id].homey_device, 'Error reading device');
 		});
-
 	}).on('error', (err) => {
 		Homey.log(`Got error: ${err.message}`);
 		Homey.log('Error reading device');
 		module.exports.setUnavailable(devices[deviceData.id].homey_device, err.message);
+	});
+	request.setTimeout(3000, () => {
+		Homey.log('Timeout on reading device');
+		request.abort();
 	});
 }
 
