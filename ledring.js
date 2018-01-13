@@ -40,7 +40,7 @@ class Ledring {
 				// Homey.app.log('Animation registered!');
 				// myAnimation.start();
 				// register the screensaver with Homey
-				this.myAnimation.registerScreensaver('enelogic_powerv2')
+				this.myAnimation.registerScreensaver('enelogic_power')
 					.then(() => {
 						Homey.app.log('screensaver registered!');
 					})

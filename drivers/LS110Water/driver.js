@@ -105,7 +105,7 @@ class LS110WaterDriver extends Homey.Driver {
 				this.meters.optical_sensor_raw_min = opticalSensorRaw;
 				// update pulse limits in device settings
 				if (Math.abs(opticalSensorRaw - this.settings.optical_sensor_raw_min) > 15) {
-					const newSetting = (this.settings.optical_sensor_raw_max + opticalSensorRaw) / 2;
+					const newSetting = Math.round((this.settings.optical_sensor_raw_min + opticalSensorRaw) / 2);
 					this.log(`adapting min to ${newSetting}`);
 					this.setSettings({ optical_sensor_raw_min: newSetting })
 						.catch(this.error);
@@ -116,7 +116,7 @@ class LS110WaterDriver extends Homey.Driver {
 				this.meters.optical_sensor_raw_max = opticalSensorRaw;
 				// update pulse limits in device settings
 				if (Math.abs(opticalSensorRaw - this.settings.optical_sensor_raw_max) > 15) {
-					const newSetting = (this.settings.optical_sensor_raw_max + opticalSensorRaw) / 2;
+					const newSetting = Math.round((this.settings.optical_sensor_raw_max + opticalSensorRaw) / 2);
 					this.log(`adapting max to ${newSetting}`);
 					this.setSettings({ optical_sensor_raw_max: newSetting })
 						.catch(this.error);
