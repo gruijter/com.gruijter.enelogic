@@ -1,6 +1,19 @@
 {
-    "pair": {
-        "title": "Voer het IP adres of URL in:",
-        "sip": "IP adres (0.0.0.0)"
-      }
+	"pair": {
+		"title": "Device toevoegen",
+		"intro": "Voer het IP adres in van het device.\r\nHet wachtwoord leeglaten als dat niet is ingesteld.",
+		"intro2": "Voer het IP adres in van het device.",
+		"host": "IP adres",
+		"password": "Wachtwoord",
+		"required": "Het IP adres moet worden ingevuld",
+		"testSettings": "Opslaan",
+		"success": "Succes!"
+	},
+	"settings": {
+		"app": {
+			"title": "Enelogic Debug Logs",
+			"logs": "Logs",
+			"getlogs": "Logs verversen"
+		}
+	}
 }

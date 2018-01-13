@@ -33,6 +33,7 @@ Only changed values are logged.
 This experimental driver makes use of the optical sensor of the YouLess LS110
 and LS120. It has successfully been tested on water meters from Vitens ([type 1]).
 Place the optical sensor on the rotating mirror. Exact positioning is required.
+See the detailed [installation manual] for further instructions.
 
 The water meter driver provides logs and flow cards for the following data:
 - Actual water flow (L/min, 60s average)
@@ -64,17 +65,13 @@ If you really like the app you can buy me a beer.
 
 [![Paypal donate][pp-donate-image]][pp-donate-link]
 
-<sup>btc: 14VR1QCpqWUWiSLa1sn3Dpzq3Wrp83zFfC</sup>
-
-<sup>eth: 0xEcF4747203Eba214c071fDAa4825cD867B410d70</sup>
-
-<sup>ltc: LfGJu1AdnPFMoBXwHvf2qG9sCV1onyXDvd</sup>
 
 ===============================================================================
 
 Version changelog
 
 ```
+v2.0.0	2018.01.13 Complete rewrite to sdk2. Password support added.
 v1.1.2	2017.12.27 fix gas usage. Improved http handling. Ignore invalid readings from youless P1.
 v1.1.1	2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
 v1.0.7	2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
@@ -86,5 +83,6 @@ v1.0.0  2017.02.18 Initial release
 ```
 [type 1]: https://www.vitens.nl/meer-informatie/typen-watermeters
 [forum]: https://forum.athom.com/discussion/2779
+[installation manual]: https://forum.athom.com/discussion/comment/61126/#Comment_61126
 [pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FV7VNCQ6XBY6L
 [pp-donate-image]: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif

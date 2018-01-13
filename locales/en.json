@@ -1,6 +1,19 @@
 {
-    "pair": {
-        "title": "Please enter your device IP address or URL:",
-        "sip": "IP address (0.0.0.0)"
-      }
+	"pair": {
+		"title": "Add device",
+		"intro": "Enter the IP addresss of the device.\r\nLeave the password field empty if no password is set.",
+		"intro2": "Enter the IP addresss of the device.",
+		"host": "IP address",
+		"password": "Password",
+		"required": "The IP addresss must be filled in",
+		"testSettings": "Save",
+		"success": "Success!"
+  },
+	"settings": {
+		"app": {
+			"title": "Enelogic Debug Logs",
+			"logs": "Logs",
+			"getlogs": "Refresh logs"
+		}
+	}
 }

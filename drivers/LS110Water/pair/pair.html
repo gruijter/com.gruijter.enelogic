@@ -1,91 +1,61 @@
-<style type="text/css">
-	.input-wrap {
-		position: relative;
-	}
-	.fa {
-		position: absolute;
-		margin-left: 5px;
-		margin-top: 7px;
+<script>
+Homey.setTitle( __('pair.title') );
 
-		opacity: 0;
-		visibility: hidden;
-		transition: all 0.3s;
-	}
-	.fa.visible {
-		opacity: 1;
-		visibility: visible;
-	}
-	.form-group input[type="text"] {
-		width: 160px;
-	}
-</style>
+function testSettings () {
+	// variables
+	var host = document.getElementById( 'host' ).value;
+	var password = document.getElementById( 'password' ).value;
 
-<p class="form-group">
-	<label for="address"><span data-i18n="pair.title"></span></label>
-
-	<span class="input-wrap">
-		<input type="text" id="sip" placeholder="IP address (e.g. 10.0.0.5)" value="youless" />
-	</span>
-
-	<button class="button" id="validate">Connect</button>
-	<i class="settings-status settings-loading fa fa-circle-o-notch fa-spin"></i>
-	<i class="settings-status settings-ok fa fa-check" style="color: #96ff00;"></i>
-	<i class="settings-status settings-err fa fa-times" style="color: #ff6300;"></i>
-
-</p>
-<p class="settings-err-msg" style="color: #ff6300;">
-</p>
-
-<script type="text/javascript">
-
-$(function(){
-	$('#validate').click(function(){
-
-		var youLessIp = $('#sip').val();
-
-		$('.settings-status').removeClass('visible');
-		$('.settings-loading').addClass('visible');
-
-		Homey.emit('validate', {
-			youLessIp: youLessIp
-			}, function( err, result ){
-
-			$('.settings-status').removeClass('visible');
-			if(!err) {																// connection validation successful, start device pairing
-				$('.settings-ok').addClass('visible');
-				$('.settings-err-msg').html('');
-
-				var device_data_init = {
-					id: `LS110Water@${youLessIp}`
+	if (host != '') {
+		var settings = {
+			youLessIp: host,
+			password: password || '',
+		};
+		// Continue to back-end, pass along data
+		Homey.emit( 'validate', settings, function( err, result ){
+			if (err) {
+				console.log(err);
+				Homey.alert(err.message, 'error');
+			} else {
+				Homey.alert(__('pair.success')+ result, 'info');
+				var device = {
+					name: `LS110Water@${settings.youLessIp}`,
+					data: { id: `LS110Water@${settings.youLessIp}` },
+					settings: settings,
 				};
+				Homey.addDevice(device, function( err, result ){
+		    	if( err ) {	Homey.alert(err, 'error'); return }
+					setTimeout(function () {
+						Homey.done();
+					}, 5000);
 
-				var settings_init = {
-					name: `LS110Water@${youLessIp}`,
-					youLessIp: youLessIp
-				};
-
-				Homey.addDevice({
-					data	: device_data_init,
-					name	: `LS110Water@${youLessIp}`,
-					settings: settings_init
-					}, function( err, result ){
-						if( err ) {
-							return Homey.alert(err.message || err.toString());
-						} else {
-
-									Homey.done()	}	// Close the pairing window
-
-					})		// end of addDevice
-
-				} else {			//connection validation unsuccessfull
-					$('.settings-err').addClass('visible');
-					$('.settings-err-msg').html( err.message || err.toString() );
-				}
-			})	//end of validate / pairing procedure
-
+				});
+			}
 		});
-	})
+	} else {
+		Homey.alert(__('pair.required'), 'error');
+		// Homey.done();
+	}
+}
+</script>
 
-	</script>
+    <p data-i18n="pair.intro">enter IP address</p>
 
-	</script>
+		<table class="pairSettings">
+			<tr>
+				<td style="width:100px;" data-i18n="pair.host">host</td>
+				<td><input id="host" type="text" value="" placeholder="e.g. 192.168.1.1"/></td>
+			</tr>
+			<tr>
+				<td style="width:100px;" data-i18n="pair.password">password</td>
+				<td><input id="password" type="password" value="" placeholder=""/></td>
+			</tr>
+		</table>
+
+		<p>
+		&nbsp;
+	  </p>
+
+<fieldset>
+    <button class="button" data-i18n="pair.testSettings" onclick="testSettings()">Save</button>
+</fieldset>

@@ -1,325 +1,112 @@
 'use strict';
 
-Homey.log('entering driver.js');
+const Homey = require('homey');
+const Youless = require('youless');
 
-const http = require('http');
-const util = require('util');
-const ledring = require('../../ledring.js');
-const devices = {};
-const intervalId = {};
+class LS120S0Driver extends Homey.Driver {
 
-module.exports.init = function Init(devicesData, callback) {
-	Homey.log('init in driver.js started');
-	devicesData.forEach(initDevice);
-	callback(null, true);
-};
+	onInit() {
+		this.log('entering LS120S0 driver');
+		this.Youless = Youless;
+	}
 
-module.exports.pair = function Pair(socket) {
-	// Validate connection data
-	socket.on('validate', (serverData, callback) => {
-		validateConnection(serverData, (error, result) => {
-			if (!error) {
-				Homey.log('Pairing successful');
-				callback(null, result);
-			} else {
-				Homey.log('Pairing unsuccessful');
-				callback(error, null);
+	onPair(socket) {
+		socket.on('validate', async (data, callback) => {
+			try {
+				this.log('save button pressed in frontend');
+				const password = data.password;
+				const host = data.youLessIp;
+				const youless = new this.Youless(password, host);	// password, host, [port]
+				this.log(youless);
+				// try to login
+				await youless.login();
+				// try to get advancedStatus and connected meters
+				await youless.getAdvancedStatus()
+					.then(() => {
+						if (youless.info.hasS0Meter) {
+							callback(null, JSON.stringify(youless.info)); // report success to frontend
+						} else { callback(Error('No S0 meter available')); }
+					})
+					.catch(() => {
+						if (youless.info.hasS0Meter) {
+							callback(null, JSON.stringify(youless.info)); // report success to frontend
+						} else { callback(Error('No S0 meter available')); }
+					});
+			}	catch (error) {
+				this.error('Pair error', error);
+				if (error.code === 'EHOSTUNREACH') {
+					callback(Error('Incorrect IP address'));
+				}
+				callback(error);
 			}
 		});
-	});
-};
-
-// the `added` method is called is when pairing is done and a device has been added for firmware 8.33+
-module.exports.added = (deviceData, callback) => {
-	Homey.log('initializing device ');
-	Homey.log(deviceData);
-	initDevice(deviceData);
-	callback(null, true);
-};
-
-module.exports.deleted = (deviceData, callback) => {
-	Homey.log(`Deleting ${deviceData.id}`);
-	clearInterval(intervalId[deviceData.id]); // end polling of device for readings
-	setTimeout(() => { // wait for running poll to end
-		delete devices[deviceData.id];
-	}, 5000);
-	callback(null, true);
-};
-
-module.exports.renamed = (deviceData, newName) => {
-	Homey.log(`${devices[deviceData.id].name} has been renamed to ${newName}`);
-	devices[deviceData.id].name = newName;
-//    Homey.log(devices[deviceData.id].name);
-};
-
-module.exports.settings = (deviceData, newSettingsObj, oldSettingsObj, changedKeysArr, callback) => {
-	// run when the user has changed the device's settings in Homey.
-	if (devices[deviceData.id] === undefined) {
-		Homey.log('not ready with device init, ignoring change');
-		callback('error: device does not exist (yet)', null); //  settings must not be saved
-		return;
 	}
 
-	Homey.log(`${devices[deviceData.id].name} has new settings for ${changedKeysArr}`);
-	Homey.log(deviceData);
-	Homey.log('old settings: ');
-	Homey.log(oldSettingsObj);
-	Homey.log('new settings: ');
-	Homey.log(newSettingsObj);
+	// isValidReading(readings) {	// call with device as this
+	// 	let validReading = true;
+	// 	if (this.meters.lastMeterPowerIntervalTm === null) { // first reading after init
+	// 		return validReading;	// We have to assume that the first reading after init is a valid reading :(
+	// 	}
+	// 	// check if timestamps make sense
+	// 	const tm = readings.tm; // power meter timestamp
+	// 	const ts0 = readings.ts0; // S0 meter timestamp
+	// 	// if (tm - this.meters.lastMeterPowerTm < 0) {
+	// 	// 	this.log('power time is negative');
+	// 	// 	validReading = false;
+	// 	// }
+	// 	if ((ts0 !== 0) && (Math.abs(ts0 - tm) > 45000)) {	// > 12 hrs difference
+	// 		this.log('S0 and power time differ too much');
+	// 		validReading = false;
+	// 	}
+	// 	if (!validReading) {
+	// 		this.log(this.meters);
+	// 		this.log(readings);
+	// 	}
+	// 	return validReading;
+	// }
 
-	if (parseInt(newSettingsObj.ledring_usage_limit, 10) < 0 || !Number.isInteger(newSettingsObj.ledring_usage_limit)) {
-		Homey.log('Ledring setting is invalid, ignoring new settings');
-		callback('Ledring settings must be a positive integer number', null); //  settings must not be saved
-		return;
-	}
-
-	if (newSettingsObj.youLessIp === oldSettingsObj.youLessIp) {
-		Homey.log('Storing new ledring settings');
-		devices[deviceData.id].ledring_usage_limit = newSettingsObj.ledring_usage_limit;
-		callback(null, true); 	// always fire the callback, or the settings won't change!
-		clearInterval(intervalId[deviceData.id]); // end polling of device for readings
-		setTimeout(() => { // wait for running poll to end
-			initDevice(devices[deviceData.id].homey_device); // init device and start polling again
-		}, 5000);
-		return;
-	}
-
-	validateConnection(newSettingsObj, (error, result) => {
-		if (!error) {
-			Homey.log('Storing new device settings');
-			devices[deviceData.id].youLessIp = newSettingsObj.youLessIp;
-			devices[deviceData.id].ledring_usage_limit = newSettingsObj.ledring_usage_limit;
-			callback(null, true); 	// always fire the callback, or the settings won't change!
-			clearInterval(intervalId[deviceData.id]); // end polling of device for readings
-			setTimeout(() => { // wait for running poll to end
-				initDevice(devices[deviceData.id].homey_device); // init device and start polling again
-			}, 5000);
-		} else {
-			Homey.log('Connection is invalid, ignoring new settings');
-			callback(error, null); //  settings must not be saved
+	handleNewReadings(readings) {	// call with device as this
+		// this.log(`handling new readings for ${this.getName()}`);
+		// electricity readings from device
+		const meterPower = readings.cs0;
+		const measurePower = readings.ps0;
+		let measurePowerAvg = this.meters.lastMeasurePowerAvg;
+		const meterPowerTm = readings.ts0;
+		// constructed electricity readings
+		// measurePowerAvg 2 minutes average based on cumulative meters
+		if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
+			this.meters.lastMeterPowerInterval = meterPower;
+			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
 		}
-	});
-};
-
-module.exports.capabilities = {
-	measure_power: {
-		get: (deviceData, callback) => {
-			const device = devices[deviceData.id];
-			if (device === undefined) {
-				// callback(null, 0);
-				return;
-			}
-			callback(null, device.lastMeasurePower);
-		},
-	},
-	meter_power: {
-		get: (deviceData, callback) => {
-			const device = devices[deviceData.id];
-			if (device === undefined) {
-				callback(); // null, 0);
-				return;
-			}
-			callback(null, device.lastMeterPower);
-		},
-	}
-};
-
-function validateConnection(serverData, callback) { // Validate connection data
-	Homey.log('Validating', serverData);
-
-	const options = {
-		host: serverData.youLessIp,
-		port: 80,
-		path: '/e',
-	};
-	http.get(options, (res) => {
-		let body = '';
-		res.on('data', (data) => {
-			body += data;
-		});
-		res.on('end', () => {
-			Homey.log(body);
-			const result = tryParseJSON(body)[0];
-			Homey.log(util.inspect(result, false, 10, true));
-			if (safeRead(result, 'ts0') !== undefined) { // check if S0 json data exists
-				Homey.log('Connecting successful!');
-				callback(null, result);
-				return;
-			}
-			Homey.log('Error during connecting');
-			callback(res.statusCode, null);
-		});
-	}).on('error', (err) => {
-		Homey.log(`Got error: ${err.message}`);
-		Homey.log('Error during connecting');
-		callback(err, null);
-	});
-} // end validate routine
-
-
-function initDevice(deviceData) {
-	Homey.log('entering initDevice');
-	// initDevice: retrieve device settings, buildDevice and start polling it
-	Homey.log('getting settings');
-	module.exports.getSettings(deviceData, (err, settings) => {
-		if (err) {
-			Homey.log('error retrieving device settings');
-		} else { // after settings received build the new device object
-			Homey.log('retrieved settings are:');
-			Homey.log(util.inspect(settings, true, 10, true));
-			if (settings.pollingInterval === undefined) { // needed to migrate from v1.0.3 to 1.0.4
-				settings.pollingInterval = 10;
-			}
-			buildDevice(deviceData, settings);
-			startPolling(deviceData);
+		if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
+			measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
+			this.meters.lastMeterPowerInterval = meterPower;
+			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
 		}
-	});
-} // end of initDevice
-
-function buildDevice(deviceData, settings) {
-	devices[deviceData.id] = {
-		id: deviceData.id,
-		name: settings.name,
-		youLessIp: settings.youLessIp,
-		pollingInterval: settings.pollingInterval,
-		ledring_usage_limit: settings.ledring_usage_limit,
-		ledring_production_limit: 3000,
-		lastMeasurePower: 0, // 'measurePower' (W)
-		lastMeterPower: null, // 'meterPower' (kWh)
-		readings: {}, // or settings.readings
-		homey_device: deviceData, // deviceData object from moment of pairing
-	};
-	Homey.log('init buildDevice is: ');
-	Homey.log(devices[deviceData.id]);
-}
-
-function startPolling(deviceData) { // start polling device for readings every 10+ seconds
-	intervalId[deviceData.id] = setInterval(() => {
-		checkProduction(devices[deviceData.id]);
-	}, 1000 * devices[deviceData.id].pollingInterval);
-}
-
-// function to safely get property without risk of 'Cannot read property'
-function safeRead(instance, path) {
-	return path.split('.').reduce((p, c) => p ? p[c] : undefined, instance);
-}
-
-// function to prevent 'Unexpected token' errors
-function tryParseJSON(jsonString) {
-	try {
-		const o = JSON.parse(jsonString);
-		if (o && typeof o === 'object' && o !== null) {
-			// Homey.log('JSON past')
-			return o;
+		const measurePowerDelta = (measurePower - this.meters.lastMeasurePower);
+		// trigger the custom trigger flowcards
+		if (measurePower !== this.meters.lastMeasurePower) {
+			const tokens = {
+				power: measurePower,
+				power_delta: measurePowerDelta,
+			};
+			this.powerChangedTrigger
+				.trigger(this, tokens)
+				.catch(this.error);
+			// .then(this.log('Power change flow card triggered'));
+			// update the ledring screensavers
+			this._ledring.change(this.getSettings(), this.meters.lastMeasurePower);
 		}
-		Homey.log('Not a valid JSON');
-	}	catch (e) {
-		Homey.log('Not a valid JSON');
+		// store the new readings in memory
+		this.meters.lastMeasurePower = measurePower; // || this.meters.lastMeasurePower;
+		this.meters.lastMeasurePowerAvg = measurePowerAvg; // || this.meters.lastMeasurePowerAvg;
+		this.meters.lastMeterPower = meterPower; // || this.meters.lastMeterPower;
+		this.meters.lastMeterPowerTm = meterPowerTm || this.meters.lastMeterPowerTm;
+		// update the device state
+		// this.log(this.meters);
+		this.updateDeviceState();
 	}
-	return false;
+
 }
 
-function checkProduction(deviceData) {
-	// Homey.log('checking e-meter for '+deviceData.id)
-	const options = {
-		host: deviceData.youLessIp,
-		port: 80,
-		path: '/e',
-	};
-	const request = http.get(options, (res) => {
-		let body = '';
-		res.on('data', (data) => {
-			body += data;
-		});
-		const { statusCode } = res;
-		const contentType = res.headers['content-type'];
-		// console.log(contentType);
-		let error;
-		if (statusCode !== 200) {
-			error = new Error('Request Failed.\n' +
-												`Status Code: ${statusCode}`);
-		} else if (!/^application\/json/.test(contentType)) {
-			error = new Error('Invalid content-type.\n' +
-												`Expected application/json but received ${contentType}`);
-		}
-		if (error) {
-			console.error(error.message);
-			Homey.log(`Error reading device ${error.message}`);
-			module.exports.setUnavailable(devices[deviceData.id].homey_device, error.message);
-			// consume response data to free up memory
-			res.resume();
-			return;
-		}
-		res.on('end', () => {
-			// Homey.log(body);
-			const result = tryParseJSON(body)[0];
-			// app is initializing or data is corrupt
-			if (safeRead(result, 'ts0') !== undefined) { // check if s0 json data exists
-				// Homey.log('New data received');
-				module.exports.setAvailable(devices[deviceData.id].homey_device);
-				deviceData.readings = result;
-				handleNewReadings(deviceData);
-				return;
-			}
-			Homey.log('Error reading device');
-			module.exports.setUnavailable(devices[deviceData.id].homey_device, 'Error reading device');
-		});
-	}).on('error', (err) => {
-		Homey.log(`Got error: ${err.message}`);
-		Homey.log('Error reading device');
-		module.exports.setUnavailable(devices[deviceData.id].homey_device, err.message);
-	});
-	request.setTimeout(3000, () => {
-		Homey.log('Timeout on reading device');
-		request.abort();
-	});
-}
-
-
-function handleNewReadings(deviceData) {
-	// Homey.log('storing new readings');
-	// Homey.log(util.inspect(deviceData, false, 10, true));
-
-	// app is initializing or data is corrupt
-	if (safeRead(deviceData, 'readings') === undefined) {
-		return;
-	}
-
-	// init all readings
-	let measurePower = 0;
-	let meterPower = deviceData.lastMeterPower;
-
-	// electricity readings from device
-	measurePower = Number(safeRead(deviceData, 'readings.ps0'));
-	meterPower = Number(safeRead(deviceData, 'readings.cs0').toString().replace(',', '.'));
-
-	if (measurePower > 20000) return;	// ignore invalid readings
-
-	// constructed readings
-	const measurePowerDelta = (measurePower - deviceData.lastMeasurePower);
-
-	//  Homey.log(measurePower);
-	if (measurePower !== deviceData.lastMeasurePower) {
-	// Homey.log.log(measurePowerDelta);
-		module.exports.realtime(devices[deviceData.id].homey_device, 'measure_power', measurePower);
-		// Trigger flow for power_changed
-		Homey.manager('flow').triggerDevice('power_changed', {
-			power: measurePower,
-			power_delta: measurePowerDelta,
-		}, null, devices[deviceData.id].homey_device);
-
-		// adapt ledring to match
-		ledring.change(devices[deviceData.id], measurePower);
-	}
-
-	//  Homey.log(meterPower);
-	if (meterPower !== deviceData.lastMeterPower) {
-		module.exports.realtime(devices[deviceData.id].homey_device, 'meter_power', meterPower);
-	}
-
-	deviceData.lastMeasurePower = measurePower;
-	deviceData.lastMeterPower = meterPower;
-
-	// Homey.log(deviceData);
-
-}
+module.exports = LS120S0Driver;
