@@ -10,7 +10,7 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "2.0.0",
+  "version": "2.0.1",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
@@ -338,33 +338,6 @@
 							"label": {
 								"en": "Mac",
 								"nl": "Mac"
-							},
-							"value": "unknown"
-						},
-						{
-							"id": "hasP1Meter",
-							"type": "label",
-							"label": {
-								"en": "P1 meter connected",
-								"nl": "P1 meter aanwezig"
-							},
-							"value": "unknown"
-						},
-						{
-							"id": "hasGasMeter",
-							"type": "label",
-							"label": {
-								"en": "Gas meter connected",
-								"nl": "Gas meter aanwezig"
-							},
-							"value": "unknown"
-						},
-						{
-							"id": "hasS0Meter",
-							"type": "label",
-							"label": {
-								"en": "S0 meter connected",
-								"nl": "S0 meter aanwezig"
 							},
 							"value": "unknown"
 						}
@@ -788,8 +761,8 @@
 							"id": "pollingInterval",
 							"type": "number",
 							"label": {
-								"en": "Polling interval (miliseconds)",
-								"nl": "Polling interval (miliseconden)"
+								"en": "Polling interval (ms)",
+								"nl": "Polling interval (ms)"
 							},
 							"attr": { "min": 100 },
 							"value": 350

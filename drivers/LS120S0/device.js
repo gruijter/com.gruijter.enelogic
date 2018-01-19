@@ -66,7 +66,7 @@ class LS120Device extends Homey.Device {
 				}
 			}, 1000 * settings.pollingInterval);
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
@@ -101,7 +101,7 @@ class LS120Device extends Homey.Device {
 				this.restartDevice();
 			})
 			.catch((error) => {		// new settings are incorrect
-				this.log(error.message);
+				this.error(error.message);
 				return callback(error, null);
 			});
 	}
@@ -112,8 +112,8 @@ class LS120Device extends Homey.Device {
 		if (!this.youless.loggedIn) {
 			await this.youless.login()
 				.catch((error) => {
-					this.log(`login during doPoll error: ${error}`);
-					err = new Error(`doPoll login error: ${error}`);
+					this.error(`login error: ${error}`);
+					err = new Error(`login error: ${error}`);
 				});
 		}
 		if (err) {
@@ -128,7 +128,7 @@ class LS120Device extends Homey.Device {
 			})
 			.catch((error) => {
 				this.watchDogCounter -= 1;
-				this.log(`advanced status doPoll error: ${error}`);
+				this.error(`poll error: ${error}`);
 				this.setUnavailable(error)
 					.catch(this.error);
 			});
@@ -159,19 +159,19 @@ class LS120Device extends Homey.Device {
 			this.setCapabilityValue('measure_power', this.meters.lastMeasurePower);
 			this.setCapabilityValue('meter_power', this.meters.lastMeterPower);
 			// update the device info
-			const deviceInfo = this.youless.info;
-			const settings = this.getSettings();
-			Object.keys(deviceInfo).forEach((key) => {
-				if (settings[key] !== deviceInfo[key].toString()) {
-					this.log(`device information has changed. ${key}: ${deviceInfo[key].toString()}`);
-					this.setSettings({ [key]: deviceInfo[key].toString() })
-						.catch(this.error);
-				}
-			});
+			// const deviceInfo = this.youless.info;
+			// const settings = this.getSettings();
+			// Object.keys(deviceInfo).forEach((key) => {
+			// 	if (settings[key] !== deviceInfo[key].toString()) {
+			// 		this.log(`device information has changed. ${key}: ${deviceInfo[key].toString()}`);
+			// 		this.setSettings({ [key]: deviceInfo[key].toString() })
+			// 			.catch(this.error);
+			// 	}
+			// });
 			// reset watchdog
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 

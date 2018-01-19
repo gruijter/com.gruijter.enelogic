@@ -12,6 +12,7 @@
         </form>
 
         <div>
+        	<button type="button" class="right" id="button_deletelog" onclick="deleteLogs()" data-i18n="settings.app.deletelogs">Get Logs</button>
         	<button type="button" class="right" id="button_getlog" onclick="showLogs()" data-i18n="settings.app.getlogs">Get Logs</button>
         </div>
 
@@ -26,7 +27,7 @@
         function onHomeyReady(Homey){
            HomeyAPI = Homey;
            Homey.ready();
-        }
+				 }
 
         function showLogs() {
            HomeyAPI.api('GET', 'getlogs/', function(err, result) {
@@ -39,7 +40,13 @@
               };
            });
         }
-
+				function deleteLogs() {
+					 HomeyAPI.api('GET', 'deletelogs/', function(err, result) {
+						 if (err) {
+							 HomeyAPI.alert( err.message, 'error' ); // [, String icon], Function callback )
+						 } else { HomeyAPI.alert( 'Logs deleted!', 'info' ); }
+					 });
+				}
 
         </script>
 

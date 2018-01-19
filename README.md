@@ -71,6 +71,7 @@ If you really like the app you can buy me a beer.
 Version changelog
 
 ```
+v2.0.1	2018.01.19 Minor fixes, stable release.
 v2.0.0	2018.01.13 Complete rewrite to sdk2. Password support added.
 v1.1.2	2017.12.27 fix gas usage. Improved http handling. Ignore invalid readings from youless P1.
 v1.1.1	2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19

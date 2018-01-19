@@ -42,11 +42,11 @@ class EnelogicDevice extends Homey.Device {
 					this.doPoll();
 				} catch (error) {
 					this.watchDogCounter -= 1;
-					this.log('intervalIdDevicePoll error', error);
+					this.error('intervalIdDevicePoll error', error);
 				}
 			}, 1000 * settings.pollingInterval);
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
@@ -78,7 +78,7 @@ class EnelogicDevice extends Homey.Device {
 				this.restartDevice();
 			})
 			.catch((error) => {		// new settings are incorrect
-				this.log(error.message);
+				this.error(error.message);
 				this.enelogic.getEMeter(oldSettingsObj.enelogicIp);
 				return callback(error);
 			});
@@ -95,7 +95,7 @@ class EnelogicDevice extends Homey.Device {
 			this.handleNewReadings(readings);
 		} catch (error) {
 			this.watchDogCounter -= 1;
-			this.log(`advanced status doPoll error: ${error}`);
+			this.error(`poll error: ${error}`);
 			this.setUnavailable(error)
 				.catch(this.error);
 		}
@@ -143,7 +143,7 @@ class EnelogicDevice extends Homey.Device {
 			// reset watchdog
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 

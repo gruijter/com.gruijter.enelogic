@@ -44,7 +44,7 @@ class LS110Device extends Homey.Device {
 							callback(null, true);
 						})
 						.catch((error) => {
-							this.log(`rebooting failed ${error}`);
+							this.error(`rebooting failed ${error}`);
 							callback(error);
 						});
 				});
@@ -60,11 +60,11 @@ class LS110Device extends Homey.Device {
 					this.doPoll();
 				} catch (error) {
 					this.watchDogCounter -= 1;
-					this.log('intervalIdDevicePoll error', error);
+					this.error('intervalIdDevicePoll error', error);
 				}
 			}, 1000 * settings.pollingInterval);
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
@@ -99,7 +99,7 @@ class LS110Device extends Homey.Device {
 				this.restartDevice();
 			})
 			.catch((error) => {		// new settings are incorrect
-				this.log(error.message);
+				this.error(error.message);
 				return callback(error, null);
 			});
 	}
@@ -110,8 +110,8 @@ class LS110Device extends Homey.Device {
 		if (!this.youless.loggedIn) {
 			await this.youless.login()
 				.catch((error) => {
-					this.log(`login during doPoll error: ${error}`);
-					err = new Error(`doPoll login error: ${error}`);
+					this.error(`login error: ${error}`);
+					err = new Error(`login error: ${error}`);
 				});
 		}
 		if (err) {
@@ -126,7 +126,7 @@ class LS110Device extends Homey.Device {
 				this.handleNewReadings(readings);
 			})
 			.catch((error) => {
-				this.log(`advanced status doPoll error: ${error}`);
+				this.error(`poll error: ${error}`);
 				this.setUnavailable(error)
 					.catch(this.error);
 			});
@@ -173,7 +173,7 @@ class LS110Device extends Homey.Device {
 			// reset watchdog
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 

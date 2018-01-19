@@ -17,7 +17,7 @@ class LS120S0Driver extends Homey.Driver {
 				const password = data.password;
 				const host = data.youLessIp;
 				const youless = new this.Youless(password, host);	// password, host, [port]
-				this.log(youless);
+				// this.log(youless);
 				// try to login
 				await youless.login();
 				// try to get advancedStatus and connected meters
@@ -93,7 +93,7 @@ class LS120S0Driver extends Homey.Driver {
 			this.powerChangedTrigger
 				.trigger(this, tokens)
 				.catch(this.error);
-			// .then(this.log('Power change flow card triggered'));
+			// .then(this.error('Power change flow card triggered'));
 			// update the ledring screensavers
 			this._ledring.change(this.getSettings(), this.meters.lastMeasurePower);
 		}

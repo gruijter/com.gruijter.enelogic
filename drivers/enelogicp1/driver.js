@@ -16,7 +16,7 @@ class EnelogicDriver extends Homey.Driver {
 				this.log('save button pressed in frontend');
 				// this.settings.host = data.enelogicIp;
 				const enelogic = new this.Enelogic(data.enelogicIp);
-				this.log(enelogic);
+				// this.log(enelogic);
 				// try to get status
 				await enelogic.getEMeter()
 					.then(() => {
@@ -92,7 +92,7 @@ class EnelogicDriver extends Homey.Driver {
 			this.tariffChangedTrigger
 				.trigger(this, tokens)
 				.catch(this.error);
-			// .then(this.log('Tariff change flow card triggered'));
+			// .then(this.error('Tariff change flow card triggered'));
 		}
 		if (measurePower !== this.meters.lastMeasurePower) {
 			const tokens = {
@@ -102,7 +102,7 @@ class EnelogicDriver extends Homey.Driver {
 			this.powerChangedTrigger
 				.trigger(this, tokens)
 				.catch(this.error);
-			// .then(this.log('Power change flow card triggered'));
+			// .then(this.error('Power change flow card triggered'));
 			// update the ledring screensavers
 			this._ledring.change(this.getSettings(), this.meters.lastMeasurePower);
 		}

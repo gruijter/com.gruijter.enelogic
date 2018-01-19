@@ -1,7 +1,7 @@
 'use strict';
 
 const http = require('http');
-const util = require('util');
+// const util = require('util');
 
 const defaultPort = 80;
 const defaultPassword = '';
@@ -29,7 +29,7 @@ const setS0CounterPath = '/M?c='; // add counter value. e.g. /M?c=12345
 function toEpoch(time) {	// yymmddhhmm, e.g. 1712282000 > 1514487600
 	const tmString = time.toString();
 	if (tmString.length !== 10) {
-		util.log('time has an invalid format');
+		// util.log('time has an invalid format');
 		return 0;
 	}
 	const tm = new Date(`20${tmString.slice(0, 2)}`, tmString.slice(2, 4) - 1, tmString.slice(4, 6), tmString.slice(6, 8));
@@ -44,12 +44,13 @@ class Youless {
 		this.port = port || defaultPort;
 		this.loggedIn = password === defaultPassword;
 		this.cookie = ['undefined'];
+		this.timeout = 3000;	// milliseconds for http request
 		this.info = {
 			model: undefined,			// will be filled automatically for LS120, will remain undefined for LS110
 			mac: undefined,				// will be filled automatically for LS120, will remain undefined for LS110
-			hasP1Meter: false,		// will be made true if p1 data is received in this session
-			hasGasMeter: false,		// will be made true if gas data is received in this session
-			hasS0Meter: false,		// will be made true if s0 data is received in this session, also means fw >= 1.4
+			hasP1Meter: undefined,		// will be made true if p1 data is received in this session
+			hasGasMeter: undefined,		// will be made true if gas data is received in this session
+			hasS0Meter: undefined,		// will be made true if s0 data is received in this session, also means fw >= 1.4
 		};
 		this.getInfo()
 			.then((info) => {
@@ -57,12 +58,12 @@ class Youless {
 				this.info.mac = info.mac;
 			})
 			.catch((error) => {
-				util.log(error);
+				// util.log(error);
 			});
 	}
 
 	login(password, host, port) { // password, [host], [port]
-		util.log('youless login requested');
+		// util.log('youless login requested');
 		return new Promise((resolve, reject) => {
 			this.password = password || this.password;
 			if (password === '') {
@@ -87,7 +88,7 @@ class Youless {
 	}
 
 	getInfo() { // no login required for getInfo
-		util.log('youless getInfo requested');
+		// util.log('youless getInfo requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(infoPath)
 				.then((result) => {
@@ -199,7 +200,7 @@ class Youless {
 	}
 
 	setMeterType(value) {
-		util.log('youless set Meter Type requested');
+		// util.log('youless set Meter Type requested');
 		return new Promise((resolve, reject) => {
 			const validTypes = ['d', 'D', 'a', 'A'];
 			if (!(typeof value === 'string') || !(validTypes.indexOf(value[0]) > -1)) {
@@ -217,7 +218,7 @@ class Youless {
 	}
 
 	setPowerCounter(value) {
-		util.log('youless set Power counter requested');
+		// util.log('youless set Power counter requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(setPowerCounterPath + Number(value))
 				.then(() => {
@@ -230,7 +231,7 @@ class Youless {
 	}
 
 	setPowerPulses(value) {
-		util.log('youless set Power pulses requested');
+		// util.log('youless set Power pulses requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(setPowerPulsesPath + Number(value))
 				.then(() => {
@@ -243,7 +244,7 @@ class Youless {
 	}
 
 	setS0Counter(value) {
-		util.log('youless set S0 counter requested');
+		// util.log('youless set S0 counter requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(setS0CounterPath + (Number(value) * 1000))
 				.then(() => {
@@ -256,7 +257,7 @@ class Youless {
 	}
 
 	setS0Pulses(value) {
-		util.log('youless set S0 pulses requested');
+		// util.log('youless set S0 pulses requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(setS0PulsesPath + Number(value))
 				.then(() => {
@@ -269,7 +270,7 @@ class Youless {
 	}
 
 	syncTime() {
-		util.log('youless sync time requested');
+		// util.log('youless sync time requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(syncTimePath)
 				.then(() => {
@@ -282,7 +283,7 @@ class Youless {
 	}
 
 	reboot() {
-		util.log('youless reboot requested');
+		// util.log('youless reboot requested');
 		return new Promise((resolve, reject) => {
 			this._makeRequest(rebootPath)
 				.then(() => {
@@ -348,10 +349,10 @@ class Youless {
 			});
 			req.on('error', (e) => {
 				this.loggedIn = false;
-				util.log('got an e');
+				// util.log('got an e');
 				reject(e);
 			});
-			req.setTimeout(3000, () => {
+			req.setTimeout(this.timeout, () => {
 				req.abort();
 				reject(Error('Connection timeout'));
 			});

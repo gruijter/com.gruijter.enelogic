@@ -28,9 +28,10 @@ class LS110WaterDevice extends Homey.Device {
 			this.initMeters();
 			// create youless session
 			this.youless = new this._driver.Youless(this.settings.password, this.settings.youLessIp);
+			// set short http timeout
+			this.youless.timeout = (this.settings.pollingInterval * 0.9);
 			// sync time in youless
 			await this.youless.syncTime();
-			// this.log(this.youless);
 			// register trigger flow cards of custom capabilities
 			this.measureWaterChangedTrigger = new Homey.FlowCardTriggerDevice('measure_water_changed')
 				.register();
@@ -47,7 +48,7 @@ class LS110WaterDevice extends Homey.Device {
 							callback(null, true);
 						})
 						.catch((error) => {
-							this.log(`rebooting failed ${error}`);
+							this.error(`rebooting failed ${error}`);
 							callback(error);
 						});
 				});
@@ -63,11 +64,11 @@ class LS110WaterDevice extends Homey.Device {
 					this.doPoll();
 				} catch (error) {
 					this.watchDogCounter -= 1;
-					this.log('intervalIdDevicePoll error', error);
+					this.error('intervalIdDevicePoll error', error);
 				}
 			}, this.settings.pollingInterval);
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
@@ -99,7 +100,7 @@ class LS110WaterDevice extends Homey.Device {
 				this.restartDevice();
 			})
 			.catch((error) => {		// new settings are incorrect
-				this.log(error.message);
+				this.error(error.message);
 				return callback(error, null);
 			});
 	}
@@ -117,7 +118,7 @@ class LS110WaterDevice extends Homey.Device {
 		if (!this.youless.loggedIn) {
 			await this.youless.login()
 				.catch((error) => {
-					this.log(`login error: ${error}`);
+					this.error(`login error: ${error}`);
 					err = new Error(`Login error: ${error}`);
 				});
 		}
@@ -133,7 +134,7 @@ class LS110WaterDevice extends Homey.Device {
 				this.handleNewReadings(readings);
 			})
 			.catch((error) => {
-				this.log(`poll error: ${error}`);
+				this.error(`poll error: ${error}`);
 				this.setUnavailable(error)
 					.catch(this.error);
 			});
@@ -177,7 +178,7 @@ class LS110WaterDevice extends Homey.Device {
 			// reset watchdog
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 

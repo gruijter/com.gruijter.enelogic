@@ -13,6 +13,7 @@
 		"app": {
 			"title": "Enelogic Debug Logs",
 			"logs": "Logs",
+			"deletelogs": "Logs verwijderen",
 			"getlogs": "Logs verversen"
 		}
 	}

@@ -22,9 +22,9 @@ class LS120Device extends Homey.Device {
 				settings.filterReadings = false;
 				settings.model = '';
 				settings.mac = '';
-				settings.hasP1Meter = 'undefined';
-				settings.hasGasMeter = 'undefined';
-				settings.hasS0Meter = 'undefined';
+				// settings.hasP1Meter = 'undefined';
+				// settings.hasGasMeter = 'undefined';
+				// settings.hasS0Meter = 'undefined';
 				this.setSettings(settings)
 					.catch(this.error);
 			}
@@ -60,7 +60,7 @@ class LS120Device extends Homey.Device {
 							callback(null, true);
 						})
 						.catch((error) => {
-							this.log(`rebooting failed ${error}`);
+							this.error(`rebooting failed ${error}`);
 							callback(error);
 						});
 				});
@@ -76,11 +76,11 @@ class LS120Device extends Homey.Device {
 					this.doPoll();
 				} catch (error) {
 					this.watchDogCounter -= 1;
-					this.log('intervalIdDevicePoll error', error);
+					this.error('intervalIdDevicePoll error', error);
 				}
 			}, 1000 * settings.pollingInterval);
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
@@ -112,7 +112,7 @@ class LS120Device extends Homey.Device {
 				this.restartDevice();
 			})
 			.catch((error) => {		// new settings are incorrect
-				this.log(error.message);
+				this.error(error.message);
 				return callback(error, null);
 			});
 	}
@@ -123,8 +123,8 @@ class LS120Device extends Homey.Device {
 		if (!this.youless.loggedIn) {
 			await this.youless.login()
 				.catch((error) => {
-					this.log(`login during doPoll error: ${error}`);
-					err = new Error(`doPoll login error: ${error}`);
+					this.error(`login error: ${error}`);
+					err = new Error(`login error: ${error}`);
 				});
 		}
 		if (err) {
@@ -144,7 +144,7 @@ class LS120Device extends Homey.Device {
 			})
 			.catch((error) => {
 				this.watchDogCounter -= 1;
-				this.log(`advanced status doPoll error: ${error}`);
+				this.error(`poll error: ${error}`);
 				this.setUnavailable(error)
 					.catch(this.error);
 			});
@@ -190,19 +190,19 @@ class LS120Device extends Homey.Device {
 			this.setCapabilityValue('meter_power.producedPeak', this.meters.lastMeterPowerPeakProduced);
 			this.setCapabilityValue('meter_power.producedOffPeak', this.meters.lastMeterPowerOffpeakProduced);
 			// update the device info
-			const deviceInfo = this.youless.info;
-			const settings = this.getSettings();
-			Object.keys(deviceInfo).forEach((key) => {
-				if (settings[key] !== deviceInfo[key].toString()) {
-					this.log(`device information has changed. ${key}: ${deviceInfo[key].toString()}`);
-					this.setSettings({ [key]: deviceInfo[key].toString() })
-						.catch(this.error);
-				}
-			});
+			// const deviceInfo = this.youless.info;
+			// const settings = this.getSettings();
+			// Object.keys(deviceInfo).forEach((key) => {
+			// 	if (settings[key] !== deviceInfo[key].toString()) {
+			// 		this.log(`device information has changed. ${key}: ${deviceInfo[key].toString()}`);
+			// 		this.setSettings({ [key]: deviceInfo[key].toString() })
+			// 			.catch(this.error);
+			// 	}
+			// });
 			// reset watchdog
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.log(error);
+			this.error(error);
 		}
 	}
 
