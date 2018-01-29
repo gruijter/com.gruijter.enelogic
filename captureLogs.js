@@ -30,7 +30,7 @@ class captureLogs {
 				this.logArray = JSON.parse(data);
 				// console.log(this.logArray);
 			} catch (error) {
-				Homey.app.error('error parsing logfile: ', err.message);
+				Homey.app.error('error parsing logfile: ', error.message);
 				return [];
 			}
 			// Homey.app.log('logs retrieved from module');
