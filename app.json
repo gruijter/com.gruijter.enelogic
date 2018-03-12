@@ -10,13 +10,15 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "2.0.2",
+  "version": "2.0.3",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
-    "name": "Robin Gruijter",
+    "name": "Robin de Gruijter",
     "email": "gruijter@hotmail.com"
   },
+	"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
+	"license": " GPL-3.0-or-later",
 	"contributing": {
 		"donate": {
 			"paypal": {
@@ -1179,8 +1181,8 @@
 		{
 			"name": "enelogic_power",
 			"title": {
-				"en": "Enelogic P1 Power",
-				"nl": "Enelogic P1 Energie"
+				"en": "Enelogic Power",
+				"nl": "Enelogic Energie"
 			}
 		}
   ],
