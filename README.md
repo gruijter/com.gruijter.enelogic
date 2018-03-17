@@ -71,13 +71,14 @@ If you really like the app you can buy me a beer.
 Version changelog
 
 ```
-v2.0.3	2018.03.12 License info extended. ***WIP*** Fix crash no gas meter Enelogic P1
-v2.0.2	2018.01.29 Minor fix.
-v2.0.1	2018.01.19 Minor fixes, stable release.
-v2.0.0	2018.01.13 Complete rewrite to sdk2. Password support added.
-v1.1.2	2017.12.27 fix gas usage. Improved http handling. Ignore invalid readings from youless P1.
-v1.1.1	2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
-v1.0.7	2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
+v2.0.4  2018.03.17 Fix crash no gas meter Enelogic P1.
+v2.0.3  2018.03.12 License info extended.
+v2.0.2  2018.01.29 Minor fix.
+v2.0.1  2018.01.19 Minor fixes, stable release.
+v2.0.0  2018.01.13 Complete rewrite to sdk2. Password support added.
+v1.1.2  2017.12.27 fix gas usage. Improved http handling. Ignore invalid readings from youless P1.
+v1.1.1  2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
+v1.0.0  2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
 v1.0.6  2017.05.28 small bug fix (error reading device). Code cleanup
 v1.0.4  2017.04.19 Added polling interval setting
 v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bug fix

@@ -111,7 +111,7 @@ class EnelogicDevice extends Homey.Device {
 			readings.g = await this.enelogic.getGMeter()
 				.catch((error) => {
 					// ignore if no gasmeter present
-				};
+				});
 			this.setAvailable();
 			this.handleNewReadings(readings);
 		} catch (error) {
