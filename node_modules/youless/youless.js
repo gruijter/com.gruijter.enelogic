@@ -295,13 +295,79 @@ class Youless {
 		});
 	}
 
-	_makeRequest(action) {
-		return new Promise((resolve, reject) => {
+	// _makeRequest(action) {
+	// 	return new Promise((resolve, reject) => {
+	// 		if (!this.loggedIn && !action.includes(loginPath) && !action.includes(infoPath)) {
+	// 			reject(Error('Not logged in'));
+	// 			return;
+	// 		}
+	// 		const headers = {
+	// 			Connection: 'keep-alive',
+	// 		};
+	// 		if (!action.includes(loginPath) && !action.includes(infoPath)) {
+	// 			headers.Cookie = this.cookie;
+	// 		}
+	// 		const options = {
+	// 			hostname: this.host,
+	// 			port: this.port,
+	// 			path: action,
+	// 			headers,
+	// 			method: 'GET',
+	// 		};
+	// 		const req = http.request(options, (res) => {
+	// 			const { statusCode } = res;
+	// 			const contentType = res.headers['content-type'];
+	// 			let error;
+	// 			if ((statusCode === 302) && options.path.includes(loginPath)) {
+	// 				// redirect after login, that's ok
+	// 			}	else if (statusCode === 403) {
+	// 				error = new Error('Incorrect password');
+	// 			}	else if (statusCode === 404) {
+	// 				error = new Error('Not found. Wrong IP address?');
+	// 			}	else if (statusCode !== 200) {
+	// 				error = new Error(`Request Failed. Status Code: ${statusCode}`);
+	// 			} else if (!/^application\/json/.test(contentType)
+	// 									&& !options.path.includes('/S?')
+	// 									&& !options.path.includes('/M?')) {
+	// 				error = new Error(`Invalid content-type. Expected application/json but received ${contentType}`);
+	// 			}
+	// 			if (error) {
+	// 				// consume response data to free up memory
+	// 				res.resume();
+	// 				this.loggedIn = false;
+	// 				reject(error);
+	// 				return;
+	// 			}
+	// 			let resBody = '';
+	// 			res.on('data', (chunk) => {
+	// 				resBody += chunk;
+	// 			});
+	// 			res.on('end', () => {
+	// 				res.body = resBody;
+	// 				resolve(res); // resolve the request
+	// 			});
+	// 		});
+	// 		req.on('error', (e) => {
+	// 			this.loggedIn = false;
+	// 			// util.log('got an e');
+	// 			reject(e);
+	// 		});
+	// 		req.setTimeout(this.timeout, () => {
+	// 			req.abort();
+	// 			reject(Error('Connection timeout'));
+	// 		});
+	// 		req.end();
+	// 	});
+	// }
+
+
+	async _makeRequest(action) {
+		try {
 			if (!this.loggedIn && !action.includes(loginPath) && !action.includes(infoPath)) {
-				reject(Error('Not logged in'));
-				return;
+				return Promise.reject(Error('Not logged in'));
 			}
 			const headers = {
+				'Content-Length': 0,
 				Connection: 'keep-alive',
 			};
 			if (!action.includes(loginPath) && !action.includes(infoPath)) {
@@ -313,52 +379,60 @@ class Youless {
 				path: action,
 				headers,
 				method: 'GET',
+				'User-Agent': 'Youless.js Node Package',
+				method: 'GET',
 			};
+			// const res = await this._makeHttpRequest(options, '');
+			const res = await this._makeHttpRequest(options, '');
+			const { statusCode } = res;
+			const contentType = res.headers['content-type'];
+			if ((statusCode === 302) && options.path.includes(loginPath)) {
+				// redirect after login, that's ok
+			}	else if (statusCode === 403) {
+				throw Error('Incorrect password');
+			}	else if (statusCode === 404) {
+				throw Error('Not found. Wrong IP address?');
+			}	else if (statusCode !== 200) {
+				throw Error(`Request Failed. Status Code: ${statusCode}`);
+			} else if (!/^application\/json/.test(contentType)
+									&& !options.path.includes('/S?')
+									&& !options.path.includes('/M?')) {
+				throw Error(`Invalid content-type. Expected application/json but received ${contentType}`);
+			}
+			return Promise.resolve(res);
+		}
+		catch (error) {
+			this.loggedIn = false;
+			return Promise.reject(error);
+		}
+	}
+
+	_makeHttpRequest(options, postData) {
+		return new Promise((resolve, reject) => {
 			const req = http.request(options, (res) => {
-				const { statusCode } = res;
-				const contentType = res.headers['content-type'];
-				let error;
-				if ((statusCode === 302) && options.path.includes(loginPath)) {
-					// redirect after login, that's ok
-				}	else if (statusCode === 403) {
-					error = new Error('Incorrect password');
-				}	else if (statusCode === 404) {
-					error = new Error('Not found. Wrong IP address?');
-				}	else if (statusCode !== 200) {
-					error = new Error(`Request Failed. Status Code: ${statusCode}`);
-				} else if (!/^application\/json/.test(contentType)
-										&& !options.path.includes('/S?')
-										&& !options.path.includes('/M?')) {
-					error = new Error(`Invalid content-type. Expected application/json but received ${contentType}`);
-				}
-				if (error) {
-					// consume response data to free up memory
-					res.resume();
-					this.loggedIn = false;
-					reject(error);
-					return;
-				}
 				let resBody = '';
 				res.on('data', (chunk) => {
 					resBody += chunk;
 				});
-				res.on('end', () => {
+				res.once('end', () => {
 					res.body = resBody;
-					resolve(res); // resolve the request
+					return resolve(res); // resolve the request
 				});
 			});
-			req.on('error', (e) => {
-				this.loggedIn = false;
-				// util.log('got an e');
-				reject(e);
-			});
+			req.write(postData);
+			req.end();
 			req.setTimeout(this.timeout, () => {
 				req.abort();
 				reject(Error('Connection timeout'));
+				// console.log('Connection timeout');
 			});
-			req.end();
+			req.once('error', (e) => {
+				// console.log(`http request error: ${e}`);
+				reject(e);
+			});
 		});
 	}
+
 }
 
 module.exports = Youless;

@@ -52,7 +52,16 @@ class LS120Device extends Homey.Device {
 			// create youless session
 			this.youless = new this._driver.Youless(settings.password, settings.youLessIp);
 			// sync time in youless
-			await this.youless.syncTime();
+			this.youless.login()
+				.then(() => {
+					this.youless.syncTime()
+						.catch((error) => {
+							this.error(error.message);
+						});
+				})
+				.catch((error) => {
+					this.error(error.message);
+				});
 			// this.log(this.youless);
 			// register trigger flow cards of custom capabilities
 			this.tariffChangedTrigger = new Homey.FlowCardTriggerDevice('tariff_changed')
@@ -122,18 +131,11 @@ class LS120Device extends Homey.Device {
 	// this method is called when the user has changed the device's settings in Homey.
 	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
 		this.log('settings change requested by user');
-		this.log(newSettingsObj);
-		this.youless.login(newSettingsObj.password, newSettingsObj.youLessIp) // password, [host], [port]
-			.then(() => {		// new settings are correct
-				this.log(`${this.getName()} device settings changed`);
-				// do callback to confirm settings change
-				callback(null, true);
-				this.restartDevice();
-			})
-			.catch((error) => {		// new settings are incorrect
-				this.error(error.message);
-				return callback(error, null);
-			});
+		// this.log(newSettingsObj);
+		this.log(`${this.getName()} device settings changed`);
+		// do callback to confirm settings change
+		callback(null, true);
+		this.restartDevice();
 	}
 
 	async doPoll() {
@@ -141,6 +143,9 @@ class LS120Device extends Homey.Device {
 		let err;
 		if (!this.youless.loggedIn) {
 			await this.youless.login()
+				.then(() => {
+					this.log('login succesfull');
+				})
 				.catch((error) => {
 					this.error(`login error: ${error}`);
 					err = new Error(`login error: ${error}`);

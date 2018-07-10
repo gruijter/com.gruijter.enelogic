@@ -27,6 +27,7 @@
         function onHomeyReady(Homey){
            HomeyAPI = Homey;
            Homey.ready();
+					 showLogs();
 				 }
 
         function showLogs() {
@@ -44,7 +45,10 @@
 					 HomeyAPI.api('GET', 'deletelogs/', function(err, result) {
 						 if (err) {
 							 HomeyAPI.alert( err.message, 'error' ); // [, String icon], Function callback )
-						 } else { HomeyAPI.alert( 'Logs deleted!', 'info' ); }
+						 } else {
+							 HomeyAPI.alert( 'Logs deleted!', 'info' );
+							 showLogs();
+						 }
 					 });
 				}
 
