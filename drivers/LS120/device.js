@@ -34,19 +34,6 @@ class LS120Device extends Homey.Device {
 			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			// migrate from sdk1 version app
-			if (!settings.hasOwnProperty('password')) {
-				this.log('Whoohoo, migrating from v1 now :)');
-				settings.password = '';
-				settings.filterReadings = false;
-				settings.model = '';
-				settings.mac = '';
-				// settings.hasP1Meter = 'undefined';
-				// settings.hasGasMeter = 'undefined';
-				// settings.hasS0Meter = 'undefined';
-				this.setSettings(settings)
-					.catch(this.error);
-			}
 			this.meters = {};
 			this.initMeters();
 			// create youless session
