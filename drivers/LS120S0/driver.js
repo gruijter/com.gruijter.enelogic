@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /*
 Copyright 2017, 2018, Robin de Gruijter (gruijter@hotmail.com)
 
@@ -36,21 +37,12 @@ class LS120S0Driver extends Homey.Driver {
 				const password = data.password;
 				const host = data.youLessIp;
 				const youless = new this.Youless(password, host);	// password, host, [port]
-				// this.log(youless);
-				// try to login
 				await youless.login();
-				// try to get advancedStatus and connected meters
-				await youless.getAdvancedStatus()
-					.then(() => {
-						if (youless.info.hasS0Meter) {
-							callback(null, JSON.stringify(youless.info)); // report success to frontend
-						} else { callback(Error('No S0 meter available')); }
-					})
-					.catch(() => {
-						if (youless.info.hasS0Meter) {
-							callback(null, JSON.stringify(youless.info)); // report success to frontend
-						} else { callback(Error('No S0 meter available')); }
-					});
+				await youless.getAdvancedStatus();	// check for s0 meter
+				const info = await youless.getInfo();
+				if (youless.hasMeter.s0) {
+					callback(null, JSON.stringify(info)); // report success to frontend
+				} else { callback(Error('No S0 meter available')); }
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {
@@ -60,29 +52,6 @@ class LS120S0Driver extends Homey.Driver {
 			}
 		});
 	}
-
-	// isValidReading(readings) {	// call with device as this
-	// 	let validReading = true;
-	// 	if (this.meters.lastMeterPowerIntervalTm === null) { // first reading after init
-	// 		return validReading;	// We have to assume that the first reading after init is a valid reading :(
-	// 	}
-	// 	// check if timestamps make sense
-	// 	const tm = readings.tm; // power meter timestamp
-	// 	const ts0 = readings.ts0; // S0 meter timestamp
-	// 	// if (tm - this.meters.lastMeterPowerTm < 0) {
-	// 	// 	this.log('power time is negative');
-	// 	// 	validReading = false;
-	// 	// }
-	// 	if ((ts0 !== 0) && (Math.abs(ts0 - tm) > 45000)) {	// > 12 hrs difference
-	// 		this.log('S0 and power time differ too much');
-	// 		validReading = false;
-	// 	}
-	// 	if (!validReading) {
-	// 		this.log(this.meters);
-	// 		this.log(readings);
-	// 	}
-	// 	return validReading;
-	// }
 
 	handleNewReadings(readings) {	// call with device as this
 		// this.log(`handling new readings for ${this.getName()}`);

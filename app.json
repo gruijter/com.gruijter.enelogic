@@ -1,8 +1,8 @@
 {
   "id": "com.gruijter.enelogic",
   "name": {
-    "en": "Enelogic",
-    "nl": "Enelogic"
+    "en": "Enelogic and Youless",
+    "nl": "Enelogic and Youless"
   },
 
   "description": {
@@ -14,22 +14,22 @@
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
-    "name": "Robin de Gruijter",
-    "email": "gruijter@hotmail.com"
-  },
-	"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
-	"license": " GPL-3.0-or-later",
-	"contributing": {
-		"donate": {
-			"paypal": {
-				"username": "gruijter"
-			}
+		"name": "Robin Gruijter",
+		"email": "gruijter@hotmail.com"
+},
+"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
+"license": " GPL-3.0-or-later",
+"contributing": {
+	"donate": {
+		"paypal": {
+			"username": "gruijter"
 		}
-	},
-	"bugs": {
-		"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
-	},
-	"athomForumDiscussionId": 2779,
+	}
+},
+"bugs": {
+"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
+},
+"homeyCommunityTopicId": 2279,
 
   "images": {
     "large": "./assets/images/large.jpg",
@@ -59,8 +59,8 @@
         "nl": "Gas"
       },
       "desc": {
-        "en": "Gas usage (previous hour)",
-        "nl": "Gasverbruik (vorige uur)"
+        "en": "Gas usage",
+        "nl": "Gasverbruik"
       },
       "units": {
         "en": "m\u00B3 /hr",
@@ -696,8 +696,8 @@
 				"measure_water": {
 					"type": "number",
 					"title": {
-						"en": "Water flow",
-						"nl": "Waterdoorstroming"
+						"en": "L/min",
+						"nl": "L/min"
 					},
 					"units": {
 						"en": "L/min"
@@ -897,8 +897,8 @@
 			{
 				"id":"measure_water_changed",
 				"title": {
-					"en":"Water flow changed",
-					"nl":"Waterdoorstroming gewijzigd"
+					"en":"L/min changed",
+					"nl":"L/min gewijzigd"
 				},
 				"args": [
 					{

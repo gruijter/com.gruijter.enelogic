@@ -58,10 +58,7 @@ class LS120Device extends Homey.Device {
 			// register condition flow cards
 			const offPeakCondition = new Homey.FlowCardCondition('offPeakLS120');
 			offPeakCondition.register()
-				.registerRunListener((args, state) => {
-					// this.log('offPeak condition flow card requested');
-					return Promise.resolve(this.meters.lastOffpeak);
-				});
+				.registerRunListener(() => Promise.resolve(this.meters.lastOffpeak));
 			// register action flow cards
 			const reboot = new Homey.FlowCardAction('reboot_LS120');
 			reboot.register()
@@ -80,7 +77,7 @@ class LS120Device extends Homey.Device {
 						});
 				});
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(() => {
+			this.intervalIdDevicePoll = setInterval(async () => {
 				try {
 					if (this.watchDogCounter <= 0) {
 						// restart the app here
@@ -88,7 +85,8 @@ class LS120Device extends Homey.Device {
 						this.restartDevice();
 					}
 					// get new readings and update the devicestate
-					this.doPoll();
+					await this.doPoll();
+					this.watchDogCounter = 10;
 				} catch (error) {
 					this.watchDogCounter -= 1;
 					this.error('intervalIdDevicePoll error', error);
@@ -127,38 +125,27 @@ class LS120Device extends Homey.Device {
 
 	async doPoll() {
 		// this.log('polling for new readings');
-		let err;
-		if (!this.youless.loggedIn) {
-			await this.youless.login()
-				.then(() => {
-					this.log('login succesfull');
-				})
-				.catch((error) => {
-					this.error(`login error: ${error}`);
-					err = new Error(`login error: ${error}`);
-				});
-		}
-		if (err) {
-			this.setUnavailable(err)
-				.catch(this.error);
-			return;
-		}
-		await this.youless.getAdvancedStatus()
-			.then((readings) => {
-				this.setAvailable();
-				// this.log(readings);
-				if (this.getSettings().filterReadings && !this.isValidReading(readings)) {
-					this.watchDogCounter -= 1;
-					return;
-				}
-				this.handleNewReadings(readings);
-			})
-			.catch((error) => {
+		try {
+			if (!this.youless.loggedIn) {
+				await this.youless.login()
+					.catch((error) => {
+						this.setUnavailable(error)
+							.catch(this.error);
+						// throw Error('Failed to login');
+					});
+			}
+			if (!this.youless.loggedIn) { return; }
+			const readings = await this.youless.getAdvancedStatus();
+			this.setAvailable();
+			if (this.getSettings().filterReadings && !this.isValidReading(readings)) {
 				this.watchDogCounter -= 1;
-				this.error(`poll error: ${error}`);
-				this.setUnavailable(error)
-					.catch(this.error);
-			});
+				return;
+			}
+			this.handleNewReadings(readings);
+		} catch (error) {
+			this.watchDogCounter -= 1;
+			this.error(`poll error: ${error}`);
+		}
 	}
 
 	restartDevice() {

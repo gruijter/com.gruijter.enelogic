@@ -23,9 +23,6 @@ function testSettings () {
 				Homey.alert(__('pair.success')+ JSON.stringify(info), 'info');
 				settings.model = info.model;
 				settings.mac = info.mac;
-				// settings.hasP1Meter = info.hasP1Meter.toString();
-				// settings.hasGasMeter = info.hasGasMeter.toString();
-				// settings.hasS0Meter = info.hasS0Meter.toString();
 				var device = {
 					name: `LS120P1@${info.mac}`,
 					data: { id: `LS120P1@${info.mac}` },

@@ -36,19 +36,11 @@ class LS120Driver extends Homey.Driver {
 				const password = data.password;
 				const host = data.youLessIp;
 				const youless = new this.Youless(password, host);	// password, host, [port]
-				// this.log(youless);
-				// try to login
 				await youless.login();
-				// try to get advancedStatus and connected meters
-				await youless.getAdvancedStatus()
-					.then(() => {
-						callback(null, JSON.stringify(youless.info)); // report success to frontend
-					})
-					.catch(() => {
-						if (youless.info.model === 'LS120') {
-							callback(null, JSON.stringify(youless.info)); // report success to frontend
-						} else { callback(Error('Incorrect or no youless model found')); }
-					});
+				const info = await youless.getInfo();
+				if (info.model === 'LS120') {
+					callback(null, JSON.stringify(info)); // report success to frontend
+				} else { callback(Error('Incorrect youless model found')); }
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {

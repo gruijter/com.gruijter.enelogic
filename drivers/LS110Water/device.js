@@ -35,13 +35,6 @@ class LS110WaterDevice extends Homey.Device {
 			this.calculateFlow = this._driver.calculateFlow.bind(this);
 			this.watchDogCounter = 10;
 			this.settings = this.getSettings();
-			// migrate from sdk1 version app
-			if (!this.settings.hasOwnProperty('password')) {
-				this.log('Whoohoo, migrating from v1 now :)');
-				this.settings.password = '';
-				this.setSettings(this.settings)
-					.catch(this.error);
-			}
 			this.meters = {};
 			this.burstMode = true;
 			this.initMeters();
@@ -50,13 +43,11 @@ class LS110WaterDevice extends Homey.Device {
 			// set short http timeout
 			this.youless.timeout = (this.settings.pollingInterval * 0.9);
 			// sync time in youless
-			this.youless.login()
-				.then(() => {
-					this.youless.syncTime()
-						.catch((error) => {
-							this.error(error.message);
-						});
-				})
+			await this.youless.login()
+				.catch((error) => {
+					this.error(error.message);
+				});
+			await this.youless.syncTime()
 				.catch((error) => {
 					this.error(error.message);
 				});
@@ -81,7 +72,7 @@ class LS110WaterDevice extends Homey.Device {
 						});
 				});
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(() => {
+			this.intervalIdDevicePoll = setInterval(async () => {
 				try {
 					if (this.watchDogCounter <= 0) {
 						// restart the app here
@@ -89,7 +80,8 @@ class LS110WaterDevice extends Homey.Device {
 						this.restartDevice();
 					}
 					// get new readings and update the devicestate
-					this.doPoll();
+					await this.doPoll();
+					this.watchDogCounter = 10;
 				} catch (error) {
 					this.watchDogCounter -= 1;
 					this.error('intervalIdDevicePoll error', error);
@@ -128,42 +120,41 @@ class LS110WaterDevice extends Homey.Device {
 
 	async doPoll() {
 		// this.log('polling for new readings');
-		let pollOnce = false;
-		if ((Date.now() - this.meters.lastSlowPollTm) > 2000) {
-			// this.log('polling in slow mode');
-			pollOnce = true;
-			this.meters.lastSlowPollTm = Date.now();
-		}
-		if (!this.burstMode && !pollOnce) { return; }	// skip polling if not in burst or poll once mode
-		let err;
-		if (!this.youless.loggedIn) {
-			await this.youless.login()
-				.then(() => {
-					this.log('login succesfull');
-				})
+		try {
+			let pollOnce = false;
+			if ((Date.now() - this.meters.lastSlowPollTm) > 2000) {
+				// this.log('polling in slow mode');
+				pollOnce = true;
+				this.meters.lastSlowPollTm = Date.now();
+			}
+			if (!this.burstMode && !pollOnce) { return; }	// skip polling if not in burst or poll once mode
+			if (!this.youless.loggedIn) {
+				await this.youless.login()
+					.catch((error) => {
+						this.setUnavailable(error)
+							.catch(this.error);
+						// throw Error('Failed to login');
+					});
+				if (!this.youless.loggedIn) { return; }
+			}
+			const readings = await this.youless.getBasicStatus()
 				.catch((error) => {
-					this.error(`login error: ${error}`);
-					err = new Error(`login error: ${error}`);
-				});
-		}
-		if (err) {
-			this.setUnavailable(err)
-				.catch(this.error);
-			return;
-		}
-		await this.youless.getBasicStatus()
-			.then((readings) => {
-				this.setAvailable();
-				// this.log(readings);
-				this.handleNewReadings(readings);
-			})
-			.catch((error) => {
-				if (!error.message.includes('Connection timeout')) {
-					this.error(`poll error: ${error}`);
+					if (error.message.includes('Connection timeout')) {
+						return;
+					}
 					this.setUnavailable(error)
 						.catch(this.error);
-				}
-			});
+					throw error;
+				});
+			if (!readings) { return; }
+			this.setAvailable()
+				.catch(this.error);
+			this.handleNewReadings(readings);
+			return;
+		} catch (error) {
+			this.watchDogCounter -= 1;
+			this.error(`poll error: ${error}`);
+		}
 	}
 
 	restartDevice() {
