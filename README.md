@@ -100,7 +100,7 @@ v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bug fix
 v1.0.2  2017.03.22 Added support for YouLess LS120 (P1)
 v1.0.0  2017.02.18 Initial release
 ```
-[type 1]: https://www.vitens.nl/meer-informatie/typen-watermeters
+[type 1]: https://www.vitens.nl/service/watermeter
 [forum]: https://community.athom.com/t/4235
 [installation manual]: https://forum.athom.com/discussion/comment/61126/#Comment_61126
 [pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FV7VNCQ6XBY6L
