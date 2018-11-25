@@ -64,6 +64,7 @@ comment below or in the [forum].**
 
 ### Device setup in Homey ###
 ![image][devices-image]
+
 To setup go to "Devices", choose the correct driver. Use the LS120-P1 if you have
 a P1 connection to your smart meter. Otherwise choose the LS110/120-E driver
 Enter the fixed IP-address (preferred) or use the default url 'youless'.
