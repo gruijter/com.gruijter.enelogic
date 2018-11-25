@@ -36,17 +36,9 @@ class LS110Driver extends Homey.Driver {
 				const password = data.password;
 				const host = data.youLessIp;
 				const youless = new this.Youless(password, host);	// password, host, [port]
-				// this.log(youless);
-				// try to login
 				await youless.login();
-				// try to get basicStatus and connected meters
-				await youless.getBasicStatus()
-					.then(() => {
-						callback(null, 'Youless device found!'); // report success to frontend
-					})
-					.catch(() => {
-						callback(Error('Error retrieving basic status'));
-					});
+				const info = await youless.getInfo();
+				callback(null, JSON.stringify(info)); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {

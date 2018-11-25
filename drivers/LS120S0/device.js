@@ -33,15 +33,6 @@ class LS120Device extends Homey.Device {
 			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			// migrate from sdk1 version app
-			if (!settings.hasOwnProperty('password')) {
-				this.log('Whoohoo, migrating from v1 now :)');
-				settings.password = '';
-				settings.model = '';
-				settings.mac = '';
-				this.setSettings(settings)
-					.catch(this.error);
-			}
 			this.meters = {};
 			this.initMeters();
 			// create youless session
@@ -79,7 +70,7 @@ class LS120Device extends Homey.Device {
 						});
 				});
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(() => {
+			this.intervalIdDevicePoll = setInterval(async () => {
 				try {
 					if (this.watchDogCounter <= 0) {
 						// restart the app here
@@ -87,7 +78,8 @@ class LS120Device extends Homey.Device {
 						this.restartDevice();
 					}
 					// get new readings and update the devicestate
-					this.doPoll();
+					await this.doPoll();
+					this.watchDogCounter = 10;
 				} catch (error) {
 					this.watchDogCounter -= 1;
 					this.log('intervalIdDevicePoll error', error);
@@ -136,33 +128,23 @@ class LS120Device extends Homey.Device {
 
 	async doPoll() {
 		// this.log('polling for new readings');
-		let err;
-		if (!this.youless.loggedIn) {
-			await this.youless.login()
-				.then(() => {
-					this.log('login succesfull');
-				})
-				.catch((error) => {
-					this.error(`login error: ${error}`);
-					err = new Error(`login error: ${error}`);
-				});
+		try {
+			if (!this.youless.loggedIn) {
+				await this.youless.login()
+					.catch((error) => {
+						this.setUnavailable(error)
+							.catch(this.error);
+						// throw Error('Failed to login');
+					});
+			}
+			if (!this.youless.loggedIn) { return; }
+			const readings = await this.youless.getAdvancedStatus();
+			this.setAvailable();
+			this.handleNewReadings(readings);
+		} catch (error) {
+			this.watchDogCounter -= 1;
+			this.error(`poll error: ${error}`);
 		}
-		if (err) {
-			this.setUnavailable(err)
-				.catch(this.error);
-			return;
-		}
-		await this.youless.getAdvancedStatus()
-			.then((readings) => {
-				this.setAvailable();
-				this.handleNewReadings(readings);
-			})
-			.catch((error) => {
-				this.watchDogCounter -= 1;
-				this.error(`poll error: ${error}`);
-				this.setUnavailable(error)
-					.catch(this.error);
-			});
 	}
 
 	restartDevice() {
