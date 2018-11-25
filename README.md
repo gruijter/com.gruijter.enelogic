@@ -34,7 +34,7 @@ peak hours. Production to the powergrid is displayed as negative watts.
 Only changed values are logged.
 
 ### Experimental YouLess Watermeter ###
-![image][water-meter-image]
+<img src="https://forum.athom.com/uploads/editor/wb/kkyxklvl0jqc.jpg" alt="water meter" width="300"/>
 
 This experimental driver makes use of the optical sensor of the YouLess LS110
 and LS120. It has successfully been tested on water meters from Vitens ([type 1]).
@@ -65,11 +65,12 @@ comment below or in the [forum].**
 ### Device setup in Homey ###
 ![image][devices-image]
 
-To setup go to "Devices", choose the correct driver. Use the LS120-P1 if you have
-a P1 connection to your smart meter. Otherwise choose the LS110/120-E driver
+To setup, go to "Devices" and choose the correct driver. Use the LS120-P1 if you
+have a P1 connection to your smart meter. Otherwise choose the LS110/120-E driver
 Enter the fixed IP-address (preferred) or use the default url 'youless'.
-If you want to use the water meter you can simply add this as a second device and
-choose the LS110/120-W driver.
+If you want to use the S0 and/or the water meter, you can simply add these as an
+additional device.
+
 
 ### Donate: ###
 If you like the app you can show your appreciation by posting it in the [forum].
