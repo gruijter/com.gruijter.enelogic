@@ -1,0 +1,1 @@
+2.2.0 - 28-12-2018 Fixed several LS110 issues. Docs update.

@@ -13,7 +13,6 @@ const defaultCookie = ['undefined'];
 // const youlessMacId = '72:b8:ad:14';
 
 // available for LS110 and LS120:
-const loginPath = '/L?w=';
 const homePath = '/H';	// home page, only works after login if password is set
 const networkPath = '/N';	// network settings, only works after login if password is set
 const basicStatusPath = '/a?f=j';
@@ -22,9 +21,10 @@ const setPowerCounterPath = '/M?k='; // add counter value. e.g. /M?c=12345
 const setPowerPulsesPath = '/M?p='; // add pulses per kWh, e.g. /M?&p=1000
 const powerLogPath = '/V';	// add range h/w/d/m, selection, and json format. e.g. ?m=12&f=j
 const syncTimePath = '/S?t=n';	// time will sync to unknown time server
-const rebootPath = '/S?rb=';
 
 // only available for LS120:
+const loginPath = '/L?w=';
+const rebootPath = '/S?rb=';
 const discoverPath = '/d';
 const advancedStatusPath = '/e';
 const gasLogPath = '/W';	// add range w/d/m, selection, and json format. e.g. ?d=70&f=j
@@ -34,10 +34,11 @@ const setS0PulsesPath = '/M?s='; // add pulses per kWh, e.g. /M?&s=1000
 const setS0CounterPath = '/M?c='; // add counter value. e.g. /M?c=12345
 const s0LogPath = '/Z';	// add range h/w/d/m, selection, and json format. e.g. ?h=1&f=j
 
-const regExTimeResponse = /Tijd:<td>(.*?) \*<tr>/;
-const regExModelResponse = /Model:<td>(.*?)<tr>/;
-const regExFirmwareResponse = /Firmware versie:<td>(.*?)<tr>/;
-const regExMacResponse = /MAC Adres:<td>(.*?)<tr>/;
+const regExTimeResponse = /Tijd:(.*?)<tr>/;
+const regExModelResponse = /Model:(.*?)<tr>/;
+const regExFirmwareResponse = /Firmware versie:(.*?)<tr>/;
+const regExMacResponse = /MAC Adres:(.*?)<tr>/;
+const regExTagRemove = /[/dhrt<>*]/mg;
 
 function toEpoch(time) {	// yymmddhhmm, e.g. 1712282000 > 1514487600
 	const tmString = time.toString();
@@ -127,7 +128,7 @@ class Youless {
 	/**
 	* Login to the device. Passing parameters will override the previous settings.
 	* If host is not set, login will try to auto discover it.
-	* @param {string} [password] - The login password.
+	* @param {string} [password = ''] - The login password. NOTE: Only works for LS120.
 	* @param {string} [host] - The url or ip address of the device.
 	* @param {number} [port] - The  port of the device.
 	* @returns {Promise<Youless.loggedIn>} The loggedIn state.
@@ -468,7 +469,8 @@ class Youless {
 	async syncTime() {
 		try {
 			const res = await this._makeRequest(syncTimePath);
-			const dateTime = res.body.match(regExTimeResponse)[1];
+			const dateTimeDirty = res.body.match(regExTimeResponse)[1];
+			const dateTime = dateTimeDirty.replace(regExTagRemove, '');
 			return Promise.resolve(dateTime);
 		} catch (error) {
 			return Promise.reject(error);
@@ -476,7 +478,7 @@ class Youless {
 	}
 
 	/**
-	* Reboot the youless device
+	* Reboot the youless device. NOTE: Only works for LS120
 	* @returns {Promise<finished>}
 	*/
 	async reboot() {
@@ -519,9 +521,12 @@ class Youless {
 			const res = await this._makeRequest(homePath);
 			const res2 = await this._makeRequest(networkPath);
 			this.host = hostBefore;
-			info2.model = res.body.match(regExModelResponse)[1];
-			info2.mac = res2.body.match(regExMacResponse)[1];
-			info2.firmware = res.body.match(regExFirmwareResponse)[1];
+			const model = res.body.match(regExModelResponse)[1];
+			info2.model = model.replace(regExTagRemove, '');
+			const mac = res2.body.match(regExMacResponse)[1];
+			info2.mac = mac.replace(regExTagRemove, '');
+			const firmware = res.body.match(regExFirmwareResponse)[1];
+			info2.firmware = firmware.replace(regExTagRemove, '');
 			info2.host = host || hostBefore;
 			return Promise.resolve(info2);
 		} catch (error) {
@@ -557,10 +562,10 @@ class Youless {
 			if ((statusCode === 302) && options.path.includes(loginPath)) {
 				// redirect after login, that's ok
 			}	else if (statusCode === 403) {
-				// this.loggedIn = false;
+				this.loggedIn = false;
 				throw Error('Incorrect password');
 			}	else if (statusCode === 404) {
-				throw Error('Not found. Wrong IP address?');
+				throw Error('Page Not found');
 			}	else if (statusCode !== 200) {
 				throw Error(`Request Failed. Status Code: ${statusCode}`);
 			} else if
@@ -575,7 +580,6 @@ class Youless {
 			this.loggedIn = true;
 			return Promise.resolve(res);
 		}	catch (error) {
-			this.loggedIn = false;
 			return Promise.reject(error);
 		}
 	}

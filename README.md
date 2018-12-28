@@ -84,6 +84,7 @@ If you really like the app you can buy me a beer.
 Version changelog
 
 ```
+v2.2.0  2018.12.28 Fixes for LS110.
 v2.1.0  2018.11.24 Minor fixes for gas flow, pairing bug, login error, connection timeouts.
 v2.0.5  2018.07.08 Fix gas flow meter LS120. Password fix. Http optimizations.
 v2.0.4  2018.03.17 Fix crash no gas meter Enelogic P1.

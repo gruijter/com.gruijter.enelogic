@@ -73,12 +73,12 @@ async function doTest() {
 		log.push(powerLog);
 
 		// get gas log of the present month
-		log.push('trying to get historic gas log of present month');
+		log.push('trying to get historic gas log of present month (LS120-EL only)');
 		const gasLog = await youless.getGaslog().catch(() => undefined);
 		log.push(gasLog);
 
 		// get S0 log of the present month
-		log.push('trying to get historic S0 log of present month');
+		log.push('trying to get historic S0 log of present month (LS120-EL only)');
 		const s0Log = await youless.getS0log().catch(() => undefined);
 		log.push(s0Log);
 
@@ -88,12 +88,15 @@ async function doTest() {
 		log.push(dateTime);
 
 		// // set the meter type to D(igital) or A(nalogue)
+		// log.push('trying to set meter type to Analogue');
 		// await youless.setMeterType('a');
 
 		// // set the S0 counter value (in KwH)
+		// log.push('trying to set the S0 counter (LS120-EL only)');
 		// await youless.setS0Counter(12345);
 
 		// // set the S0 pulses per KwH value NOTE: also resets powerPulses to 1000
+		// log.push('trying to set the S0 pulses (LS120-EL only)');
 		// await youless.setS0Pulses(1000);
 
 		// // set the Power counter value (in KwH) NOTE: also resets powerPulses to 1000
@@ -105,6 +108,7 @@ async function doTest() {
 		// await youless.setPowerPulses(1000);
 
 		// // reboot the youless device
+		// log.push('trying to reboot the device (LS120-EL only)');
 		// await youless.reboot();
 
 	}	catch (error) {
