@@ -8,6 +8,10 @@
   "description": {
     "en": "Imports data from the Enelogic and YouLess energy meter",
     "nl": "Leest data van de Enelogic en YouLess energie meter"
+	},
+	"tags": {
+    "en": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ],
+    "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ]
   },
 
   "version": "2.3.0",
@@ -35,8 +39,7 @@
     "large": "./assets/images/large.jpg",
     "small": "./assets/images/small.jpg"
   },
-
-  "category": ["energy", "appliances","tools" ],
+	"category": ["energy", "appliances","tools" ],
 
   "capabilities": {
     "meter_offPeak": {
