@@ -1,5 +1,5 @@
 /*
-Copyright 2017, 2018, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -14,7 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 'use strict';
@@ -37,31 +37,29 @@ class Ledring {
 		}
 		this.framesPower.push(this.framePower);
 
-		this.myAnimation = new Homey.LedringAnimation({
-			options: {
-				fps: 1, 		// real frames per second
-				tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
-				rpm: 10,		// rotations per minute
-			},
-			frames: this.framesPower,
-		});
+		const options = {
+			fps: 1, 		// real frames per second
+			tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
+			rpm: 10,		// rotations per minute
+		};
+		this.myAnimation = new Homey.LedringAnimation({ options, frames: this.framesPower });
 
 		// register the animation with Homey
 		this.myAnimation
-			.on('start', () => {
-				// The animation has started playing
-			})
-			.on('stop', () => {
-				// The animation has stopped playing
-			})
+			// .on('start', () => {
+			// 	// The animation has started playing
+			// 	console.log('IT STARTED PLAYING, THE SCREENSAVER THAT IS...');
+			// })
+			// .on('stop', () => {
+			// 	// The animation has stopped playing
+			// 	console.log('IT STOPPED PLAYING, THE SCREENSAVER THAT IS...');
+			// })
 			.register()
 			.then(() => {
-				// Homey.app.log('Animation registered!');
-				// myAnimation.start();
-				// register the screensaver with Homey
 				this.myAnimation.registerScreensaver('enelogic_power')
 					.then(() => {
-						Homey.app.log('screensaver registered!');
+						this.myAnimation.start();
+						Homey.app.log('Ledring screensaver started!');
 					})
 					.catch((error) => {
 						Homey.app.log(error);

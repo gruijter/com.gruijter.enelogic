@@ -10,26 +10,26 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
   },
 
-  "version": "2.2.0",
+  "version": "2.3.0",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
 		"name": "Robin Gruijter",
 		"email": "gruijter@hotmail.com"
-},
-"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
-"license": " GPL-3.0-or-later",
-"contributing": {
-	"donate": {
-		"paypal": {
-			"username": "gruijter"
+	},
+	"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
+	"license": " GPL-3.0-or-later",
+	"contributing": {
+		"donate": {
+			"paypal": {
+				"username": "gruijter"
+			}
 		}
-	}
-},
-"bugs": {
-"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
-},
-"homeyCommunityTopicId": 2279,
+	},
+	"bugs": {
+	"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
+	},
+	"homeyCommunityTopicId": 2279,
 
   "images": {
     "large": "./assets/images/large.jpg",
@@ -50,7 +50,9 @@
         "nl": "Is laag tarief actief?"
       },
       "getable": true,
-      "setable": false
+      "setable": false,
+      "insights": true,
+      "icon": "./drivers/LS120/assets/images/offPeak_icon.svg"
     },
     "measure_gas": {
       "type": "number",
@@ -67,7 +69,9 @@
         "nl": "m\u00B3 /uur"
       },
       "getable": true,
-      "setable": false
+      "setable": false,
+      "insights": true,
+      "icon": "./drivers/LS120/assets/images/gas_icon.svg"
     }
   },
   "drivers": [
