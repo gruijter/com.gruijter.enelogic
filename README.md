@@ -1,4 +1,4 @@
-# Enelogic #
+# Enelogic and YouLess#
 
 Homey app to integrate Enelogic P1 and YouLess LS110/LS120 energy meters.
 A direct connection over IP is used, so there is no dependency on the Enelogic
@@ -81,27 +81,8 @@ If you really like the app you can buy me a beer.
 
 ===============================================================================
 
-Version changelog
+Version changelog: [changelog.txt]
 
-```
-v2.3.0  2019.01.26 Fix for Homey V2 icons, insights and ledring.
-v2.2.0  2018.12.28 Fixes for LS110.
-v2.1.0  2018.11.24 Minor fixes for gas flow, pairing bug, login error, connection timeouts.
-v2.0.5  2018.07.08 Fix gas flow meter LS120. Password fix. Http optimizations.
-v2.0.4  2018.03.17 Fix crash no gas meter Enelogic P1.
-v2.0.3  2018.03.12 License info extended.
-v2.0.2  2018.01.29 Minor fix.
-v2.0.1  2018.01.19 Minor fixes, stable release.
-v2.0.0  2018.01.13 Complete rewrite to sdk2. Password support added.
-v1.1.2  2017.12.27 fix gas usage. Improved http handling. Ignore invalid readings from youless P1.
-v1.1.1  2017.10.01 added S0 metering for youless fw 1.4.0, bug fixes, xml2js updated to v0.4.19
-v1.0.0  2017.06.26 improved gas usage logging, bug fixes, added experimental water meter (using LS110/LS120 optical sensor)
-v1.0.6  2017.05.28 small bug fix (error reading device). Code cleanup
-v1.0.4  2017.04.19 Added polling interval setting
-v1.0.3  2017.04.16 Compensate 0 production readings. JSON.parse bug fix
-v1.0.2  2017.03.22 Added support for YouLess LS120 (P1)
-v1.0.0  2017.02.18 Initial release
-```
 [type 1]: https://www.vitens.nl/service/watermeter
 [forum]: https://community.athom.com/t/4235
 [installation manual]: https://forum.athom.com/discussion/comment/61126/#Comment_61126
@@ -113,3 +94,4 @@ v1.0.0  2017.02.18 Initial release
 [water-insights-image]: https://discourse-cdn-sjc1.com/business4/uploads/athom/original/2X/5/53ff080e7e55cdc13911a761c384683fd6612b46.png
 [water-meter-image]: https://forum.athom.com/uploads/editor/wb/kkyxklvl0jqc.jpg
 [devices-image]: https://discourse-cdn-sjc1.com/business4/uploads/athom/original/2X/9/96b25cb89bb25b68d54366e748e708fffc82db15.png
+[changelog.txt]: https://github.com/gruijter/com.gruijter.enelogic/blob/master/changelog.txt

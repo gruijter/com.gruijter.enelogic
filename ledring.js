@@ -20,54 +20,65 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
+const util = require('util');
 
-class Ledring {
-	constructor() {
-		Homey.app.log('ledring.js started');
-		this.framesPower = [];
-		this.framePower = [];
+const setTimeoutPromise = util.promisify(setTimeout);
 
+const framesPower = [];
+const framePower = [];
+const myAnimation = new Homey.LedringAnimation({
+	options: {
+		fps: 1, 	// real frames per second
+		tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
+		rpm: 10,	// rotations per minute
+	},
+	frames: framesPower,
+	duration: false,
+});
+
+const registerScreensaver = async () => {
+	try {
+		// Homey V2 racing issues resolver
+		await setTimeoutPromise(3 * 1000, 'waiting is done');
 		// Init frame for every pixel...
 		for (let pixel = 0; pixel < 24; pixel += 1) {
 			if (pixel < 1) {
-				this.framePower.push({ r: 80,	g: 0,	b: 0 });
+				framePower.push({ r: 80, g: 0, b: 0 });
 			} else {
-				this.framePower.push({ r: 0, g: 80, b: 0 });
+				framePower.push({ r: 0, g: 80, b: 0 });
 			}
 		}
-		this.framesPower.push(this.framePower);
-
-		const options = {
-			fps: 1, 		// real frames per second
-			tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
-			rpm: 10,		// rotations per minute
-		};
-		this.myAnimation = new Homey.LedringAnimation({ options, frames: this.framesPower });
-
-		// register the animation with Homey
-		this.myAnimation
+		framesPower.push(framePower);
+		await myAnimation
 			// .on('start', () => {
 			// 	// The animation has started playing
-			// 	console.log('IT STARTED PLAYING, THE SCREENSAVER THAT IS...');
+			// 	console.log('animation started');
 			// })
 			// .on('stop', () => {
 			// 	// The animation has stopped playing
-			// 	console.log('IT STOPPED PLAYING, THE SCREENSAVER THAT IS...');
+			// 	console.log('animation stopped');
 			// })
-			.register()
-			.then(() => {
-				this.myAnimation.registerScreensaver('enelogic_power')
-					.then(() => {
-						this.myAnimation.start();
-						Homey.app.log('Ledring screensaver started!');
-					})
-					.catch((error) => {
-						Homey.app.log(error);
-					});
-			})
-			.catch((error) => {
-				Homey.app.log(error);
-			});
+			.register();
+		// Homey V2 racing issues resolver
+		await setTimeoutPromise(3 * 1000, 'waiting is done');
+		// await myAnimation.start();
+		// await myAnimation.stop();
+		await myAnimation.registerScreensaver('enelogic_power');
+		// Homey V2 racing issues resolver
+		await setTimeoutPromise(3 * 1000, 'waiting is done');
+		myAnimation.updateFrames(framesPower);
+		Homey.app.log('Ledring screensaver ready!');
+	} catch (error) {
+		Homey.app.log(error);
+	}
+};
+
+class Ledring {
+	constructor() {
+		this.log = Homey.app.log;
+		this.animation = myAnimation;
+		registerScreensaver();
+		this.log('ledring.js started');
 	}
 
 	change(deviceSettings, measurepower) {
@@ -78,36 +89,35 @@ class Ledring {
 				// Homey.app.log('ledring not changed');
 				return;
 			}
-			// Homey.app.log("limit is: "+limit);
+			// this.log("limit is: "+limit);
 			if (limit > 24) { limit = 24; }
 			for (let pixel = 0; pixel < 24; pixel += 1) {
 				if (pixel < limit) {
-					this.framePower[pixel] = { r: 80,	g: 0,	b: 0	};
-				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+					framePower[pixel] = { r: 80,	g: 0,	b: 0	};
+				} else { framePower[pixel] = { r: 0, g: 80, b: 0 }; }
 			}
-			this.framesPower[0] = this.framePower;
+			framesPower[0] = framePower;
 		} else {	// producing power makes ledring blue
 			if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
-				// Homey.app.log('ledring not changed');
+				// this.log('ledring not changed');
 				return;
 			}
-			// Homey.app.log("limit is: " + limit);
+			// this.log("limit is: " + limit);
 			limit = -limit;
 			if (limit > 24) { limit = 24; }
 			for (let pixel = 0; pixel < 24; pixel += 1) {
 				if (pixel < limit) {
-					this.framePower[pixel] = { r: 0,	g: 0,	b: 120 };
-				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+					framePower[pixel] = { r: 0,	g: 0,	b: 120 };
+				} else { framePower[pixel] = { r: 0, g: 80, b: 0 }; }
 			}
-			this.framesPower[0] = this.framePower;
+			framesPower[0] = framePower;
 		}
-		this.myAnimation.updateFrames(this.framesPower)
+		this.animation.updateFrames(framesPower)
 			.catch((error) => {
-				Homey.app.log(error);
+				this.log(error);
 			});
-		// Homey.app.log('ledring changed');
+		// this.log('ledring changed');
 	}
-
 
 }
 

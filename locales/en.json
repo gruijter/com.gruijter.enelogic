@@ -1,7 +1,7 @@
 {
 	"pair": {
 		"title": "Add device",
-		"intro": "Enter the IP addresss of the device.\r\nLeave the password field empty if no password is set.",
+		"intro": "Enter the fixed IP addresss of the device.\r\nLeave the password field empty if no password is set. Note: Password is only supported on LS120.",
 		"intro2": "Enter the IP addresss of the device.",
 		"host": "IP address",
 		"password": "Password",
@@ -10,11 +10,21 @@
 		"success": "Success!"
   },
 	"settings": {
-		"app": {
-			"title": "Enelogic Debug Logs",
+		"benefit": "Integrate Enelogic and YouLess energy meters",
+		"tab1": {
+			"title": "Instructions",
+			"addDeviceTitle": "Add a new device",
+			"addDeviceInstructions": "Add a new device via the Homey tab `Devices`. Use the `LS120 P1` if you have a P1 connection to your smart meter. Otherwise choose the `LS110/120 E`. On request enter the fixed IP address. If you want to use the S0 and/or the water meter, you can simply add these as an additional device.",
+			"ledringTitle": "Enable LED ring",
+			"ledringInstructions": "The Homey LED ring can show you how much energy you are using and producing. Go to the Homey settings `LED Ring` and select the `Enelogic Power` screensaver."
+		},
+		"tab2": {
+			"title": "Debug Logs",
 			"logs": "Logs",
 			"deletelogs": "Delete logs",
-			"getlogs": "Refresh logs"
+			"updateLogs": "Refresh logs",
+			"deleteWarning": "Delete all logs?",
+			"deleted": "Logs deleted!"
 		}
 	}
 }

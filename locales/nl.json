@@ -1,20 +1,30 @@
 {
 	"pair": {
-		"title": "Device toevoegen",
-		"intro": "Voer het IP adres in van het device.\r\nHet wachtwoord leeglaten als dat niet is ingesteld.",
-		"intro2": "Voer het IP adres in van het device.",
-		"host": "IP adres",
+		"title": "Apparaat toevoegen",
+		"intro": "Voer het vaste IP adres in van het apparaat.\r\nLaat het wachtwoord veld leeg als er geen wachtwoord is ingesteld. NB: Wachtwoord werkt alleen bij de LS120.",
+		"intro2": "Voer het vaste IP adres in van het apparaat.",
+		"host": "IP addres",
 		"password": "Wachtwoord",
-		"required": "Het IP adres moet worden ingevuld",
+		"required": "Het IP address moet worden ingevuld",
 		"testSettings": "Opslaan",
 		"success": "Succes!"
-	},
+  },
 	"settings": {
-		"app": {
-			"title": "Enelogic Debug Logs",
+		"benefit": "Koppel Enelogic en YouLess energie meters",
+		"tab1": {
+			"title": "Instructies",
+			"addDeviceTitle": "Koppel nieuw apparaat",
+			"addDeviceInstructions": "Om te koppelen, ga naar de Homey tab `Apparaten`. Gebruik `LS120 P1` als je een slimme meter via P1 verbinding hebt aangesloten. In andere gevallen kies `LS110/120 E`. Vul op verzoek het vaste IP addres in. Als je de S0 en/of de water meter wilt gebruiken, kun je deze als aanvullend apparaat toevoegen.",
+			"ledringTitle": "LED ring aanzetten",
+			"ledringInstructions": "De Homey LED ring kan je laten zien hoeveel energie je gebruikt en produceert. Ga naar de Homey instellingen `LED Ring` en selecteer `Enelogic Power` als screensaver."
+		},
+		"tab2": {
+			"title": "Logs",
 			"logs": "Logs",
-			"deletelogs": "Logs verwijderen",
-			"getlogs": "Logs verversen"
+			"deletelogs": "Wis alle logs",
+			"updateLogs": "Ververs logs",
+			"deleteWarning": "Alle logs verwijderen?",
+			"deleted": "Logs verwijderd!"
 		}
 	}
 }

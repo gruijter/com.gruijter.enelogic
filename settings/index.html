@@ -1,58 +1,42 @@
 <!doctype html>
 <html>
-    <head>
-        <!-- The '/homey.js' script must be included in your settings view to work -->
-        <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-   </head>
-    <body>
-
-        <h1 data-i18n="settings.app.title"></h1>
-        <form id="netgear">
-
-        </form>
-
-        <div>
-        	<button type="button" class="right" id="button_deletelog" onclick="deleteLogs()" data-i18n="settings.app.deletelogs">Get Logs</button>
-        	<button type="button" class="right" id="button_getlog" onclick="showLogs()" data-i18n="settings.app.getlogs">Get Logs</button>
-        </div>
-
-        <p data-i18n="settings.app.logs"></p>
-        <div id="loglines"></div>
-
-        <script type="text/javascript">
-
-        var currentValues = {};
-        var HomeyAPI = null;
-
-        function onHomeyReady(Homey){
-           HomeyAPI = Homey;
-           Homey.ready();
-					 showLogs();
-				 }
-
-        function showLogs() {
-           HomeyAPI.api('GET', 'getlogs/', function(err, result) {
-              if (!err) {
-                 document.getElementById('loglines').innerHTML = '';
-                 for (var i=(result.length - 1); i >= 0; i--) {
-                    document.getElementById('loglines').innerHTML += result[i];
-                    document.getElementById('loglines').innerHTML += "<br />";
-                 }
-              };
-           });
-        }
-				function deleteLogs() {
-					 HomeyAPI.api('GET', 'deletelogs/', function(err, result) {
-						 if (err) {
-							 HomeyAPI.alert( err.message, 'error' ); // [, String icon], Function callback )
-						 } else {
-							 HomeyAPI.alert( 'Logs deleted!', 'info' );
-							 showLogs();
-						 }
-					 });
-				}
-
-        </script>
-
-    </body>
+<head>
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+	<script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+	<script type="text/javascript" src="settings.js" data-origin="settings"></script>
+</head>
+<body>
+	<div id="app">
+		<p data-i18n="settings.benefit" class="benefit">Integrate Enelogic and YouLess energy meters</p>
+		<div class="rTable tabs">
+			<div class="rTableRow">
+				<div id="tabb1" class="tab tab-inactive" onclick="showTab(1)" data-i18n="settings.tab1.title">Instructions</div>
+				<div id="tabb2" class="tab tab-inactive" onclick="showTab(2)" data-i18n="settings.tab2.title">Log</div>
+			</div>
+		</div>
+		<div class="tab-content">
+			<div style="height:8px" class="panel"></div>
+			<div id="tab1" class="panel" style="display: none;">
+				<fieldset class="listContainer">
+					<legend data-i18n="settings.tab1.addDeviceTitle">Add device</legend>
+					<p data-i18n="settings.tab1.addDeviceInstructions" class="instructions">Instructions</p>
+				</fieldset>
+				<fieldset class="listContainer">
+					<legend data-i18n="settings.tab1.ledringTitle">LED ring</legend>
+					<p data-i18n="settings.tab1.ledringInstructions" class="instructions">Instructions</p>
+				</fieldset>
+			</div>
+			<div id="tab2" class="panel" style="display: none;">
+				<div class="setting">
+					<label class="settings-item-description" data-i18n="settings.tab2.deletelogs"></label>
+					<button id="refreshButton" class="btn" onclick="deleteLogs()" data-i18n="settings.tab2.deletelogs">Delete</button>
+					<!-- <label class="settings-item-description" data-i18n="settings.tab2.updateLogs"></label>
+					<button id="refreshButton" class="btn" onclick="updateLogs()" data-i18n="settings.tab2.updateLogs">Refresh</button> -->
+				</div>
+				<div id="loglines" class="instructions"></div>
+			</div>
+		</div>
+	</div>
+</body>
 </html>

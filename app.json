@@ -14,7 +14,7 @@
     "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ]
   },
 
-  "version": "2.3.0",
+  "version": "2.4.0",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
