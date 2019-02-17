@@ -30,6 +30,16 @@ class LS110Driver extends Homey.Driver {
 	}
 
 	onPair(socket) {
+		socket.on('discover', async (data, callback) => {
+			try {
+				this.log('device discovery started');
+				const youless = new this.Youless();	// password, host, [port]
+				const discovered = await youless.discover();
+				callback(null, JSON.stringify(discovered)); // report success to frontend
+			}	catch (error) {
+				callback(error);
+			}
+		});
 		socket.on('validate', async (data, callback) => {
 			try {
 				this.log('save button pressed in frontend');
@@ -38,7 +48,22 @@ class LS110Driver extends Homey.Driver {
 				const youless = new this.Youless(password, host);	// password, host, [port]
 				await youless.login();
 				const info = await youless.getInfo();
-				callback(null, JSON.stringify(info)); // report success to frontend
+				const device = {
+					name: `${info.model}_${info.host}`,
+					data: { id: `LS110_${info.mac}` },
+					settings: {
+						youLessIp: host,
+						password,
+						model: info.model,
+						mac: info.mac,
+						ledring_usage_limit: 3000,
+					},
+					capabilities: [
+						'measure_power',
+						'meter_power',
+					],
+				};
+				callback(null, JSON.stringify(device)); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {

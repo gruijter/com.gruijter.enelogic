@@ -14,7 +14,7 @@
     "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ]
   },
 
-  "version": "2.4.0",
+  "version": "2.5.0",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
@@ -54,7 +54,9 @@
       },
       "getable": true,
       "setable": false,
-      "insights": true,
+			"insights": true,
+			"insightsTitleTrue": { "en": "Off-peak" },
+			"insightsTitleFalse": { "en": "Peak" },
       "icon": "./drivers/LS120/assets/images/offPeak_icon.svg"
     },
     "measure_gas": {
@@ -324,10 +326,10 @@
         ]
       },
       "pair": [
-          {
-          "id": "pair"
-        }
-      ],
+					{
+						"id": "pair"
+					}
+				],
       "settings": [
 				{
 					"type": "group",

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /*
 Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
 
@@ -30,6 +31,16 @@ class LS120Driver extends Homey.Driver {
 	}
 
 	onPair(socket) {
+		socket.on('discover', async (data, callback) => {
+			try {
+				this.log('device discovery started');
+				const youless = new this.Youless();	// password, host, [port]
+				const discovered = await youless.discover();
+				callback(null, JSON.stringify(discovered)); // report success to frontend
+			}	catch (error) {
+				callback(error);
+			}
+		});
 		socket.on('validate', async (data, callback) => {
 			try {
 				this.log('save button pressed in frontend');
@@ -38,9 +49,48 @@ class LS120Driver extends Homey.Driver {
 				const youless = new this.Youless(password, host);	// password, host, [port]
 				await youless.login();
 				const info = await youless.getInfo();
-				if (info.model === 'LS120') {
-					callback(null, JSON.stringify(info)); // report success to frontend
-				} else { callback(Error('Incorrect youless model found')); }
+				if (info.model !== 'LS120') {
+					throw Error('Incorrect youless model found');
+				}
+				const device = {
+					name: `${info.model}P1_${info.host}`,
+					data: { id: `LS120P1_${info.mac}` },
+					settings: {
+						youLessIp: host,
+						password,
+						model: info.model,
+						mac: info.mac,
+						ledring_usage_limit: 3000,
+						ledring_production_limit: 3000,
+					},
+					capabilities: [
+						'measure_power',
+						'meter_power',
+						// 'measure_gas',
+						// 'meter_gas',
+						// 'meter_offPeak',
+						// 'meter_power.peak',
+						// 'meter_power.offPeak',
+						// 'meter_power.producedPeak',
+						// 'meter_power.producedOffPeak',
+					],
+				};
+				if (data.includeOffPeak) {
+					device.capabilities.push('meter_offPeak');
+					device.capabilities.push('meter_power.peak');
+					device.capabilities.push('meter_power.offPeak');
+				}
+				if (data.includeProduction) {
+					device.capabilities.push('meter_power.producedPeak');
+				}
+				if (data.includeProduction && data.includeOffPeak) {
+					device.capabilities.push('meter_power.producedOffPeak');
+				}
+				if (data.includeGas) {
+					device.capabilities.push('measure_gas');
+					device.capabilities.push('meter_gas');
+				}
+				callback(null, JSON.stringify(device)); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {

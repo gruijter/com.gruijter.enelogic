@@ -1,8 +1,19 @@
 {
 	"pair": {
-		"title": "Add device",
-		"intro": "Enter the fixed IP addresss of the device.\r\nLeave the password field empty if no password is set. Note: Password is only supported on LS120.",
+		"titleLs110": "Youless LS110 / LS120 Power",
+		"instructionsLs110": "This driver should be used if you have a LS110 or LS120 connected to a power meter via the optical sensor. Enter the fixed IP addresss of the LS110/LS120, or let Homey try to autodiscover it. Password is only supported for the LS120. Leave the password field empty if you have a LS110, or no password is set in the LS120.",
+		"titleLs120": "Youless LS120-EL P1",
+		"instructionsLs120": "This driver should be used if you have a LS120 with Enelogic firmware connected to a smart meter via P1 (DSMR). Enter the fixed IP addresss of the LS120, or let Homey try to autodiscover it. Leave the password field empty if no password is set in the LS120. De-select any meters that you do not need. The main power is always included. Note: It is not possible to add meters afterwards without deleting the device first!",
+		"includeMeters": "Include meters",
+		"includeProduction": "Power production",
+		"includeOffPeak": "Off-peak",
+		"includeGas": "Gas",
+		"titleLs120S0": "Youless LS120 S0",
+		"instructionsLs120S0":  "This driver should be used if you have a LS120 connected to a power meter via S0. Enter the fixed IP addresss of the LS120, or let Homey try to autodiscover it. Leave the password field empty if no password is set in the LS120.",
+		"titleLs110W": "Youless LS110 / LS120 Water",
+		"instructionsLs110W": "This driver should be used if you have a LS110 or LS120 connected to a water meter via the optical sensor. Enter the fixed IP addresss of the LS110/LS120, or let Homey try to autodiscover it. Password is only supported for the LS120. Leave the password field empty if you have a LS110, or no password is set in the LS120.",
 		"intro2": "Enter the IP addresss of the device.",
+		"discover": "Discover device",
 		"host": "IP address",
 		"password": "Password",
 		"required": "The IP addresss must be filled in",
@@ -10,7 +21,7 @@
 		"success": "Success!"
   },
 	"settings": {
-		"benefit": "Integrate Enelogic and YouLess energy meters",
+		"benefit": "Integrate Enelogic and YouLess energy meters, reduce your CO2 footprint.",
 		"tab1": {
 			"title": "Instructions",
 			"addDeviceTitle": "Add a new device",

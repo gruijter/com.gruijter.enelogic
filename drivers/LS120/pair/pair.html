@@ -1,66 +1,81 @@
-<script>
-Homey.setTitle( __('pair.title') );
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+	<script type="text/javascript" src="pair.js" data-origin="pair"></script>
+</head>
+<body>
+	<div class="setting">
+		<p data-i18n="pair.instructionsLs120" class="instructions">Instructions</p>
 
-function testSettings () {
-	// variables
-	var host = document.getElementById( 'host' ).value;
-	var password = document.getElementById( 'password' ).value;
+		<label class="settings-item-description" data-i18n="pair.discover">Discover</label>
+		<button id="discover" class="btn" onclick="discover()" data-i18n="pair.discover">Discover</button>
 
-	if (host != '') {
-		var settings = {
-			youLessIp: host,
-			password: password || '',
-			ledring_usage_limit : 3000,
-			ledring_production_limit : 3000,
-		};
-		// Continue to back-end, pass along data
-		Homey.emit( 'validate', settings, function( err, result ){
-			if (err) {
-				console.log(err);
-				Homey.alert(err.message, 'error');
-			} else {
-				var info = JSON.parse(result);
-				Homey.alert(__('pair.success')+ JSON.stringify(info), 'info');
-				settings.model = info.model;
-				settings.mac = info.mac;
-				var device = {
-					name: `LS120P1@${info.mac}`,
-					data: { id: `LS120P1@${info.mac}` },
-					settings: settings
-				};
-				Homey.addDevice(device, function( err, result ){
-		    	if( err ) {	Homey.alert(err, 'error'); return }
-					setTimeout(function () {
-						Homey.done();
-					}, 5000);
+		<label class="settings-item-description" data-i18n="pair.host">host</label>
+		<div class="settings-itemgroup">
+			<input id="host" type="text" value="">
+		</div>
 
-				});
-			}
-		});
-	} else {
-		Homey.alert(__('pair.required'), 'error');
-		// Homey.done();
-	}
-}
-</script>
+		<label class="settings-item-description" data-i18n="pair.password">password</label>
+		<div class="settings-itemgroup">
+			<input id="password" type="password" value="">
+		</div>
+<!-- 
+		<label class="settings-item-description" data-i18n="pair.includeConsumption">Consumption</label>
+		<div class="settings-itemgroup">
+				<div class="settings-item-text">
+						<span data-i18n="pair.includeConsumption">Include power consumption</span>
+				</div>
+				<div class="settings-item-last">
+						<label class="form-switch">
+								<input type="checkbox" id="includeConsumption" checked="true">
+								<i></i>
+						</label>
+				</div>
+		</div> -->
 
-    <p data-i18n="pair.intro">enter IP address</p>
+		<label class="settings-item-description" data-i18n="pair.includeMeters">Meters</label>
+		<div class="settings-itemgroup">
+				<div class="settings-item-text">
+						<span data-i18n="pair.includeProduction">Include power production</span>
+				</div>
+				<div class="settings-item-last">
+						<label class="form-switch">
+								<input type="checkbox" id="includeProduction" checked="true">
+								<i></i>
+						</label>
+				</div>
+		</div>
 
-		<table class="pairSettings">
-			<tr>
-				<td style="width:100px;" data-i18n="pair.host">host</td>
-				<td><input id="host" type="text" value="" placeholder="e.g. 192.168.1.1"/></td>
-			</tr>
-			<tr>
-				<td style="width:100px;" data-i18n="pair.password">password</td>
-				<td><input id="password" type="password" value="" placeholder=""/></td>
-			</tr>
-		</table>
+		<!-- <label class="settings-item-description" data-i18n="pair.includeOffPeak">offPeak</label> -->
+			<div class="settings-itemgroup">
+				<div class="settings-item-text">
+						<span data-i18n="pair.includeOffPeak">Include power offPeak</span>
+				</div>
+				<div class="settings-item-last">
+						<label class="form-switch">
+								<input type="checkbox" id="includeOffPeak" checked="true">
+								<i></i>
+						</label>
+				</div>
+			</div>
 
-		<p>
-		&nbsp;
-	  </p>
+			<!-- <label class="settings-item-description" data-i18n="pair.includeGas">Gas</label> -->
+			<div class="settings-itemgroup">
+					<div class="settings-item-text">
+							<span data-i18n="pair.includeGas">Include gas</span>
+					</div>
+					<div class="settings-item-last">
+							<label class="form-switch">
+									<input type="checkbox" id="includeGas" checked="true">
+									<i></i>
+							</label>
+					</div>
+			</div>
 
-<fieldset>
-    <button class="button" data-i18n="pair.testSettings" onclick="testSettings()">Save</button>
-</fieldset>
+		<label class="settings-item-description" data-i18n="pair.testSettings">Start test</label>
+		<button id="runTest" class="btn" onclick="testSettings()" data-i18n="pair.testSettings">Start Test</button>
+	</div>
+</body>
+</html>

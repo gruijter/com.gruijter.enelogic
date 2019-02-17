@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /*
 Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
 
@@ -30,6 +31,16 @@ class LS110WaterDriver extends Homey.Driver {
 	}
 
 	onPair(socket) {
+		socket.on('discover', async (data, callback) => {
+			try {
+				this.log('device discovery started');
+				const youless = new this.Youless();	// password, host, [port]
+				const discovered = await youless.discover();
+				callback(null, JSON.stringify(discovered)); // report success to frontend
+			}	catch (error) {
+				callback(error);
+			}
+		});
 		socket.on('validate', async (data, callback) => {
 			try {
 				this.log('save button pressed in frontend');
@@ -38,7 +49,21 @@ class LS110WaterDriver extends Homey.Driver {
 				const youless = new this.Youless(password, host);	// password, host, [port]
 				await youless.login();
 				const info = await youless.getInfo();
-				callback(null, JSON.stringify(info)); // report success to frontend
+				const device = {
+					name: `${info.model}W_${info.host}`,
+					data: { id: `LS110W_${info.mac}` },
+					settings: {
+						youLessIp: host,
+						password,
+						model: info.model,
+						mac: info.mac,
+					},
+					capabilities: [
+						'measure_water',
+						'meter_water',
+					],
+				};
+				callback(null, JSON.stringify(device)); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {
@@ -49,28 +74,25 @@ class LS110WaterDriver extends Homey.Driver {
 		});
 	}
 
-	logRaw(opticalSensorRaw) {
-		Homey.ManagerInsights.getLog('optical_sensor_raw')
-			.then((log) => {
-				log.createEntry(opticalSensorRaw)
-					.catch(this.error);
-			})
-			.catch((error) => {
-				if (error.message === 'invalid_log') {
-					const options = {
-						label: { en: 'raw optical data' },
-						type: 'number',
-						units: { en: '' },
-						decimals: 0,
-						chart: 'stepLine',
-					};
-					Homey.ManagerInsights.createLog('optical_sensor_raw', options)
-						.then(() => {
-							this.logRaw(opticalSensorRaw);
-						})
-						.catch(this.error);
-				} else { this.error(error); }
-			});
+	async logRaw(opticalSensorRaw) {
+		try {
+			let log = await Homey.ManagerInsights.getLog('optical_sensor_raw')
+				.catch(() => null);
+			if (!log) {
+				const options = {
+					label: { en: 'Raw optical data' },
+					title: { en: 'Raw optical data' },
+					type: 'number',
+					units: { en: '' },
+					decimals: 0,
+					chart: 'stepLine',
+				};
+				log = await Homey.ManagerInsights.createLog('optical_sensor_raw', options);
+			}
+			log.createEntry(opticalSensorRaw);
+		} catch (error) {
+			this.log(error);
+		}
 	}
 
 	calculateFlow(readings) {
@@ -94,18 +116,18 @@ class LS110WaterDriver extends Homey.Driver {
 		const opticalSensorRaw = readings.raw;
 		let pulse = false;
 		// set thresholds on 40% and 60% of max deviation
-		const opticalSensorRawThresholdMax = Math.round(this.meters.optical_sensor_raw_min +
-			((this.meters.optical_sensor_raw_max - this.meters.optical_sensor_raw_min) * 0.6));
-		const opticalSensorRawThresholdMin = Math.round(this.meters.optical_sensor_raw_min +
-			((this.meters.optical_sensor_raw_max - this.meters.optical_sensor_raw_min) * 0.4));
+		const opticalSensorRawThresholdMax = Math.round(this.meters.optical_sensor_raw_min
+			+ ((this.meters.optical_sensor_raw_max - this.meters.optical_sensor_raw_min) * 0.6));
+		const opticalSensorRawThresholdMin = Math.round(this.meters.optical_sensor_raw_min
+			+ ((this.meters.optical_sensor_raw_max - this.meters.optical_sensor_raw_min) * 0.4));
 		// pulse received on rising edge
-		if ((opticalSensorRaw > opticalSensorRawThresholdMax) &&
-				(this.meters.lastOpticalSensorRaw <= opticalSensorRawThresholdMax)) {
+		if ((opticalSensorRaw > opticalSensorRawThresholdMax)
+			&& (this.meters.lastOpticalSensorRaw <= opticalSensorRawThresholdMax)) {
 			pulse = true;
 		}
 		// pulse received on falling edge
-		if ((opticalSensorRaw < opticalSensorRawThresholdMin) &&
-				(this.meters.lastOpticalSensorRaw >= opticalSensorRawThresholdMin)) {
+		if ((opticalSensorRaw < opticalSensorRawThresholdMin)
+			&& (this.meters.lastOpticalSensorRaw >= opticalSensorRawThresholdMin)) {
 			pulse = true;
 		}
 		// calibrating the pulse limits

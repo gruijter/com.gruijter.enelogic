@@ -31,6 +31,16 @@ class LS120S0Driver extends Homey.Driver {
 	}
 
 	onPair(socket) {
+		socket.on('discover', async (data, callback) => {
+			try {
+				this.log('device discovery started');
+				const youless = new this.Youless();	// password, host, [port]
+				const discovered = await youless.discover();
+				callback(null, JSON.stringify(discovered)); // report success to frontend
+			}	catch (error) {
+				callback(error);
+			}
+		});
 		socket.on('validate', async (data, callback) => {
 			try {
 				this.log('save button pressed in frontend');
@@ -40,9 +50,25 @@ class LS120S0Driver extends Homey.Driver {
 				await youless.login();
 				await youless.getAdvancedStatus();	// check for s0 meter
 				const info = await youless.getInfo();
-				if (youless.hasMeter.s0) {
-					callback(null, JSON.stringify(info)); // report success to frontend
-				} else { callback(Error('No S0 meter available')); }
+				if (!youless.hasMeter.s0) {
+					return callback(Error('No S0 information found on the device'));
+				}
+				const device = {
+					name: `${info.model}S0_${info.host}`,
+					data: { id: `LS120S0_${info.mac}` },
+					settings: {
+						youLessIp: host,
+						password,
+						model: info.model,
+						mac: info.mac,
+						ledring_usage_limit: 3000,
+					},
+					capabilities: [
+						'measure_power',
+						'meter_power',
+					],
+				};
+				callback(null, JSON.stringify(device)); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {

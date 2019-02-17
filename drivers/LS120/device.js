@@ -175,18 +175,25 @@ class LS120Device extends Homey.Device {
 		};
 	}
 
+
+	setCapability(capability, value) {
+		if (this.hasCapability(capability)) {
+			this.setCapabilityValue(capability, value);
+		}
+	}
+
 	updateDeviceState() {
 		// this.log(`updating states for: ${this.getName()}`);
 		try {
-			this.setCapabilityValue('measure_power', this.meters.lastMeasurePower);
-			this.setCapabilityValue('meter_offPeak', this.meters.lastOffpeak);
-			this.setCapabilityValue('measure_gas', this.meters.lastMeasureGas);
-			this.setCapabilityValue('meter_gas', this.meters.lastMeterGas);
-			this.setCapabilityValue('meter_power', this.meters.lastMeterPower);
-			this.setCapabilityValue('meter_power.peak', this.meters.lastMeterPowerPeak);
-			this.setCapabilityValue('meter_power.offPeak', this.meters.lastMeterPowerOffpeak);
-			this.setCapabilityValue('meter_power.producedPeak', this.meters.lastMeterPowerPeakProduced);
-			this.setCapabilityValue('meter_power.producedOffPeak', this.meters.lastMeterPowerOffpeakProduced);
+			this.setCapability('measure_power', this.meters.lastMeasurePower);
+			this.setCapability('meter_power', this.meters.lastMeterPower);
+			this.setCapability('measure_gas', this.meters.lastMeasureGas);
+			this.setCapability('meter_gas', this.meters.lastMeterGas);
+			this.setCapability('meter_power.peak', this.meters.lastMeterPowerPeak);
+			this.setCapability('meter_offPeak', this.meters.lastOffpeak);
+			this.setCapability('meter_power.offPeak', this.meters.lastMeterPowerOffpeak);
+			this.setCapability('meter_power.producedPeak', this.meters.lastMeterPowerPeakProduced);
+			this.setCapability('meter_power.producedOffPeak', this.meters.lastMeterPowerOffpeakProduced);
 			// update the device info
 			// const deviceInfo = this.youless.info;
 			// const settings = this.getSettings();
