@@ -1,5 +1,6 @@
 Known issue: insights for Off-Peak in Homey V2 is not possible due to Homey firmware change.
 
+v2.5.1  2019.03.04 Add LS120 S0 Water meter support.
 v2.5.0  2019.02.10 Fix V2 insights for raw optical sensor. Optimize pairing pages for V2 mobile. Meter selection of LS120 P1 during pairing.
 v2.4.0  2019.02.02 Fix ledring Homey V2. App settings page optimized for V2 mobile.
 v2.3.0  2019.01.26 Fix for Homey V2 icons, insights and ledring.
