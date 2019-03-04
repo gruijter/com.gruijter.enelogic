@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
+	<script type="text/javascript" src="pair.js" data-origin="pair"></script>
+</head>
+<body>
+	<div class="setting">
+		<p data-i18n="pair.instructionsLs120S0" class="instructions">Instructions</p>
+
+		<label class="settings-item-description" data-i18n="pair.discover">Discover</label>
+		<button id="discover" class="btn" onclick="discover()" data-i18n="pair.discover">Discover</button>
+
+		<label class="settings-item-description" data-i18n="pair.host">host</label>
+		<div class="settings-itemgroup">
+			<input id="host" type="text" value="">
+		</div>
+
+		<label class="settings-item-description" data-i18n="pair.password">password</label>
+		<div class="settings-itemgroup">
+			<input id="password" type="password" value="">
+		</div>
+
+		<label class="settings-item-description" data-i18n="pair.testSettings">Start test</label>
+		<button id="runTest" class="btn" onclick="testSettings()" data-i18n="pair.testSettings">Start Test</button>
+	</div>
+</body>
+</html>
