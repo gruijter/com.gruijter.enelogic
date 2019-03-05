@@ -157,20 +157,37 @@ class LS120Device extends Homey.Device {
 
 	initMeters() {
 		this.meters = {
+			lastMeasureWater: 0,
+			lastMeterWater: null,
 			lastMeasurePower: 0,									// 'measurePower' (W)
-			lastMeasurePowerAvg: 0,								// '2 minute average measurePower' (kWh)
 			lastMeterPower: null,									// 'meterPower' (kWh)
 			lastMeterPowerTm: null, 							// timestamp epoch, e.g. 1514394325
-			lastMeterPowerInterval: null,					// 'meterPower' at last interval (kWh)
-			lastMeterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
+			// lastMeasurePowerAvg: 0,								// '2 minute average measurePower' (kWh)
+			// lastMeterPowerInterval: null,					// 'meterPower' at last interval (kWh)
+			// lastMeterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
 		};
+	}
+
+	setCapability(capability, value) {
+		if (this.hasCapability(capability)) {
+			this.setCapabilityValue(capability, value);
+		}
 	}
 
 	updateDeviceState() {
 		// this.log(`updating states for: ${this.getName()}`);
 		try {
-			this.setCapabilityValue('measure_power', this.meters.lastMeasurePower);
-			this.setCapabilityValue('meter_power', this.meters.lastMeterPower);
+			this.setCapability('measure_power', this.meters.lastMeasurePower);
+			this.setCapability('meter_power', this.meters.lastMeterPower);
+			this.setCapability('measure_water', this.meters.lastMeasureWater);
+			this.setCapability('meter_water', this.meters.lastMeterWater);
+			// update meter in device settings
+			const settings = this.getSettings();
+			const meter = Math.round((this.meters.lastMeterPower || this.meters.lastMeterWater) * 10000) / 10000;
+			if (meter !== settings.set_meter_s0) {
+				this.setSettings({ set_meter_s0: meter })
+					.catch(this.error);
+			}
 			// update the device info
 			// const deviceInfo = this.youless.info;
 			// const settings = this.getSettings();

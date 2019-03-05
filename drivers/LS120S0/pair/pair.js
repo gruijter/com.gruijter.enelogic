@@ -36,6 +36,7 @@ function testSettings() {
 		const data = {
 			youLessIp: host,
 			password: $('#password').val(),
+			meterSelection: $('#meterSelection').val(),
 		};
 		// Continue to back-end, pass along data
 		Homey.emit('validate', data, (error, result) => {

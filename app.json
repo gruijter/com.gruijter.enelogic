@@ -14,7 +14,7 @@
     "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ]
   },
 
-  "version": "2.5.0",
+  "version": "2.5.1",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
@@ -30,6 +30,18 @@
 			}
 		}
 	},
+	"contributors": {
+    "developers": [
+      {
+        "name": "Robin Gruijter",
+    		"email": "gruijter@hotmail.com"
+      },
+      {
+        "name": "Ted Tolboom",
+        "email": "dTNL.Homey@gmail.com"
+      }
+    ]
+  },
 	"bugs": {
 	"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
 	},
@@ -560,7 +572,9 @@
 			"class": "sensor",
 			"capabilities": [
 			  "measure_power",
-			  "meter_power"
+				"meter_power",
+				"measure_water",
+				"meter_water"
 			],
 			"mobile": {
 			  "components": [
@@ -572,7 +586,9 @@
 			      "id": "sensor",
 			      "capabilities": [
 			        "measure_power",
-			        "meter_power"
+							"meter_power",
+							"measure_water",
+							"meter_water"
 			      ]
 			    }
 			  ]
@@ -658,8 +674,8 @@
 							"id": "ledring_usage_limit",
 							"type": "number",
 							"label": {
-								"en": "Max consumption (W)",
-                "nl": "Max gebruik (W)"
+								"en": "Max consumption",
+                "nl": "Max gebruik"
 							},
 							"attr": { "min": 0 },
 							"value": 3000
@@ -677,8 +693,8 @@
 							"id": "set_meter_s0",
 							"type": "number",
 							"label": {
-								"en": "Power meter (KWh)",
-								"nl": "Stroommeter (KWh)"
+								"en": "S0 meter value",
+								"nl": "S0 meter waarde"
 							},
 							"value": 0
 						}
