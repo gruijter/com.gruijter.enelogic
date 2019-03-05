@@ -33,7 +33,13 @@ The power is totalized for consumed and produced power, during off-peak and
 peak hours. Production to the powergrid is displayed as negative watts.
 Only changed values are logged.
 
-### Experimental YouLess Watermeter ###
+### S0 Water meter ###
+The LS120 S0 driver can be used with a pulse water meter. It provides logs and
+flow cards for the following data:
+- Actual water flow (L/min)
+- Water meter (m3)
+
+### Experimental Optical Watermeter ###
 <img src="https://forum.athom.com/uploads/editor/wb/kkyxklvl0jqc.jpg" alt="water meter" width="300"/>
 
 This experimental driver makes use of the optical sensor of the YouLess LS110
