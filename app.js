@@ -20,14 +20,14 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const Ledring = require('./ledring.js');
+// const Ledring = require('./ledring.js');
 const Logger = require('./captureLogs.js');
 
 class MyApp extends Homey.App {
 
 	onInit() {
 		this.log('Enelogic App is running!');
-		this.ledring = new Ledring();
+		// this.ledring = new Ledring();
 		this.logger = new Logger('log', 200);	// [logName] [, logLength]
 
 		// register some listeners

@@ -22,12 +22,14 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Youless = require('youless');
+const Ledring = require('../../ledring.js');
 
 class LS120S0Driver extends Homey.Driver {
 
 	onInit() {
 		this.log('entering LS120S0 driver');
 		this.Youless = Youless;
+		this.ledring = new Ledring('enelogic_s0');
 	}
 
 	onPair(socket) {
@@ -118,7 +120,7 @@ class LS120S0Driver extends Homey.Driver {
 				.catch(this.error);
 			// .then(this.error('Power change flow card triggered'));
 			// update the ledring screensavers
-			this._ledring.change(this.getSettings(), this.meters.lastMeasurePower);
+			this._ledring.change(this.getSettings(), measurePower);
 		}
 		// store the new readings in memory
 		this.meters.lastMeasurePower = measurePower; // || this.meters.lastMeasurePower;
@@ -142,7 +144,7 @@ class LS120S0Driver extends Homey.Driver {
 			measureWater = readings.ps0 / 60; // readings.ps0 (in liter / hr) to liter / min
 			// this.log('water pulse on time: reported flow', measureWater, 'reported meter:', meterWater);
 			// update the ledring screensavers
-			this._ledring.change(this.getSettings(), this.meters.measureWater);
+			this._ledring.change(this.getSettings(), measureWater);
 		}
 		// store the new readings in memory
 		this.meters.lastMeterWater = meterWater;

@@ -22,12 +22,14 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Youless = require('youless');
+const Ledring = require('../../ledring.js');
 
 class LS110WaterDriver extends Homey.Driver {
 
 	onInit() {
 		this.log('entering LS110Water driver');
 		this.Youless = Youless;
+		this.ledring = new Ledring('enelogic_optical');
 	}
 
 	onPair(socket) {
@@ -105,7 +107,6 @@ class LS110WaterDriver extends Homey.Driver {
 			const usedWater = (this.meters.lastMeterWater - this.meters.lastMeasureWaterMeter) * 1000; // in liters
 			flow = Math.round(((usedWater * 60) / timePast) * 10) / 10;
 		}
-		this.meters.lastMeasureWater = flow;
 		this.meters.lastMeasureWaterTm = tm;
 		this.meters.lastMeasureWaterMeter = this.meters.lastMeterWater;
 		return flow;
@@ -200,7 +201,7 @@ class LS110WaterDriver extends Homey.Driver {
 					this.measureWaterChangedTrigger
 						.trigger(this, tokens)
 						.catch(this.error);
-					// .then(this.log('Measure water changed flow card triggered'));
+					this._ledring.change(this.getSettings(), measureWater);
 				}
 			}
 		}
@@ -208,9 +209,6 @@ class LS110WaterDriver extends Homey.Driver {
 		this.meters.lastMeterWater = meterWater;
 		this.meters.lastMeasureWater = measureWater;
 		this.meters.lastOpticalSensorRaw = raw;
-		// this.meters.lastMeterWaterTm = meterWaterTm;
-		// update the device state
-		// this.log(this.meters);
 		this.updateDeviceState();
 	}
 

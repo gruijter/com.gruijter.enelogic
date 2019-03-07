@@ -30,7 +30,7 @@ class LS110Device extends Homey.Device {
 		try {
 			// init some stuff
 			this._driver = this.getDriver();
-			this._ledring = Homey.app.ledring;
+			this._ledring = this._driver.ledring;
 			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();

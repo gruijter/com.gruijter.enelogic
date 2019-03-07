@@ -24,99 +24,80 @@ const util = require('util');
 
 const setTimeoutPromise = util.promisify(setTimeout);
 
-const framesPower = [];
-const framePower = [];
-const myAnimation = new Homey.LedringAnimation({
-	options: {
-		fps: 1, 	// real frames per second
-		tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
-		rpm: 10,	// rotations per minute
-	},
-	frames: framesPower,
-	duration: false,
-});
-
-const registerScreensaver = async () => {
-	try {
-		// Homey V2 racing issues resolver
-		await setTimeoutPromise(3 * 1000, 'waiting is done');
-		// Init frame for every pixel...
-		for (let pixel = 0; pixel < 24; pixel += 1) {
-			if (pixel < 1) {
-				framePower.push({ r: 80, g: 0, b: 0 });
-			} else {
-				framePower.push({ r: 0, g: 80, b: 0 });
-			}
-		}
-		framesPower.push(framePower);
-		await myAnimation
-			// .on('start', () => {
-			// 	// The animation has started playing
-			// 	console.log('animation started');
-			// })
-			// .on('stop', () => {
-			// 	// The animation has stopped playing
-			// 	console.log('animation stopped');
-			// })
-			.register();
-		// Homey V2 racing issues resolver
-		await setTimeoutPromise(3 * 1000, 'waiting is done');
-		// await myAnimation.start();
-		// await myAnimation.stop();
-		await myAnimation.registerScreensaver('enelogic_power');
-		// Homey V2 racing issues resolver
-		await setTimeoutPromise(3 * 1000, 'waiting is done');
-		myAnimation.updateFrames(framesPower);
-		Homey.app.log('Ledring screensaver ready!');
-	} catch (error) {
-		Homey.app.log(error);
-	}
-};
-
 class Ledring {
-	constructor() {
+	constructor(screensaver) {
 		this.log = Homey.app.log;
-		this.animation = myAnimation;
-		registerScreensaver();
-		this.log('ledring.js started');
+		this.framesPower = [];
+		this.framePower = [];
+		this.animation = new Homey.LedringAnimation({
+			options: {
+				fps: 1, 	// real frames per second
+				tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
+				rpm: 10,	// rotations per minute
+			},
+			frames: this.framesPower,
+			duration: false,
+		});
+		this.registerScreensaver(screensaver);
+	}
+
+	async registerScreensaver(screensaver) {
+		try {
+			// Homey V2 racing issues resolver
+			await setTimeoutPromise(1 * 1000, 'waiting is done');
+			// Init frame for every pixel...
+			for (let pixel = 0; pixel < 24; pixel += 1) {
+				if (pixel < 1) {
+					this.framePower.push({ r: 80, g: 0, b: 0 });
+				} else {
+					this.framePower.push({ r: 0, g: 80, b: 0 });
+				}
+			}
+			this.framesPower.push(this.framePower);
+			await this.animation
+				.register();
+			// Homey V2 racing issues resolver
+			await setTimeoutPromise(1 * 1000, 'waiting is done');
+			await this.animation.registerScreensaver(screensaver);
+			// Homey V2 racing issues resolver
+			await setTimeoutPromise(1 * 1000, 'waiting is done');
+			this.animation.updateFrames(this.framesPower);
+			Homey.app.log(`${screensaver} ledring screensaver ready!`);
+		} catch (error) {
+			Homey.app.log(error);
+		}
 	}
 
 	change(deviceSettings, measurepower) {
-		// Homey.app.log('entering ledring change');
 		let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
 		if (measurepower >= 0) {	// consuming power makes ledring red
 			if (deviceSettings.ledring_usage_limit === 0) {	// ignore change when limit setting is 0
-				// Homey.app.log('ledring not changed');
 				return;
 			}
-			// this.log("limit is: "+limit);
 			if (limit > 24) { limit = 24; }
 			for (let pixel = 0; pixel < 24; pixel += 1) {
 				if (pixel < limit) {
-					framePower[pixel] = { r: 80,	g: 0,	b: 0	};
-				} else { framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+					this.framePower[pixel] = { r: 80,	g: 0,	b: 0	};
+				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
 			}
-			framesPower[0] = framePower;
+			this.framesPower[0] = this.framePower;
 		} else {	// producing power makes ledring blue
 			if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
-				// this.log('ledring not changed');
 				return;
 			}
-			// this.log("limit is: " + limit);
 			limit = -limit;
 			if (limit > 24) { limit = 24; }
 			for (let pixel = 0; pixel < 24; pixel += 1) {
 				if (pixel < limit) {
-					framePower[pixel] = { r: 0,	g: 0,	b: 120 };
-				} else { framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+					this.framePower[pixel] = { r: 0,	g: 0,	b: 120 };
+				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
 			}
-			framesPower[0] = framePower;
+			this.framesPower[0] = this.framePower;
 		}
-		this.animation.updateFrames(framesPower)
+		this.animation.updateFrames(this.framesPower)
 			.catch((error) => {
 				this.log(error);
 			});
-		// this.log('ledring changed');
 	}
 
 }

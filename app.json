@@ -10,11 +10,11 @@
     "nl": "Leest data van de Enelogic en YouLess energie meter"
 	},
 	"tags": {
-    "en": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ],
-    "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power" ]
+    "en": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power", "water", "gas" ],
+    "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power", "water", "gas" ]
   },
 
-  "version": "2.5.1",
+  "version": "2.5.2",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
@@ -803,6 +803,25 @@
 				{
 					"type": "group",
 					"label": {
+						"en": "Ledring",
+						"nl": "Ledring"
+					},
+					"children": [
+						{
+							"id": "ledring_usage_limit",
+							"type": "number",
+							"label": {
+								"en": "Max consumption",
+                "nl": "Max gebruik"
+							},
+							"attr": { "min": 0 },
+							"value": 20
+						}
+					]
+        },
+				{
+					"type": "group",
+					"label": {
 						"en": "Water meter settings",
 						"nl": "Watermeter instellingen"
 					},
@@ -1210,8 +1229,22 @@
 		{
 			"name": "enelogic_power",
 			"title": {
-				"en": "Enelogic Power",
-				"nl": "Enelogic Energie"
+				"en": "Enelogic P1 Power",
+				"nl": "Enelogic P1 Energie"
+			}
+		},
+		{
+			"name": "enelogic_s0",
+			"title": {
+				"en": "Enelogic S0",
+				"nl": "Enelogic S0"
+			}
+		},
+		{
+			"name": "enelogic_optical",
+			"title": {
+				"en": "Enelogic Optical",
+				"nl": "Enelogic Optisch"
 			}
 		}
   ],

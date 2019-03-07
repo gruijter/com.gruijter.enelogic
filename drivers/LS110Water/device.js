@@ -29,6 +29,7 @@ class LS110WaterDevice extends Homey.Device {
 		try {
 			// init some stuff
 			this._driver = this.getDriver();
+			this._ledring = this._driver.ledring;
 			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
 			this.pulseReceived = this._driver.pulseReceived.bind(this);
 			this.logRaw = this._driver.logRaw.bind(this);

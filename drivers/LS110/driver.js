@@ -21,12 +21,14 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Youless = require('youless');
+const Ledring = require('../../ledring.js');
 
 class LS110Driver extends Homey.Driver {
 
 	onInit() {
 		this.log('entering LS110 driver');
 		this.Youless = Youless;
+		this.ledring = new Ledring('enelogic_optical');
 	}
 
 	onPair(socket) {
@@ -139,7 +141,7 @@ class LS110Driver extends Homey.Driver {
 				.catch(this.error);
 			// .then(this.error('Power change flow card triggered'));
 			// update the ledring screensavers
-			this._ledring.change(this.getSettings(), this.meters.lastMeasurePower);
+			this._ledring.change(this.getSettings(), measurePower);
 		}
 		// store the new readings in memory
 		this.meters.lastMeasurePower = measurePower;
