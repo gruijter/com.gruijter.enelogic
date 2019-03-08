@@ -14,7 +14,7 @@
     "nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power", "water", "gas" ]
   },
 
-  "version": "2.5.3",
+  "version": "2.5.2",
 	"sdk": 2,
   "compatibility": ">= 1.5",
   "author": {
@@ -31,7 +31,7 @@
 		}
 	},
 	"contributors": {
-    "developers": [
+    "contributors": [
       {
         "name": "Robin Gruijter",
     		"email": "gruijter@hotmail.com"
