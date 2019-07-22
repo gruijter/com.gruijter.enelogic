@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable prefer-destructuring */
 /*
 Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
@@ -29,7 +30,7 @@ class LS110WaterDriver extends Homey.Driver {
 	onInit() {
 		this.log('entering LS110Water driver');
 		this.Youless = Youless;
-		this.ledring = new Ledring('enelogic_optical');
+		this.ledring = new Ledring('enelogic_water');
 	}
 
 	onPair(socket) {

@@ -690,7 +690,7 @@ sts: '(17)', cs0: ' 12345,0000', ps0: 0, raw: 627, net: 20289.512, tm: 154306573
 * @property {number} p1 P1 consumption counter (low tariff). e.g. 16110.964
 * @property {number} p2 P2 consumption counter (high tariff). e.g. 896.812
 * @property {number} n1 N1 production counter (low tariff). e.g. 1570.936
-* @property {number} n2 N2 consumption counter (high tariff). e.g. 4250.32
+* @property {number} n2 N2 production counter (high tariff). e.g. 4250.32
 * @property {number} gas counter gas-meter (in m^3). e.g. 6161.243
 * @property {number} [gts] time of the last gas measurement (yyMMddhhmm). e.g. 1811182200 NOTE: only for LS120 ^1.4 version firmware
 * @property {number} [gtm] time of the last gas measurement. unix-time-format. e.g. 1542574800 NOTE: only for LS120 ^1.4 version firmware

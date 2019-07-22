@@ -36,9 +36,11 @@ class Ledring {
 				rpm: 10,	// rotations per minute
 			},
 			frames: this.framesPower,
+			priority: 'INFORMATIVE',
 			duration: false,
 		});
-		this.registerScreensaver(screensaver);
+		this.registerScreensaver(screensaver)
+			.catch(error => this.log(error));
 	}
 
 	async registerScreensaver(screensaver) {
@@ -62,9 +64,9 @@ class Ledring {
 			// Homey V2 racing issues resolver
 			await setTimeoutPromise(1 * 1000, 'waiting is done');
 			this.animation.updateFrames(this.framesPower);
-			Homey.app.log(`${screensaver} ledring screensaver ready!`);
+			this.log(`${screensaver} ledring screensaver ready!`);
 		} catch (error) {
-			Homey.app.log(error);
+			this.log(error);
 		}
 	}
 

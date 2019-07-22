@@ -14,7 +14,7 @@
 		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "power", "water", "gas" ]
 	},
 
-	"version": "2.5.3",
+	"version": "2.5.4",
 	"sdk": 2,
 	"compatibility": ">= 1.5",
 	"author": {
@@ -82,63 +82,7 @@
 			"setable": false,
 			"insights": true,
 			"icon": "./drivers/LS120/assets/images/gas_icon.svg"
-		},
-		"meter_power": {
-			"type": "number",
-			"title": {
-				"en": "Power Meter",
-				"nl": "Energiemeter",
-				"de": "Energiezähler"
-			},
-			"decimals": 4,
-			"units": {
-				"en": "KWh"
-			},
-			"chartType": "spline",
-			"desc": {
-				"en": "Power usage in KiloWattHour (kWh)",
-				"nl": "Stroomverbuik in KiloWattUur (kWh)",
-				"de": "Energieverbrauch in Kilowattstunde (kWh)"
-			},
-			"options": {
-				"isGenerator": {
-					"type": "boolean",
-					"default": false,
-					"desc": {
-						"en": "This flag is used to determine whether this devices uses or generates power.",
-						"de": "Dieser Flag wird benutzt, um zu bestimmen, ob diese Geräte Energie verbrauchen oder produzieren."
-					}
-				}
-			},
-			"insights": true,
-			"getable": true,
-			"setable": false,
-			"uiComponent": "sensor",
-			"$flow": {
-				"triggers": [
-					{
-						"id": "meter_power_changed",
-						"title": {
-							"en": "The power meter changed",
-							"nl": "De stroommeter is veranderd",
-							"de": "Der Gesamtverbrauch hat sich geändert"
-						},
-						"tokens": [
-							{
-								"name": "meter_power",
-								"title": {
-									"en": "Power Meter",
-									"nl": "Energiemeter",
-									"de": "Energiezähler"
-								},
-								"type": "number",
-								"example": 25
-							}
-						]
-					}
-				]
-			}
-		}	
+		}
 	},
 	"drivers": [
 		{
@@ -164,29 +108,39 @@
 				"meter_power.producedOffPeak"
 			],
 			"capabilitiesOptions": {
+				"meter_power": {
+					"title": {
+						"en": "Power meter total",
+						"nl": "Energie totaal"
+					},
+					"decimals": 4
+				},
 				"meter_power.peak": {
 					"title": {
 						"en": "Power meter peak",
-						"nl": "Stroommeter piek"
+						"nl": "Energie piek"
 					}
 				},
 				"meter_power.offPeak": {
 					"title": {
 						"en": "Power meter off-peak",
-						"nl": "Stroommeter dal"
-					}
+						"nl": "Energie dal"
+					},
+					"decimals": 4
 				},
 				"meter_power.producedPeak": {
 					"title": {
 						"en": "Production peak",
 						"nl": "Productie piek"
-					}
+					},
+					"decimals": 4
 				},
 				"meter_power.producedOffPeak": {
 					"title": {
 						"en": "Production off-peak",
 						"nl": "Productie dal"
-					}
+					},
+					"decimals": 4
 				}
 			},
 			"mobile": {
@@ -319,29 +273,47 @@
 				"meter_power.producedOffPeak"
 			],
 			"capabilitiesOptions": {
+				"meter_power": {
+					"title": {
+						"en": "Power meter total",
+						"nl": "Energie totaal"
+					},
+					"decimals": 4
+				},
 				"meter_power.peak": {
 					"title": {
 						"en": "Power meter peak",
-						"nl": "Stroommeter piek"
-					}
+						"nl": "Energie piek"
+					},
+					"decimals": 4
 				},
 				"meter_power.offPeak": {
+					"meter_power": {
+						"title": {
+							"en": "Power meter total",
+							"nl": "Energie totaal"
+					},
+					"decimals": 4
+				},
 					"title": {
 						"en": "Power meter off-peak",
-						"nl": "Stroommeter dal"
-					}
+						"nl": "Energie dal"
+					},
+					"decimals": 4
 				},
 				"meter_power.producedPeak": {
 					"title": {
 						"en": "Production peak",
 						"nl": "Productie piek"
-					}
+					},
+					"decimals": 4
 				},
 				"meter_power.producedOffPeak": {
 					"title": {
 						"en": "Production off-peak",
 						"nl": "Productie dal"
-					}
+					},
+					"decimals": 4
 				}
 			},
 			"mobile": {
@@ -600,7 +572,7 @@
 							"type": "number",
 							"label": {
 								"en": "Power meter (KWh)",
-								"nl": "Stroommeter (KWh)"
+								"nl": "Energie (KWh)"
 							},
 							"value": 0
 						}
@@ -626,6 +598,13 @@
 				"meter_water"
 			],
 			"capabilitiesOptions": {
+				"meter_power": {
+					"title": {
+						"en": "Power meter total",
+						"nl": "Energie totaal"
+				},
+				"decimals": 4
+			},
 				"meter_water": {
 					"decimals": 3
 				}
@@ -1302,6 +1281,13 @@
 			"title": {
 				"en": "Enelogic Optical",
 				"nl": "Enelogic Optisch"
+			}
+		},
+		{
+			"name": "enelogic_water",
+			"title": {
+				"en": "Enelogic Water",
+				"nl": "Enelogic Water"
 			}
 		}
 	],

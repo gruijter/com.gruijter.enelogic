@@ -77,20 +77,8 @@ class LS120Device extends Homey.Device {
 						});
 				});
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(async () => {
-				try {
-					if (this.watchDogCounter <= 0) {
-						// restart the app here
-						this.log('watchdog triggered, restarting app now');
-						this.restartDevice();
-					}
-					// get new readings and update the devicestate
-					await this.doPoll();
-					this.watchDogCounter = 10;
-				} catch (error) {
-					this.watchDogCounter -= 1;
-					this.error('intervalIdDevicePoll error', error);
-				}
+			this.intervalIdDevicePoll = setInterval(() => {
+				this.doPoll();
 			}, 1000 * settings.pollingInterval);
 		} catch (error) {
 			this.error(error);
@@ -120,21 +108,36 @@ class LS120Device extends Homey.Device {
 		this.log(`${this.getName()} device settings changed`);
 		// do callback to confirm settings change
 		callback(null, true);
-		this.restartDevice();
+		this.restartDevice(1000);
 	}
 
 	async doPoll() {
-		// this.log('polling for new readings');
 		try {
+			if (this.watchDogCounter <= 0) {
+				// restart the app here
+				this.log('watchdog triggered, restarting device now');
+				this.restartDevice(60000);
+				return;
+			}
+			if (this.watchDogCounter < 9 && this.watchDogCounter > 1) {
+				// skip some polls
+				const isEven = this.watchDogCounter === parseFloat(this.watchDogCounter) ? !(this.watchDogCounter % 2) : undefined;
+				if (isEven) {
+					this.watchDogCounter -= 1;
+					// this.log('skipping poll');
+					return;
+				}
+			}
+			// get new readings and update the devicestate
 			if (!this.youless.loggedIn) {
 				await this.youless.login()
-					.catch((error) => {
-						this.setUnavailable(error)
-							.catch(this.error);
-						// throw Error('Failed to login');
+					.catch(() => {
+						// this.setUnavailable(error)
+						// 	.catch(this.error);
+						throw Error('Failed to login');
 					});
 			}
-			if (!this.youless.loggedIn) { return; }
+			// if (!this.youless.loggedIn) { return; }
 			const readings = await this.youless.getAdvancedStatus();
 			this.setAvailable();
 			if (this.getSettings().filterReadings && !this.isValidReading(readings)) {
@@ -142,18 +145,20 @@ class LS120Device extends Homey.Device {
 				return;
 			}
 			this.handleNewReadings(readings);
+			this.watchDogCounter = 10;
 		} catch (error) {
+			this.setUnavailable(error.message);
 			this.watchDogCounter -= 1;
-			this.error(`poll error: ${error}`);
+			this.error('Poll error', error.message);
 		}
 	}
 
-	restartDevice() {
+	restartDevice(delay) {
 		// stop polling the device, then start init after short delay
 		clearInterval(this.intervalIdDevicePoll);
 		setTimeout(() => {
 			this.onInit();
-		}, 10000);
+		}, delay || 10000);
 	}
 
 	initMeters() {
@@ -178,7 +183,10 @@ class LS120Device extends Homey.Device {
 
 	setCapability(capability, value) {
 		if (this.hasCapability(capability)) {
-			this.setCapabilityValue(capability, value);
+			this.setCapabilityValue(capability, value)
+				.catch((error) => {
+					this.log(error, capability, value);
+				});
 		}
 	}
 

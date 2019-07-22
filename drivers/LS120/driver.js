@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable prefer-destructuring */
 /*
 Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
@@ -170,88 +171,91 @@ class LS120Driver extends Homey.Driver {
 	}
 
 	handleNewReadings(readings) {	// call with device as this
-		// this.log(`handling new readings for ${this.getName()}`);
-		// gas readings from device
-		const meterGas = readings.gas; // gas_cumulative_meter
-		const meterGasTm = readings.gtm; // gas_meter_timestamp, youless fw ^1.3.4
-		let measureGas = this.meters.lastMeasureGas;
-		// constructed gas readings
-		const meterGasChanged = (this.meters.lastMeterGas !== meterGas) && (this.meters.lastMeterGasTm !== 0);
-		const meterGasTmChanged = (meterGasTm !== this.meters.lastMeterGasTm) && (this.meters.lastMeterGasTm !== 0);
-		if (meterGasChanged || meterGasTmChanged) {
-			const passedHours = (meterGasTm - this.meters.lastMeterGasTm) / 3600000;
-			if (passedHours > 0) {
-				measureGas = Math.round((meterGas - this.meters.lastMeterGas) / passedHours) / 1000; // gas_interval_meter
+		try {
+			// this.log(`handling new readings for ${this.getName()}`);
+			// gas readings from device
+			const meterGas = readings.gas || this.meters.lastMeterGas; // gas_cumulative_meter
+			const meterGasTm = readings.gtm || this.meters.lastMeterGasTm; // gas_meter_timestamp, youless fw ^1.3.4
+			let measureGas = this.meters.lastMeasureGas;
+			// constructed gas readings
+			const meterGasChanged = (this.meters.lastMeterGas !== meterGas) && (this.meters.lastMeterGasTm !== 0);
+			const meterGasTmChanged = (meterGasTm !== this.meters.lastMeterGasTm) && (this.meters.lastMeterGasTm !== 0);
+			if (meterGasChanged || meterGasTmChanged) {
+				const passedHours = (meterGasTm - this.meters.lastMeterGasTm) / 3600000;
+				if (passedHours > 0) {
+					measureGas = Math.round((meterGas - this.meters.lastMeterGas) / passedHours) / 1000; // gas_interval_meter
+				}
 			}
+			// electricity readings from device
+			const meterPowerOffpeakProduced = readings.n1 || this.meters.lastMeterPowerPeakProduced;
+			const meterPowerPeakProduced = readings.n2 || this.meters.lastMeterPowerOffpeakProduced;
+			const meterPowerOffpeak = readings.p1 || this.meters.lastMeterPowerOffpeak;
+			const meterPowerPeak = readings.p2 || this.meters.lastMeterPowerPeak;
+			const meterPower = readings.net || this.meters.lastMeterPower;
+			let measurePower = readings.pwr;
+			let measurePowerAvg = this.meters.lastMeasurePowerAvg;
+			const meterPowerTm = readings.tm || this.meters.lastMeterPowerTm;
+			// constructed electricity readings
+			let offPeak = this.meters.lastOffpeak;
+			if ((meterPower - this.meters.lastMeterPower) !== 0) {
+				offPeak = ((meterPowerOffpeakProduced - this.meters.lastMeterPowerOffpeakProduced) > 0
+				|| (meterPowerOffpeak - this.meters.lastMeterPowerOffpeak) > 0);
+			}
+			// measurePowerAvg 2 minutes average based on cumulative meters
+			if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
+				this.meters.lastMeterPowerInterval = meterPower;
+				this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+			}
+			if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
+				measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
+				this.meters.lastMeterPowerInterval = meterPower;
+				this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+			}
+			// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
+			if (measurePower === 0 && measurePowerAvg < 0) {
+				measurePower = measurePowerAvg;
+			}
+			const measurePowerDelta = (measurePower - this.meters.lastMeasurePower);
+			// trigger the custom trigger flowcards
+			if (offPeak !== this.meters.lastOffpeak) {
+				const tokens = { tariff: offPeak };
+				this.tariffChangedTrigger
+					.trigger(this, tokens)
+					.catch(this.error);
+				// .then(this.log('Tariff change flow card triggered'));
+			}
+			if (measurePower !== this.meters.lastMeasurePower) {
+				const tokens = {
+					power: measurePower,
+					power_delta: measurePowerDelta,
+				};
+				this.powerChangedTrigger
+					.trigger(this, tokens)
+					.catch(this.error);
+				// .then(this.error('Power change flow card triggered'));
+				// update the ledring screensavers
+				this._ledring.change(this.getSettings(), measurePower);
+			}
+			// store the new readings in memory
+			this.meters.lastMeasureGas = measureGas; // || this.meters.lastMeasureGas;
+			this.meters.lastMeterGas = meterGas; // || this.meters.lastMeterGas;
+			this.meters.lastMeterGasTm = meterGasTm; // || this.meters.lastMeterGasTm;
+			this.meters.lastMeasurePower = measurePower; // || this.meters.lastMeasurePower;
+			this.meters.lastMeasurePowerAvg = measurePowerAvg;// || this.meters.lastMeasurePowerAvg;
+			this.meters.lastMeterPower = meterPower; // || this.meters.lastMeterPower;
+			this.meters.lastMeterPowerPeak = meterPowerPeak; // || this.meters.lastMeterPowerPeak;
+			this.meters.lastMeterPowerOffpeak = meterPowerOffpeak; // || this.meters.lastMeterPowerOffpeak;
+			this.meters.lastMeterPowerPeakProduced = meterPowerPeakProduced; // || this.meters.lastMeterPowerPeakProduced;
+			this.meters.lastMeterPowerOffpeakProduced = meterPowerOffpeakProduced; // || this.meters.lastMeterPowerOffpeakProduced;
+			this.meters.lastMeterPowerTm = meterPowerTm; // || this.meters.lastMeterPowerTm;
+			this.meters.lastOffpeak = offPeak; // || this.meters.lastOffpeak;
+			// update the device state
+			// this.log(this.meters);
+			this.updateDeviceState();
+		}	catch (error) {
+			this.log(error);
 		}
-		// electricity readings from device
-		const meterPowerOffpeakProduced = readings.n1;
-		const meterPowerPeakProduced = readings.n2;
-		const meterPowerOffpeak = readings.p1;
-		const meterPowerPeak = readings.p2;
-		const meterPower = readings.net;
-		let measurePower = readings.pwr;
-		let measurePowerAvg = this.meters.lastMeasurePowerAvg;
-		const meterPowerTm = readings.tm;
-		// constructed electricity readings
-		let offPeak = this.meters.lastOffpeak;
-		if ((meterPower - this.meters.lastMeterPower) !== 0) {
-			offPeak = ((meterPowerOffpeakProduced - this.meters.lastMeterPowerOffpeakProduced) > 0
-			|| (meterPowerOffpeak - this.meters.lastMeterPowerOffpeak) > 0);
-		}
-		// measurePowerAvg 2 minutes average based on cumulative meters
-		if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
-			this.meters.lastMeterPowerInterval = meterPower;
-			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
-		}
-		if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
-			measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
-			this.meters.lastMeterPowerInterval = meterPower;
-			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
-		}
-		// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
-		if (measurePower === 0 && measurePowerAvg < 0) {
-			measurePower = measurePowerAvg;
-		}
-		const measurePowerDelta = (measurePower - this.meters.lastMeasurePower);
-		// trigger the custom trigger flowcards
-		if (offPeak !== this.meters.lastOffpeak) {
-			const tokens = { tariff: offPeak };
-			this.tariffChangedTrigger
-				.trigger(this, tokens)
-				.catch(this.error);
-			// .then(this.log('Tariff change flow card triggered'));
-		}
-		if (measurePower !== this.meters.lastMeasurePower) {
-			const tokens = {
-				power: measurePower,
-				power_delta: measurePowerDelta,
-			};
-			this.powerChangedTrigger
-				.trigger(this, tokens)
-				.catch(this.error);
-			// .then(this.error('Power change flow card triggered'));
-			// update the ledring screensavers
-			this._ledring.change(this.getSettings(), measurePower);
-		}
-		// store the new readings in memory
-		this.meters.lastMeasureGas = measureGas; // || this.meters.lastMeasureGas;
-		this.meters.lastMeterGas = meterGas; // || this.meters.lastMeterGas;
-		this.meters.lastMeterGasTm = meterGasTm || this.meters.lastMeterGasTm;
-		this.meters.lastMeasurePower = measurePower; // || this.meters.lastMeasurePower;
-		this.meters.lastMeasurePowerAvg = measurePowerAvg; // || this.meters.lastMeasurePowerAvg;
-		this.meters.lastMeterPower = meterPower; // || this.meters.lastMeterPower;
-		this.meters.lastMeterPowerPeak = meterPowerPeak; // || this.meters.lastMeterPowerPeak;
-		this.meters.lastMeterPowerOffpeak = meterPowerOffpeak; // || this.meters.lastMeterPowerOffpeak;
-		this.meters.lastMeterPowerPeakProduced = meterPowerPeakProduced; // || this.meters.lastMeterPowerPeakProduced;
-		this.meters.lastMeterPowerOffpeakProduced = meterPowerOffpeakProduced; // || this.meters.lastMeterPowerOffpeakProduced;
-		this.meters.lastMeterPowerTm = meterPowerTm || this.meters.lastMeterPowerTm;
-		this.meters.lastOffpeak = offPeak;
-		// update the device state
-		// this.log(this.meters);
-		this.updateDeviceState();
 	}
-
 }
 
 module.exports = LS120Driver;
