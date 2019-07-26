@@ -87,7 +87,7 @@ class Ledring {
 			if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
 				return;
 			}
-			limit = -limit;
+			limit = -((24 * measurepower) / deviceSettings.ledring_production_limit).toFixed(0);
 			if (limit > 24) { limit = 24; }
 			for (let pixel = 0; pixel < 24; pixel += 1) {
 				if (pixel < limit) {
