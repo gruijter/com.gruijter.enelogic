@@ -71,35 +71,36 @@ class Ledring {
 	}
 
 	change(deviceSettings, measurepower) {
-		let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
-		if (measurepower >= 0) {	// consuming power makes ledring red
-			if (deviceSettings.ledring_usage_limit === 0) {	// ignore change when limit setting is 0
-				return;
+		try {
+			let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
+			if (measurepower >= 0) {	// consuming power makes ledring red
+				if (deviceSettings.ledring_usage_limit === 0) {	// ignore change when limit setting is 0
+					return;
+				}
+				if (limit > 24) { limit = 24; }
+				for (let pixel = 0; pixel < 24; pixel += 1) {
+					if (pixel < limit) {
+						this.framePower[pixel] = { r: 80,	g: 0,	b: 0	};
+					} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+				}
+				this.framesPower[0] = this.framePower;
+			} else {	// producing power makes ledring blue
+				if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
+					return;
+				}
+				limit = -((24 * measurepower) / deviceSettings.ledring_production_limit).toFixed(0);
+				if (limit > 24) { limit = 24; }
+				for (let pixel = 0; pixel < 24; pixel += 1) {
+					if (pixel < limit) {
+						this.framePower[pixel] = { r: 0,	g: 0,	b: 120 };
+					} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+				}
+				this.framesPower[0] = this.framePower;
 			}
-			if (limit > 24) { limit = 24; }
-			for (let pixel = 0; pixel < 24; pixel += 1) {
-				if (pixel < limit) {
-					this.framePower[pixel] = { r: 80,	g: 0,	b: 0	};
-				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
-			}
-			this.framesPower[0] = this.framePower;
-		} else {	// producing power makes ledring blue
-			if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
-				return;
-			}
-			limit = -((24 * measurepower) / deviceSettings.ledring_production_limit).toFixed(0);
-			if (limit > 24) { limit = 24; }
-			for (let pixel = 0; pixel < 24; pixel += 1) {
-				if (pixel < limit) {
-					this.framePower[pixel] = { r: 0,	g: 0,	b: 120 };
-				} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
-			}
-			this.framesPower[0] = this.framePower;
+			this.animation.updateFrames(this.framesPower);
+		} catch (error) {
+			this.log(error);
 		}
-		this.animation.updateFrames(this.framesPower)
-			.catch((error) => {
-				this.log(error);
-			});
 	}
 
 }
