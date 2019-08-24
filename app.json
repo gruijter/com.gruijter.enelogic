@@ -14,7 +14,7 @@
 		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "slimme meter", "enelogic", "energie", "power", "water", "gas" ]
 	},
 
-	"version": "2.5.5",
+	"version": "2.5.6",
 	"sdk": 2,
 	"compatibility": ">= 1.5",
 	"author": {

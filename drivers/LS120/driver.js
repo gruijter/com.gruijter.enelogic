@@ -98,6 +98,7 @@ class LS120Driver extends Homey.Driver {
 				this.error('Pair error', error);
 				if (error.code === 'EHOSTUNREACH') {
 					callback(Error('Incorrect IP address'));
+					return;
 				}
 				callback(error);
 			}
@@ -178,13 +179,10 @@ class LS120Driver extends Homey.Driver {
 			const meterGasTm = readings.gtm || this.meters.lastMeterGasTm; // gas_meter_timestamp, youless fw ^1.3.4
 			let measureGas = this.meters.lastMeasureGas;
 			// constructed gas readings
-			const meterGasChanged = (this.meters.lastMeterGas !== meterGas) && (this.meters.lastMeterGasTm !== 0);
 			const meterGasTmChanged = (meterGasTm !== this.meters.lastMeterGasTm) && (this.meters.lastMeterGasTm !== 0);
-			if (meterGasChanged || meterGasTmChanged) {
-				const passedHours = (meterGasTm - this.meters.lastMeterGasTm) / 3600000;
-				if (passedHours > 0) {
-					measureGas = Math.round((meterGas - this.meters.lastMeterGas) / passedHours) / 1000; // gas_interval_meter
-				}
+			if (meterGasTmChanged) {
+				const passedHours = (meterGasTm - this.meters.lastMeterGasTm) / 3600;	// timestamp is in seconds
+				measureGas = Math.round(1000 * (meterGas - this.meters.lastMeterGas) / passedHours) / 1000; // gas_interval_meter
 			}
 			// electricity readings from device
 			const meterPowerOffpeakProduced = readings.n1 || this.meters.lastMeterPowerPeakProduced;
