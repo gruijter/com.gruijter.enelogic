@@ -1,5 +1,6 @@
 Known issue: insights for Off-Peak in Homey V2 is not possible due to Homey firmware change.
 
+v2.5.7  2019.08.29 Added ledring for enelogic devices.
 v2.5.6  2019.08.24 LS120 P1 Gas usage fix.
 v2.5.5  2019.07.26 Ledring production fix. Readme updated.
 v2.5.4  2019.07.22 Youless package 2.2.1. Code optimizations. Ledring fix for Homey fw > 2.4.0.
