@@ -14,7 +14,7 @@
 		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "slimme meter", "enelogic", "energie", "power", "water", "gas" ]
 	},
 
-	"version": "2.5.7",
+	"version": "2.5.8",
 	"sdk": 2,
 	"compatibility": ">= 1.5",
 	"author": {
@@ -142,6 +142,9 @@
 					},
 					"decimals": 4
 				}
+			},
+			"energy": {
+				"cumulative": true
 			},
 			"mobile": {
 				"components": [
@@ -316,6 +319,9 @@
 					"decimals": 4
 				}
 			},
+			"energy": {
+				"cumulative": true
+			},
 			"mobile": {
 				"components": [
 					{
@@ -483,6 +489,9 @@
 				"measure_power",
 				"meter_power"
 			],
+			"energy": {
+				"cumulative": true
+			},
 			"mobile": {
 				"components": [
 					{
