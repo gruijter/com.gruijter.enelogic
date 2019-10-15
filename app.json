@@ -16,7 +16,7 @@
 
 	"version": "2.5.9",
 	"sdk": 2,
-	"compatibility": ">=3",
+	"compatibility": ">=2.5",
 	"author": {
 		"name": "Robin Gruijter",
 		"email": "gruijter@hotmail.com"

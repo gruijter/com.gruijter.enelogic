@@ -1,5 +1,6 @@
 Known issue: insights for Off-Peak in Homey V2 is not possible due to Homey firmware change.
 
+v2.5.9  2019.10.15 Added cumulative option in LS120SO device setting.
 v2.5.8  2019.09.11 Added Energy support for Homey V3.
 v2.5.7  2019.08.29 Added ledring for enelogic devices.
 v2.5.6  2019.08.24 LS120 P1 Gas usage fix.

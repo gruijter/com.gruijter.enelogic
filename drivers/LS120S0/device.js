@@ -110,6 +110,7 @@ class LS120Device extends Homey.Device {
 	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
 		this.log('settings change requested by user');
 		this.log(newSettingsObj);
+		this.setEnergy({ cumulative: newSettingsObj.set_cumulative });
 		this.youless.login(newSettingsObj.password, newSettingsObj.youLessIp) // password, [host], [port]
 			.then(() => {		// new settings are correct
 				this.log(`${this.getName()} device settings changed`);
@@ -124,8 +125,6 @@ class LS120Device extends Homey.Device {
 				this.error(error.message);
 				return callback(error, null);
 			});
-		
-		this.setEnergy({ cumulative: newSettingsObj.set_cumulative })
 	}
 
 	async doPoll() {
