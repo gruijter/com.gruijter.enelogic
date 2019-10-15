@@ -124,6 +124,8 @@ class LS120Device extends Homey.Device {
 				this.error(error.message);
 				return callback(error, null);
 			});
+		
+		this.setEnergy({ cumulative: newSettingsObj.set_cumulative })
 	}
 
 	async doPoll() {
