@@ -14,7 +14,7 @@
 		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "slimme meter", "enelogic", "energie", "power", "water", "gas" ]
 	},
 
-	"version": "2.5.9",
+	"version": "2.6.0",
 	"sdk": 2,
 	"compatibility": ">=2.5",
 	"author": {
@@ -754,6 +754,15 @@
 							"label": {
 								"en": "Make cumulative",
 								"nl": "Maak cumulatief"
+							},
+							"value": false
+						},
+						{
+							"id": "set_solarpanel",
+							"type": "checkbox",
+							"label": {
+								"en": "Make solar panel",
+								"nl": "Maak zonnepaneel"
 							},
 							"value": false
 						}
