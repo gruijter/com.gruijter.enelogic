@@ -1,5 +1,6 @@
 Known issue: insights for Off-Peak in Homey V2 is not possible due to Homey firmware change.
 
+v3.0.0  2019.10.30 Compatibility Homey V3+. Fixed readme images. Device pairing process updated. Capability switching added in device settings LS120 P1.
 v2.6.0  2019.10.17 Added solarpanel option in LS120SO device setting.
 v2.5.9  2019.10.15 Added cumulative option in LS120SO device setting.
 v2.5.8  2019.09.11 Added Energy support for Homey V3.

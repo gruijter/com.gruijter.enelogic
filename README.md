@@ -6,9 +6,10 @@ This Homey app integrates Enelogic P1 and YouLess LS110/LS120 energy meters. A d
 
 ![image][energy-insights-image]
 
-<img src="https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/2/299dded923fcf0a98eb259837ba3aaf8776dd3f1.png" alt="flow" width="300"/>
+<img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/2/299dded923fcf0a98eb259837ba3aaf8776dd3f1.png" alt="flow" width="300"/>
 
-<img src="https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/b/bcb4324be5981edf83ad4617a11b2b45a64f0668.png" alt="flow" width="250"/>
+<img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/b/bcb4324be5981edf83ad4617a11b2b45a64f0668.png" alt="flow" width="250"/>
+
 
 ### Analogue Energy meter ###
 The LS110/LS120 driver provides logs and flow cards for the following data:
@@ -59,15 +60,15 @@ The water meter driver can be installed additionally to the power meter driver. 
 
 ### Device setup in Homey ###
 
-To setup, go to "Devices" and choose the correct driver. Enter the fixed IP-address of the Youless device, or have Homey discover it for you.
+To setup, go to "Devices" and choose the correct driver. Homey will try to discover the Youless device, and fills in the IP-address. Note: this must be a fixed address.
 
-<img src="https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/7/7ab6df64224bb168feb4040646e4527ae1980499.jpeg" alt="device selection" width="300"/>
+<img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/7/7ab6df64224bb168feb4040646e4527ae1980499.jpeg" alt="device selection" width="300"/>
 
 **Analogue Energy meter**: choose the LS110/120-E driver.
 
 **P1 Energy and Gas smart meter**: Use the LS120-P1 if you have a P1 connection to your smart meter. In the next screen select which P1 meters you want to include in Homey. The totalized power meter is always included.
 
-<img src="https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/6/66edb77ec4f82b4818916068ba4eb114334f3b4b.png" alt="meter selection" width="300"/>
+<img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/6/66edb77ec4f82b4818916068ba4eb114334f3b4b.png" alt="meter selection" width="300"/>
 
 **S0 Energy meter**: choose the LS120-S0 driver, and select 'power' as meter type.
 
@@ -94,8 +95,8 @@ Version changelog: [changelog.txt]
 [installation manual]: https://forum.athom.com/discussion/comment/61126/#Comment_61126
 [pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FV7VNCQ6XBY6L
 [pp-donate-image]: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
-[energy-device-image]: https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/2/299dded923fcf0a98eb259837ba3aaf8776dd3f1.png
-[energy-insights-image]: https://sjc1.discourse-cdn.com/business4/uploads/athom/original/2X/b/b9d85ac81450ad9ad18a2fb66b04d6a2d338f123.png
+[energy-device-image]: https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/7/7ab6df64224bb168feb4040646e4527ae1980499.jpeg
+[energy-insights-image]: https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/b/b9d85ac81450ad9ad18a2fb66b04d6a2d338f123.png
 [water-mobile-card-image]: https://discourse-cdn-sjc1.com/business4/uploads/athom/original/2X/b/bf55a4ea7d276e559436363ef6e0797528f90814.png
 [water-insights-image]: https://discourse-cdn-sjc1.com/business4/uploads/athom/original/2X/5/53ff080e7e55cdc13911a761c384683fd6612b46.png
 [water-meter-image]: https://forum.athom.com/uploads/editor/wb/kkyxklvl0jqc.jpg

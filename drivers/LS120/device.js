@@ -102,12 +102,48 @@ class LS120Device extends Homey.Device {
 	}
 
 	// this method is called when the user has changed the device's settings in Homey.
-	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
-		this.log('settings change requested by user');
-		// this.log(newSettingsObj);
-		this.log(`${this.getName()} device settings changed`);
-		// do callback to confirm settings change
-		callback(null, true);
+	async onSettings(oldSettingsObj, newSettingsObj, changedKeysArr) {
+		this.log(`${this.getData().id} ${this.getName()} device settings changed`);
+		await changedKeysArr.forEach(async (key) => {
+			switch (key) {
+				case 'include_off_peak':
+					if (newSettingsObj.include_off_peak) {
+						await this.addCapability('meter_offPeak');
+						await this.addCapability('meter_power.peak');
+						await this.addCapability('meter_power.offPeak');
+					} else {
+						await this.removeCapability('meter_offPeak');
+						await this.removeCapability('meter_power.peak');
+						await this.removeCapability('meter_power.offPeak');
+					}
+					break;
+				case 'include_production':
+					if (newSettingsObj.include_production) {
+						await this.addCapability('meter_power.producedPeak');
+						if (newSettingsObj.include_off_peak) {
+							await this.addCapability('meter_power.producedOffPeak');
+						}
+					} else {
+						await this.removeCapability('meter_power.producedPeak');
+						await this.removeCapability('meter_power.producedOffPeak');
+					}
+					break;
+				case 'include_gas':
+					if (newSettingsObj.include_gas) {
+						await this.addCapability('measure_gas');
+						await this.addCapability('meter_gas');
+					} else {
+						await this.removeCapability('measure_gas');
+						await this.removeCapability('meter_gas');
+					}
+					break;
+				default:
+					break;
+			}
+		});
+		this.log(newSettingsObj);
+		this.settings = newSettingsObj;
+		Promise.resolve(true);
 		this.restartDevice(1000);
 	}
 

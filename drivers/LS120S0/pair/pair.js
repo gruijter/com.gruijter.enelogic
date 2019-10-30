@@ -32,29 +32,30 @@ function discover() {
 function testSettings() {
 	// variables
 	const host = $('#host').val();
-	if (host !== '') {
-		const data = {
-			youLessIp: host,
-			password: $('#password').val(),
-			meterSelection: $('#meterSelection').val(),
-		};
-		// Continue to back-end, pass along data
-		Homey.emit('validate', data, (error, result) => {
-			if (error) {
-				Homey.alert(error.message, 'error');
-			} else {
-				Homey.alert(`${__('pair.success')} ${result}`, 'info');
-				const device = JSON.parse(result);
-				Homey.addDevice(device, (err, res) => {
-					if (err) { Homey.alert(err, 'error'); return; }
-					setTimeout(() => {
-						Homey.done();
-					}, 5000);
-				});
-			}
-		});
-	} else {
-		Homey.alert(__('pair.required'), 'error');
-		// Homey.done();
-	}
+	if (host === '') return Homey.alert(__('pair.required'), 'error');
+	const data = {
+		youLessIp: host,
+		password: $('#password').val(),
+		meterSelection: $('#meterSelection').val(),
+	};
+	// Continue to back-end, pass along data
+	Homey.emit('validate', data, (error, result) => {
+		if (error) {
+			Homey.alert(error.message, 'error');
+		} else {
+			Homey.alert(`${__('pair.success')} ${result}`, 'info');
+			const device = JSON.parse(result);
+			Homey.createDevice(device, (err) => {
+				if (err) Homey.alert(err, 'error');
+				// Homey.emit('add_device', dev);
+				return Homey.nextView();
+			});
+		}
+	});
+	return true;
 }
+
+$(document).ready(() => {
+	// console.log('doc is ready');
+	discover();
+});

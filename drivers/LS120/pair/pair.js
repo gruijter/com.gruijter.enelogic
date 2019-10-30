@@ -61,3 +61,8 @@ function testSettings() {
 		// Homey.done();
 	}
 }
+
+$(document).ready(() => {
+	// console.log('doc is ready');
+	discover();
+});
