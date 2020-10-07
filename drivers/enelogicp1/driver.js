@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -28,7 +28,7 @@ class EnelogicDriver extends Homey.Driver {
 	onInit() {
 		this.log('entering Enelogic driver');
 		this.Enelogic = Enelogic;
-		this.ledring = new Ledring('enelogic_power_legacy');
+		this.ledring = new Ledring({ screensaver: 'enelogic_power_legacy', homey: this });
 	}
 
 	onPair(socket) {

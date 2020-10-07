@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable prefer-destructuring */
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -30,7 +30,7 @@ class LS120Driver extends Homey.Driver {
 	onInit() {
 		this.log('entering LS120 driver');
 		this.Youless = Youless;
-		this.ledring = new Ledring('enelogic_power');
+		this.ledring = new Ledring({ screensaver: 'enelogic_power', homey: this });
 	}
 
 	onPair(socket) {
@@ -175,23 +175,22 @@ class LS120Driver extends Homey.Driver {
 		try {
 			// this.log(`handling new readings for ${this.getName()}`);
 			// gas readings from device
+			let measureGas = this.meters.lastMeasureGas;
 			const meterGas = readings.gas || this.meters.lastMeterGas; // gas_cumulative_meter
 			const meterGasTm = readings.gtm || this.meters.lastMeterGasTm; // gas_meter_timestamp, youless fw ^1.3.4
-			let measureGas = this.meters.lastMeasureGas;
 			// constructed gas readings
 			const meterGasTmChanged = (meterGasTm !== this.meters.lastMeterGasTm) && (this.meters.lastMeterGasTm !== 0);
 			if (meterGasTmChanged) {
 				const passedHours = (meterGasTm - this.meters.lastMeterGasTm) / 3600;	// timestamp is in seconds
-				measureGas = Math.round(1000 * (meterGas - this.meters.lastMeterGas) / passedHours) / 1000; // gas_interval_meter
+				measureGas = Math.round(1000 * ((meterGas - this.meters.lastMeterGas) / passedHours)) / 1000; // gas_interval_meter
 			}
 			// electricity readings from device
+			let measurePower = readings.pwr;
 			const meterPowerOffpeakProduced = readings.n1 || this.meters.lastMeterPowerPeakProduced;
 			const meterPowerPeakProduced = readings.n2 || this.meters.lastMeterPowerOffpeakProduced;
 			const meterPowerOffpeak = readings.p1 || this.meters.lastMeterPowerOffpeak;
 			const meterPowerPeak = readings.p2 || this.meters.lastMeterPowerPeak;
 			const meterPower = readings.net || this.meters.lastMeterPower;
-			let measurePower = readings.pwr;
-			let measurePowerAvg = this.meters.lastMeasurePowerAvg;
 			const meterPowerTm = readings.tm || this.meters.lastMeterPowerTm;
 			// constructed electricity readings
 			let offPeak = this.meters.lastOffpeak;
@@ -199,18 +198,22 @@ class LS120Driver extends Homey.Driver {
 				offPeak = ((meterPowerOffpeakProduced - this.meters.lastMeterPowerOffpeakProduced) > 0
 				|| (meterPowerOffpeak - this.meters.lastMeterPowerOffpeak) > 0);
 			}
-			// measurePowerAvg 2 minutes average based on cumulative meters
-			if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
+			// measurePowerAvg based on cumulative meters
+			if (!this.meters.lastMeterPowerIntervalTm) {	// after ap init
 				this.meters.lastMeterPowerInterval = meterPower;
 				this.meters.lastMeterPowerIntervalTm = meterPowerTm;
 			}
-			if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
-				measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
+			const meterPowerDelta = meterPower - this.meters.lastMeterPowerInterval;
+			const meterPowerTmDelta = meterPowerTm - this.meters.lastMeterPowerIntervalTm;
+			let measurePowerAvg = this.meters.lastMeasurePowerAvg || measurePower;
+			if (meterPowerTmDelta >= 60) {
 				this.meters.lastMeterPowerInterval = meterPower;
 				this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+				measurePowerAvg = Math.round((3600000 / meterPowerTmDelta) * meterPowerDelta);
 			}
+			// console.log(meterPowerTmDelta, measurePower, measurePowerAvg, meterPower, meterPowerDelta);
 			// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
-			if (measurePower === 0 && measurePowerAvg < 0) {
+			if (meterPowerDelta < 0 && measurePower >= 0) {
 				measurePower = measurePowerAvg;
 			}
 			const measurePowerDelta = (measurePower - this.meters.lastMeasurePower);
@@ -239,7 +242,7 @@ class LS120Driver extends Homey.Driver {
 			this.meters.lastMeterGas = meterGas; // || this.meters.lastMeterGas;
 			this.meters.lastMeterGasTm = meterGasTm; // || this.meters.lastMeterGasTm;
 			this.meters.lastMeasurePower = measurePower; // || this.meters.lastMeasurePower;
-			this.meters.lastMeasurePowerAvg = measurePowerAvg;// || this.meters.lastMeasurePowerAvg;
+			this.meters.lastMeasurePowerAvg = measurePowerAvg;
 			this.meters.lastMeterPower = meterPower; // || this.meters.lastMeterPower;
 			this.meters.lastMeterPowerPeak = meterPowerPeak; // || this.meters.lastMeterPowerPeak;
 			this.meters.lastMeterPowerOffpeak = meterPowerOffpeak; // || this.meters.lastMeterPowerOffpeak;

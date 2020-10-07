@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -25,8 +25,8 @@ const util = require('util');
 const setTimeoutPromise = util.promisify(setTimeout);
 
 class Ledring {
-	constructor(screensaver) {
-		this.log = Homey.app.log;
+	constructor(opts) {
+		this.log = opts.homey.log;
 		this.framesPower = [];
 		this.framePower = [];
 		this.animation = new Homey.LedringAnimation({
@@ -39,8 +39,8 @@ class Ledring {
 			priority: 'INFORMATIVE',
 			duration: false,
 		});
-		this.registerScreensaver(screensaver)
-			.catch(error => this.log(error));
+		this.registerScreensaver(opts.screensaver)
+			.catch((error) => this.log(error));
 	}
 
 	async registerScreensaver(screensaver) {

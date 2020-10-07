@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -28,7 +28,7 @@ class LS110Driver extends Homey.Driver {
 	onInit() {
 		this.log('entering LS110 driver');
 		this.Youless = Youless;
-		this.ledring = new Ledring('enelogic_optical');
+		this.ledring = new Ledring({ screensaver: 'enelogic_optical', homey: this });
 	}
 
 	onPair(socket) {
@@ -45,8 +45,8 @@ class LS110Driver extends Homey.Driver {
 		socket.on('validate', async (data, callback) => {
 			try {
 				this.log('save button pressed in frontend');
-				const password = data.password;
-				const host = data.youLessIp;
+				const { password, youLessIp: host } = data;
+				// const host = data.youLessIp;
 				const youless = new this.Youless(password, host);	// password, host, [port]
 				await youless.login();
 				const info = await youless.getInfo();

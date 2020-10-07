@@ -1,0 +1,27 @@
+{
+  "name": "com.gruijter.enelogic",
+  "version": "3.1.0",
+  "description": "Enelogic and YouLess - Reduce your CO2 footprint",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "youless",
+    "enelogic",
+    "ls120",
+    "P1",
+    "smart",
+    "meter"
+  ],
+  "author": "gruijter@hotmail.com",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "fixture-stdout": "^0.2.1",
+    "youless": "^2.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gruijter/com.gruijter.enelogic.git"
+  }
+}

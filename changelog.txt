@@ -1,5 +1,4 @@
-Known issue: insights for Off-Peak in Homey V2 is not possible due to Homey firmware change.
-
+v3.1.0  2020.10.07 Homey V5 compatibility fixed. Appstore optimizations. App log improvements. Faster production measurement for old P1 meters. Memory and CPU optimizations.
 v3.0.0  2019.10.30 Compatibility Homey V3+. Fixed readme images. Device pairing process updated. Capability switching added in device settings LS120 P1.
 v2.6.0  2019.10.17 Added solarpanel option in LS120SO device setting.
 v2.5.9  2019.10.15 Added cumulative option in LS120SO device setting.

@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -27,8 +27,7 @@ class MyApp extends Homey.App {
 
 	onInit() {
 		this.log('Enelogic App is running!');
-		// this.ledring = new Ledring();
-		this.logger = new Logger('log', 200);	// [logName] [, logLength]
+		if (!this.logger) this.logger = new Logger({ homey: this, length: 200 });
 
 		// register some listeners
 		process.on('unhandledRejection', (error) => {

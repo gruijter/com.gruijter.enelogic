@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -36,7 +36,6 @@ const regexPowerPeakProduced = new RegExp(/<reading id="e_produced_2" unit="kWh"
 const regexPowerOffpeakProduced = new RegExp(/<reading id="e_produced_1" unit="kWh">(.*?)<\/reading>/);
 const regexGas = new RegExp(/<reading id="consumed" unit="m3">(.*?)<\/reading>/);
 const regexValve = new RegExp(/<text id="valve">(.*?)<\/text>/);
-
 
 class Enelogic {
 	// Represents a session to a enelogic device.
@@ -110,7 +109,6 @@ class Enelogic {
 				});
 		});
 	}
-
 
 	_makeRequest(action) {
 		return new Promise((resolve, reject) => {

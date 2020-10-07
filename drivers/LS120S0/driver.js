@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 /*
-Copyright 2017 - 2019, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -29,7 +29,7 @@ class LS120S0Driver extends Homey.Driver {
 	onInit() {
 		this.log('entering LS120S0 driver');
 		this.Youless = Youless;
-		this.ledring = new Ledring('enelogic_s0');
+		this.ledring = new Ledring({ screensaver: 'enelogic_s0', homey: this });
 	}
 
 	onPair(socket) {
@@ -53,7 +53,8 @@ class LS120S0Driver extends Homey.Driver {
 				await youless.getAdvancedStatus();	// check for s0 meter
 				const info = await youless.getInfo();
 				if (!youless.hasMeter.s0) {
-					return callback(Error('No S0 information found on the device'));
+					callback(Error('No S0 information found on the device'));
+					return;
 				}
 				const device = {
 					name: `${info.model}S0_${info.host}`,
