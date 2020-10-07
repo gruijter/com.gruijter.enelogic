@@ -1,0 +1,5 @@
+{
+  "3.1.0": {
+    "en": "Homey V5 compatibility fixed. Appstore optimizations. App log improvements. Faster production measurement for old P1 meters. Memory and CPU optimizations."
+  }
+}
