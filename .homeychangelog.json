@@ -1,5 +1,8 @@
 {
   "3.1.0": {
     "en": "Homey V5 compatibility fixed. Appstore optimizations. App log improvements. Faster production measurement for old P1 meters. Memory and CPU optimizations."
+  },
+  "3.2.0": {
+    "en": "Fix discovery timeout. S0 Energy settings solar/cumulative usability improvement. Add solar/cumulative to LS110/120 E. youless@2.3.1."
   }
 }
