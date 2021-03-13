@@ -4,7 +4,7 @@
 // INSTRUCTIONS FOR TESTING FROM DESKTOP:
 // install node (https://nodejs.org)
 // install this package: > npm i youless
-// run the test: > npm test [password]
+// run the test: > npm test [password=xxx] [host=xxx] [port=xxx]
 
 const YoulessSession = require('youless');
 

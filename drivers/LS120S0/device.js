@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -125,10 +125,16 @@ class LS120Device extends Homey.Device {
 				return callback(error, null);
 			});
 		if (Homey.version.split('.')[0] >= 3) {
-			this.setEnergy({ cumulative: newSettingsObj.set_cumulative });
-			if (newSettingsObj.set_solarpanel) {
+			if (newSettingsObj.homey_energy_type === 'solarpanel') {
+				this.setEnergy({ cumulative: false });
 				this.setClass('solarpanel');
-			} else this.setClass('sensor');
+			} else if (newSettingsObj.homey_energy_type === 'cumulative') {
+				this.setEnergy({ cumulative: true });
+				this.setClass('sensor');
+			} else {
+				this.setEnergy({ cumulative: false });
+				this.setClass('sensor');
+			}
 		}
 	}
 

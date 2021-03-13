@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2020, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -20,7 +20,6 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-// const Ledring = require('./ledring.js');
 const Logger = require('./captureLogs.js');
 
 class MyApp extends Homey.App {
@@ -45,6 +44,7 @@ class MyApp extends Homey.App {
 			.on('memwarn', () => {
 				this.log('memwarn!');
 			});
+
 		// do garbage collection every 10 minutes
 		this.intervalIdGc = setInterval(() => {
 			global.gc();
@@ -53,6 +53,7 @@ class MyApp extends Homey.App {
 
 	// ============================================================
 	// logfile stuff for frontend API here
+
 	deleteLogs() {
 		return this.logger.deleteLogs();
 	}
