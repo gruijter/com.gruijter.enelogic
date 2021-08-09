@@ -170,6 +170,7 @@ class LS120Device extends Homey.Device {
 	initMeters() {
 		this.meters = {
 			lastMeasureWater: 0,
+			lastMeasureWaterTm: 0,
 			lastMeterWater: null,
 			lastMeasurePower: 0,									// 'measurePower' (W)
 			lastMeterPower: null,									// 'meterPower' (kWh)

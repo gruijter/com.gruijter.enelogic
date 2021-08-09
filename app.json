@@ -4,7 +4,6 @@
 		"en": "Enelogic and Youless",
 		"nl": "Enelogic and Youless"
 	},
-
 	"description": {
 		"en": "Reduce your CO2 footprint - meet Power, Gas, Water",
 		"nl": "Reduceer je CO2 footprint - meet Energie, Gas, Water"
@@ -13,8 +12,8 @@
 		"en": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "energy", "power", "water", "gas" ],
 		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "slimme meter", "enelogic", "energie", "power", "water", "gas" ]
 	},
-
-	"version": "3.2.0",
+	"brandColor": "#469f00",
+	"version": "3.3.0",
 	"sdk": 2,
 	"compatibility": ">=3",
 	"author": {
@@ -31,7 +30,7 @@
 		}
 	},
 	"contributors": {
-		"developers": [{"name": "Robin de Gruijter","email": "gruijter@hotmail.com"}, {"name": "Ted Tolboom", "email": "dTNL.Homey@gmail.com"}],
+		"developers": [{"name": "Robin de Gruijter","email": "gruijter@hotmail.com"}],
 		"translators": [{"name": "🇬🇧 Robin"},{"name": "🇳🇱 Robin"}]
 	},
 	"bugs": {

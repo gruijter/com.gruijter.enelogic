@@ -97,18 +97,7 @@ class LS120S0Driver extends Homey.Driver {
 		const meterPower = readings.cs0;
 		const measurePower = readings.ps0;
 		const meterPowerTm = readings.ts0;
-		// constructed electricity readings
-		// let measurePowerAvg = this.meters.lastMeasurePowerAvg;
-		// // measurePowerAvg 2 minutes average based on cumulative meters
-		// if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
-		// 	this.meters.lastMeterPowerInterval = meterPower;
-		// 	this.meters.lastMeterPowerIntervalTm = meterPowerTm;
-		// }
-		// if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
-		// 	measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
-		// 	this.meters.lastMeterPowerInterval = meterPower;
-		// 	this.meters.lastMeterPowerIntervalTm = meterPowerTm;
-		// }
+
 		const measurePowerDelta = (measurePower - this.meters.lastMeasurePower);
 		// trigger the custom trigger flowcards
 		if (measurePower !== this.meters.lastMeasurePower) {
@@ -119,7 +108,7 @@ class LS120S0Driver extends Homey.Driver {
 			this.powerChangedTrigger
 				.trigger(this, tokens)
 				.catch(this.error);
-			// .then(this.error('Power change flow card triggered'));
+
 			// update the ledring screensavers
 			this._ledring.change(this.getSettings(), measurePower);
 		}
@@ -134,19 +123,42 @@ class LS120S0Driver extends Homey.Driver {
 		// this.log(`handling new readings for ${this.getName()}`, readings);
 		// water readings from device
 		const meterWater = readings.cs0;
-		let measureWater = 	this.meters.lastMeasureWater;
+		// const tm = readings.tm;
+		const tm = readings.ts0;
+		let measureWater = Math.round(readings.ps0 / 6) / 10; // readings.ps0 (in liter / hr) to liter / min
 
-		if (readings.ps0 !== 0 && (readings.tm - readings.ts0) > 3600 / readings.ps0) {
-			// flow based on time different between current report time (tm) and last meter update (ts0)
-			measureWater = 1 / ((readings.tm - readings.ts0) / 60);
-			// this.log('Water pulse overdue: calulated flow', measureWater, 'reported meter:', meterWater);
-		} else {
-			// flow based on readings from s0 port
-			measureWater = readings.ps0 / 60; // readings.ps0 (in liter / hr) to liter / min
-			// this.log('water pulse on time: reported flow', measureWater, 'reported meter:', meterWater);
-			// update the ledring screensavers
+		const lastTm = this.meters.lastMeasureWaterTm;
+		const timePast = tm - lastTm; // in seconds
+		if (timePast) this.meters.lastPulseTm = Date.now();
+
+		// skip measureWater calc after init
+		if (!lastTm) {
+			this.meters.lastMeterWater = meterWater;
+			this.meters.lastMeasureWater = measureWater;
+			this.meters.lastMeasureWaterTm = tm;
+			return;
+		}
+
+		// new pulse received
+		if (timePast) {
+			this.meters.lastMeasureWaterTm = tm;
+		}
+
+		// water flow just started, set flow to 2 l/min
+		if (!measureWater && timePast) measureWater = 2;
+
+		// keep old flow after water flow just started
+		if (!measureWater && !timePast) measureWater = this.meters.lastMeasureWater;
+
+		// long time no pulse, water flow probably stopped
+		const timeout = (120 / (measureWater || 1)); // 2 min timeout @ 1 liter per minute, 2 min when flow=0
+		if (!timePast && ((Date.now() - this.meters.lastPulseTm) > (timeout * 1000))) measureWater = 0;
+
+		// update the ledring screensavers
+		if (measureWater !== this.meters.measureWater) {
 			this._ledring.change(this.getSettings(), measureWater);
 		}
+
 		// store the new readings in memory
 		this.meters.lastMeterWater = meterWater;
 		this.meters.lastMeasureWater = measureWater;
