@@ -19,90 +19,98 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 'use strict';
 
-const Homey = require('homey');
+const { Device } = require('homey');
+const util = require('util');
+const Enelogic = require('../../enelogic.js');
 
-class EnelogicDevice extends Homey.Device {
+const setTimeoutPromise = util.promisify(setTimeout);
+
+class EnelogicDevice extends Device {
 
 	// this method is called when the Device is inited
 	async onInit() {
 		// this.log('device init: ', this.getName(), 'id:', this.getData().id);
 		try {
 			// init some stuff
-			this._driver = this.getDriver();
-			this._ledring = this._driver.ledring;
-			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
+			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
 			this.meters = {};
 			this.initMeters();
-			// create youless session
-			this.enelogic = new this._driver.Enelogic(settings.enelogicIp);
-			// register trigger flow cards of custom capabilities
-			this.tariffChangedTrigger = new Homey.FlowCardTriggerDevice('tariff_changed')
-				.register();
-			this.powerChangedTrigger = new Homey.FlowCardTriggerDevice('power_changed')
-				.register();
-			// register condition flow cards
-			const offPeakCondition = new Homey.FlowCardCondition('offPeak');
-			offPeakCondition.register()
-				.registerRunListener(() => Promise.resolve(this.meters.lastOffpeak));
+
+			// create enelogic session
+			this.enelogic = new Enelogic(settings.enelogicIp);
+
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(() => {
-				try {
-					if (this.watchDogCounter <= 0) {
-						// restart the app here
-						this.log('watchdog triggered, restarting app now');
-						this.restartDevice();
-					}
-					// get new readings and update the devicestate
-					this.doPoll();
-				} catch (error) {
-					this.watchDogCounter -= 1;
-					this.error('intervalIdDevicePoll error', error);
-				}
-			}, 1000 * settings.pollingInterval);
+			this.startPolling(settings.pollingInterval);
 		} catch (error) {
 			this.error(error);
 		}
 	}
 
+	startPolling(interval) {
+		this.homey.clearInterval(this.intervalIdDevicePoll);
+		this.log(`start polling ${this.getName()} @${interval} seconds interval`);
+		this.intervalIdDevicePoll = this.homey.setInterval(() => {
+			this.doPoll();
+		}, interval * 1000);
+	}
+
+	stopPolling() {
+		this.log(`Stop polling ${this.getName()}`);
+		this.homey.clearInterval(this.intervalIdDevicePoll);
+	}
+
+	async restartDevice(delay) {
+		if (this.restarting) return;
+		this.restarting = true;
+		this.stopPolling();
+		// this.destroyListeners();
+		const dly = delay || 2000;
+		this.log(`Device will restart in ${dly / 1000} seconds`);
+		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		await setTimeoutPromise(dly).then(() => this.onInit());
+	}
+
 	// this method is called when the Device is added
-	onAdded() {
-		this.log(`Enelogic added as device: ${this.getName()}`);
+	async onAdded() {
+		this.log(`Meter added as device: ${this.getName()}`);
 	}
 
 	// this method is called when the Device is deleted
 	onDeleted() {
-		// stop polling
-		clearInterval(this.intervalIdDevicePoll);
-		this.log(`Enelogic deleted as device: ${this.getName()}`);
+		this.stopPolling();
+		// this.destroyListeners();
+		this.log(`Deleted as device: ${this.getName()}`);
 	}
 
 	onRenamed(name) {
-		this.log(`Enelogic renamed to: ${name}`);
+		this.log(`Meter renamed to: ${name}`);
 	}
 
 	// this method is called when the user has changed the device's settings in Homey.
-	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
-		this.log('settings change requested by user');
-		this.log(newSettingsObj);
-		this.enelogic.getEMeter(newSettingsObj.enelogicIp)
-			.then(() => {		// new settings are correct
-				this.log(`${this.getName()} device settings changed`);
-				// do callback to confirm settings change
-				callback(null, true);
-				this.restartDevice();
-			})
-			.catch((error) => {		// new settings are incorrect
-				this.error(error.message);
-				this.enelogic.getEMeter(oldSettingsObj.enelogicIp);
-				return callback(error);
-			});
+	async onSettings({ newSettings }) {
+		this.log(`${this.getName()} device settings changed`);
+		this.log(newSettings);
 	}
 
 	async doPoll() {
-		// this.log('polling for new readings');
 		try {
+			if (this.watchDogCounter <= 0) {
+				// restart the app here
+				this.log('watchdog triggered, restarting device now');
+				this.restartDevice(60000);
+				return;
+			}
+			if (this.watchDogCounter < 9 && this.watchDogCounter > 1) {
+				// skip some polls
+				const isEven = this.watchDogCounter === parseFloat(this.watchDogCounter) ? !(this.watchDogCounter % 2) : undefined;
+				if (isEven) {
+					this.watchDogCounter -= 1;
+					// console.log('skipping poll');
+					return;
+				}
+			}
 			const readings = {};
 			readings.e = await this.enelogic.getEMeter();
 			readings.g = await this.enelogic.getGMeter()
@@ -111,20 +119,12 @@ class EnelogicDevice extends Homey.Device {
 				});
 			this.setAvailable();
 			this.handleNewReadings(readings);
+			this.watchDogCounter = 10;
 		} catch (error) {
+			this.setUnavailable(error.message);
 			this.watchDogCounter -= 1;
-			this.error(`poll error: ${error}`);
-			this.setUnavailable(error)
-				.catch(this.error);
+			this.error('Poll error', error.message);
 		}
-	}
-
-	restartDevice() {
-		// stop polling the device, then start init after short delay
-		clearInterval(this.intervalIdDevicePoll);
-		setTimeout(() => {
-			this.onInit();
-		}, 10000);
 	}
 
 	initMeters() {
@@ -163,6 +163,93 @@ class EnelogicDevice extends Homey.Device {
 		} catch (error) {
 			this.error(error);
 		}
+	}
+
+	handleNewReadings(readings) {
+		// this.log(`handling new readings for ${this.getName()}`);
+		// gas readings from device
+		let meterGas = this.meters.lastMeterGas;
+		let measureGas = this.meters.lastMeasureGas;
+		if (readings.g !== undefined) {
+			meterGas = readings.g.gas; // gas_cumulative_meter
+			const meterGasTm = Date.now() / 1000; // gas_meter_timestamp
+			// constructed gas readings
+			if (this.meters.lastMeterGas !== meterGas) {
+				if (this.meters.lastMeterGas !== null) {	// first reading after init
+					let hoursPassed = (meterGasTm - this.meters.lastMeterGasTm) / 3600;	// hrs
+					if (hoursPassed > 1.5) { // too long ago; assume 1 hour interval
+						hoursPassed = 1;
+					}
+					measureGas = Math.round(1000 * ((meterGas - this.meters.lastMeterGas) / hoursPassed)) / 1000; // gas_interval_meter
+				}
+				this.meters.lastMeterGasTm = meterGasTm;
+			}
+		}
+
+		// electricity readings from device
+		const meterPowerOffpeakProduced = readings.e.powerOffpeakProduced;
+		const meterPowerPeakProduced = readings.e.powerPeakProduced;
+		const meterPowerOffpeak = readings.e.powerOffpeak;
+		const meterPowerPeak = readings.e.powerPeak;
+		let measurePower = (readings.e.measurePower - readings.e.measurePowerProduced);
+		let measurePowerAvg = this.meters.lastMeasurePowerAvg;
+		const meterPowerTm = Date.now() / 1000; // readings.tm;
+		// constructed electricity readings
+		const meterPower = (meterPowerOffpeak + meterPowerPeak) - (meterPowerOffpeakProduced + meterPowerPeakProduced);
+		let offPeak = this.meters.lastOffpeak;
+		if ((meterPower - this.meters.lastMeterPower) !== 0) {
+			offPeak = ((meterPowerOffpeakProduced - this.meters.lastMeterPowerOffpeakProduced) > 0
+			|| (meterPowerOffpeak - this.meters.lastMeterPowerOffpeak) > 0);
+		}
+		// measurePowerAvg 2 minutes average based on cumulative meters
+		if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
+			this.meters.lastMeterPowerInterval = meterPower;
+			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+		}
+		if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
+			measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
+			this.meters.lastMeterPowerInterval = meterPower;
+			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+		}
+		// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
+		if (measurePower === 0 && measurePowerAvg < 0) {
+			measurePower = measurePowerAvg;
+		}
+
+		// trigger the custom trigger flowcards
+		if ((this.lastMeters.offPeak !== null) && (offPeak !== this.lastMeters.offPeak)) {
+			const tokens = { tariff: offPeak };
+			this.homey.flow.getDeviceTriggerCard('tariff_changed')
+				.trigger(this, tokens)
+				.catch(this.error);
+		}
+		if ((this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower)) {
+			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+			const tokens = {
+				power: measurePower,
+				power_delta: measurePowerDelta,
+			};
+			this.homey.flow.getDeviceTriggerCard('power_changed')
+				.trigger(this, tokens)
+				.catch(this.error);
+		}
+
+		// store the new readings in memory
+		this.meters.lastMeasureGas = measureGas;
+		this.meters.lastMeterGas = meterGas;
+		// this.meters.lastMeterGasTm = meterGasTm || this.meters.lastMeterGasTm;
+		this.meters.lastMeasurePower = measurePower;
+		this.meters.lastMeasurePowerAvg = measurePowerAvg;
+		this.meters.lastMeterPower = meterPower;
+		this.meters.lastMeterPowerPeak = meterPowerPeak;
+		this.meters.lastMeterPowerOffpeak = meterPowerOffpeak;
+		this.meters.lastMeterPowerPeakProduced = meterPowerPeakProduced;
+		this.meters.lastMeterPowerOffpeakProduced = meterPowerOffpeakProduced;
+		this.meters.lastMeterPowerTm = meterPowerTm;
+		this.meters.lastOffpeak = offPeak;
+		// update the device state
+		// this.log(this.meters);
+		this.updateDeviceState();
 	}
 
 }

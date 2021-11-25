@@ -1,0 +1,29 @@
+{
+  "id": "tariff_changed",
+  "title": {
+      "en": "Tariff has changed",
+      "nl": "Tarief is gewijzigd"
+  },
+  "titleFormatted": {
+    "en": "Tariff has changed",
+    "nl": "Tarief is gewijzigd"
+  },
+  "tokens": [
+    {
+      "name": "tariff",
+      "type": "boolean",
+      "title": {
+        "en": "off-peak",
+        "nl": "dal"
+      },
+      "example": false
+    }
+  ],
+  "args": [
+      {
+          "type": "device",
+          "name": "device",
+          "filter": "driver_id=LS120|enelogicp1"
+      }
+  ]
+}

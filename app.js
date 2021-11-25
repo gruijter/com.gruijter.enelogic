@@ -25,8 +25,8 @@ const Logger = require('./captureLogs.js');
 class MyApp extends Homey.App {
 
 	onInit() {
-		this.log('Enelogic App is running!');
 		if (!this.logger) this.logger = new Logger({ homey: this, length: 200 });
+		this.log('Enelogic App is running!');
 
 		// register some listeners
 		process.on('unhandledRejection', (error) => {
@@ -35,7 +35,7 @@ class MyApp extends Homey.App {
 		process.on('uncaughtException', (error) => {
 			this.error('uncaughtException! ', error);
 		});
-		Homey
+		this.homey
 			.on('unload', () => {
 				this.log('app unload called');
 				// save logs to persistant storage
@@ -45,10 +45,12 @@ class MyApp extends Homey.App {
 				this.log('memwarn!');
 			});
 
+		this.registerFlowListeners();
+
 		// do garbage collection every 10 minutes
-		this.intervalIdGc = setInterval(() => {
-			global.gc();
-		}, 1000 * 60 * 10);
+	// 	this.intervalIdGc = setInterval(() => {
+	// 		global.gc();
+	// 	}, 1000 * 60 * 10);
 	}
 
 	// ============================================================
@@ -62,6 +64,15 @@ class MyApp extends Homey.App {
 		return this.logger.logArray;
 	}
 
+	registerFlowListeners() {
+		// action cards
+		const reboot = this.homey.flow.getActionCard('reboot');
+		reboot.registerRunListener((args) => args.device.reboot('flow', true));
+
+		// condition cards
+		const offPeakCondition = this.homey.flow.getConditionCard('is_offPeak');
+		offPeakCondition.registerRunListener((args) => args.device.getCapabilityValue('meter_offPeak'));
+	}
 }
 
 module.exports = MyApp;

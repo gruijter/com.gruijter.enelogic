@@ -1,0 +1,25 @@
+{
+    "id": "measure_water_changed",
+    "title": {
+      "en": "L/min changed",
+      "nl": "L/min gewijzigd"
+    },
+    "args": [
+      {
+        "name": "device",
+        "type": "device",
+        "filter": "driver_id=LS110Water"
+      }
+    ],
+    "tokens": [
+        {
+          "name": "flow",
+          "type": "number",
+          "title": {
+            "en": "L/min",
+            "nl": "L/min"
+          },
+          "example": 9.8
+        }
+    ]
+  }

@@ -1,0 +1,224 @@
+{
+  "name": {
+    "en": "LS120 P1",
+    "nl": "LS120 P1"
+  },
+  "images": {
+    "large": "./drivers/LS120/assets/images/large.jpg",
+    "small": "./drivers/LS120/assets/images/small.jpg"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "measure_power",
+    "meter_offPeak",
+    "measure_gas",
+    "meter_gas",
+    "meter_power",
+    "meter_power.peak",
+    "meter_power.offPeak",
+    "meter_power.producedPeak",
+    "meter_power.producedOffPeak"
+  ],
+  "capabilitiesOptions": {
+    "meter_power": {
+      "title": {
+        "en": "Power meter total",
+        "nl": "Energie totaal"
+      },
+      "decimals": 4
+    },
+    "meter_power.peak": {
+      "title": {
+        "en": "Power meter peak",
+        "nl": "Energie piek"
+      },
+      "decimals": 4
+    },
+    "meter_power.offPeak": {
+      "meter_power": {
+        "title": {
+          "en": "Power meter total",
+          "nl": "Energie totaal"
+        },
+        "decimals": 4
+      },
+      "title": {
+        "en": "Power meter off-peak",
+        "nl": "Energie dal"
+      },
+      "decimals": 4
+    },
+    "meter_power.producedPeak": {
+      "title": {
+        "en": "Production peak",
+        "nl": "Productie piek"
+      },
+      "decimals": 4
+    },
+    "meter_power.producedOffPeak": {
+      "title": {
+        "en": "Production off-peak",
+        "nl": "Productie dal"
+      },
+      "decimals": 4
+    }
+  },
+  "energy": {
+    "cumulative": true
+  },
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Device information",
+        "nl": "Device informatie"
+      },
+      "children": [
+        {
+          "id": "model",
+          "type": "label",
+          "label": {
+            "en": "Model",
+            "nl": "Model"
+          },
+          "value": "unknown"
+        },
+        {
+          "id": "mac",
+          "type": "label",
+          "label": {
+            "en": "Mac",
+            "nl": "Mac"
+          },
+          "value": "unknown"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Connection",
+        "nl": "Verbinding"
+      },
+      "children": [
+        {
+          "id": "youLessIp",
+          "type": "text",
+          "label": {
+            "en": "URL or IP address",
+            "nl": "URL of IP adres"
+          },
+          "value": "youless"
+        },
+        {
+          "id": "password",
+          "type": "password",
+          "label": {
+            "en": "Password",
+            "nl": "Wachtwoord"
+          },
+          "value": ""
+        },
+        {
+          "id": "pollingInterval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval (s)",
+            "nl": "Polling interval (s)"
+          },
+          "attr": {
+            "min": 10
+          },
+          "value": 10
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Ledring",
+        "nl": "Ledring"
+      },
+      "children": [
+        {
+          "id": "ledring_usage_limit",
+          "type": "number",
+          "label": {
+            "en": "Max consumption (W)",
+            "nl": "Max gebruik (W)"
+          },
+          "attr": {
+            "min": 0
+          },
+          "value": 3000
+        },
+        {
+          "id": "ledring_production_limit",
+          "type": "number",
+          "label": {
+            "en": "Max production (W)",
+            "nl": "Max productie (W)"
+          },
+          "attr": {
+            "min": 0
+          },
+          "value": 3000
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Meter functionality",
+        "nl": "Meter functionaliteit"
+      },
+      "children": [
+        {
+          "id": "include_off_peak",
+          "type": "checkbox",
+          "label": {
+            "en": "Report OffPeak",
+            "nl": "Rapporteer Dal"
+          },
+          "value": true
+        },
+        {
+          "id": "include_production",
+          "type": "checkbox",
+          "label": {
+            "en": "Report production",
+            "nl": "Rapporteer productie"
+          },
+          "value": true
+        },
+        {
+          "id": "include_gas",
+          "type": "checkbox",
+          "label": {
+            "en": "Report Gas",
+            "nl": "Rapporteer gas"
+          },
+          "value": true
+        },
+        {
+          "id": "filterReadings",
+          "type": "checkbox",
+          "label": {
+            "en": "Filter readings",
+            "nl": "Filter meetwaarden"
+          },
+          "hint": {
+            "en": "Ignore unrealistic meter readings",
+            "nl": "Negeer onrealistische meter waarden"
+          },
+          "value": false
+        }
+      ]
+    }
+  ]
+}

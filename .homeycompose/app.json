@@ -1,0 +1,98 @@
+{
+  "id": "com.gruijter.enelogic",
+  "name": {
+    "en": "Youless and Enelogic",
+    "nl": "Youless and Enelogic"
+  },
+  "description": {
+    "en": "Reduce your CO2 footprint - meet Power, Gas, Water",
+    "nl": "Reduceer je CO2 footprint - meet Energie, Gas, Water"
+  },
+  "tags": {
+    "en": [
+      "dsmr",
+      "p1",
+      "youless",
+      "LS110",
+      "LS120",
+      "smart meter",
+      "enelogic",
+      "energy",
+      "power",
+      "water",
+      "gas"
+    ],
+    "nl": [
+      "dsmr",
+      "p1",
+      "youless",
+      "LS110",
+      "LS120",
+      "slimme meter",
+      "enelogic",
+      "energie",
+      "power",
+      "water",
+      "gas"
+    ]
+  },
+  "brandColor": "#469f00",
+  "version": "4.0.0",
+  "sdk": 3,
+  "compatibility": ">=5.0.0",
+  "author": {
+    "name": "Robin Gruijter",
+    "email": "gruijter@hotmail.com"
+  },
+  "copyright": "Robin de Gruijter (gruijter@hotmail.com)",
+  "license": " GPL-3.0-or-later",
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "gruijter"
+      }
+    }
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Robin de Gruijter",
+        "email": "gruijter@hotmail.com"
+      }
+    ],
+    "translators": [
+      {
+        "name": "🇬🇧 Robin"
+      },
+      {
+        "name": "🇳🇱 Robin"
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
+  },
+  "homeyCommunityTopicId": 4235,
+  "images": {
+    "large": "./assets/images/large.jpg",
+    "small": "./assets/images/small.jpg"
+  },
+  "category": [
+    "energy",
+    "appliances",
+    "tools"
+  ],
+  "permissions": [
+    "homey:manager:ledring"
+  ],
+  "api": {
+    "getLogs": {
+      "method": "get",
+      "path": "/getlogs"
+    },
+    "deleteLogs": {
+      "method": "get",
+      "path": "/deletelogs"
+    }
+  }
+}

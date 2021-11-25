@@ -19,24 +19,33 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 'use strict';
 
-const Homey = require('homey');
+const { Device } = require('homey');
+const Youless = require('youless');
+const util = require('util');
 
-class LS120Device extends Homey.Device {
+const setTimeoutPromise = util.promisify(setTimeout);
+
+class LS120Device extends Device {
 
 	// this method is called when the Device is inited
 	async onInit() {
-		// this.log('device init: ', this.getName(), 'id:', this.getData().id);
+		this.log('device init: ', this.getName(), 'id:', this.getData().id);
 		try {
 			// init some stuff
-			this._driver = this.getDriver();
-			this._ledring = this._driver.ledring;
-			this.handleNewReadings = this._driver.handleNewReadings.bind(this);
+			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
 			this.meters = {};
 			this.initMeters();
-			// create youless session
-			this.youless = new this._driver.Youless(settings.password, settings.youLessIp);
+
+			// create session
+			const options = {
+				password: settings.password,
+				host: settings.youLessIp,
+				timeout: (settings.pollingInterval * 900),
+			};
+			this.youless = new Youless(options);
+
 			// sync time in youless
 			this.youless.login()
 				.then(() => {
@@ -48,99 +57,104 @@ class LS120Device extends Homey.Device {
 				.catch((error) => {
 					this.error(error.message);
 				});
-			// this.log(this.youless);
-			// register trigger flow cards of custom capabilities
-			this.powerChangedTrigger = new Homey.FlowCardTriggerDevice('power_changed_LS120S0')
-				.register();
-			// register action flow cards
-			const reboot = new Homey.FlowCardAction('reboot_LS120S0');
-			reboot.register()
-				.on('run', (args, state, callback) => {
-					this.log('reboot of device requested by action flow card');
-					this.youless.reboot()
-						.then(() => {
-							this.log('rebooting now');
-							this.setUnavailable('rebooting now')
-								.catch(this.error);
-							callback(null, true);
-						})
-						.catch((error) => {
-							this.log(`rebooting failed ${error}`);
-							callback(error);
-						});
-				});
+
 			// start polling device for info
-			this.intervalIdDevicePoll = setInterval(async () => {
-				try {
-					if (this.watchDogCounter <= 0) {
-						// restart the app here
-						this.log('watchdog triggered, restarting app now');
-						this.restartDevice();
-					}
-					// get new readings and update the devicestate
-					await this.doPoll();
-					this.watchDogCounter = 10;
-				} catch (error) {
-					this.watchDogCounter -= 1;
-					this.log('intervalIdDevicePoll error', error);
-				}
-			}, 1000 * settings.pollingInterval);
+			this.startPolling(settings.pollingInterval);
 		} catch (error) {
 			this.error(error);
 		}
 	}
 
+	startPolling(interval) {
+		this.homey.clearInterval(this.intervalIdDevicePoll);
+		this.log(`start polling ${this.getName()} @${interval} seconds interval`);
+		this.intervalIdDevicePoll = this.homey.setInterval(() => {
+			this.doPoll();
+		}, interval * 1000);
+	}
+
+	stopPolling() {
+		this.log(`Stop polling ${this.getName()}`);
+		this.homey.clearInterval(this.intervalIdDevicePoll);
+	}
+
+	async restartDevice(delay) {
+		if (this.restarting) return;
+		this.restarting = true;
+		this.stopPolling();
+		// this.destroyListeners();
+		const dly = delay || 2000;
+		this.log(`Device will restart in ${dly / 1000} seconds`);
+		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		await setTimeoutPromise(dly).then(() => this.onInit());
+	}
+
 	// this method is called when the Device is added
-	onAdded() {
-		this.log(`LS120S0 added as device: ${this.getName()}`);
+	async onAdded() {
+		this.log(`Meter added as device: ${this.getName()}`);
 	}
 
 	// this method is called when the Device is deleted
 	onDeleted() {
-		// stop polling
-		clearInterval(this.intervalIdDevicePoll);
-		this.log(`LS120S0 deleted as device: ${this.getName()}`);
+		this.stopPolling();
+		// this.destroyListeners();
+		this.log(`Deleted as device: ${this.getName()}`);
 	}
 
 	onRenamed(name) {
-		this.log(`LS120S0 renamed to: ${name}`);
+		this.log(`Meter renamed to: ${name}`);
 	}
 
 	// this method is called when the user has changed the device's settings in Homey.
-	onSettings(oldSettingsObj, newSettingsObj, changedKeysArr, callback) {
-		this.log('settings change requested by user');
-		this.log(newSettingsObj);
-		this.youless.login(newSettingsObj.password, newSettingsObj.youLessIp) // password, [host], [port]
-			.then(() => {		// new settings are correct
-				this.log(`${this.getName()} device settings changed`);
-				// set the new power meter in the youless device
-				this.youless.setS0Counter(newSettingsObj.set_meter_s0)
-					.catch(this.error);
-				// do callback to confirm settings change
-				callback(null, true);
-				this.restartDevice();
-			})
-			.catch((error) => {		// new settings are incorrect
-				this.error(error.message);
-				return callback(error, null);
-			});
-		if (Homey.version.split('.')[0] >= 3) {
-			if (newSettingsObj.homey_energy_type === 'solarpanel') {
+	async onSettings({ newSettings }) { // , oldSettings, changedKeys) {
+		this.log(`${this.getName()} device settings changed`);
+		this.log(newSettings);
+		try {
+			const options = {
+				password: newSettings.password,
+				host: newSettings.youLessIp,
+				timeout: (newSettings.pollingInterval * 900),
+			};
+			await this.youless.login(options);
+			// set the new power meter in the youless device
+			this.youless.setS0Counter(newSettings.set_meter_s0)
+				.catch(this.error);
+			if (newSettings.homey_energy_type === 'solarpanel') {
 				this.setEnergy({ cumulative: false });
 				this.setClass('solarpanel');
-			} else if (newSettingsObj.homey_energy_type === 'cumulative') {
+			} else if (newSettings.homey_energy_type === 'cumulative') {
 				this.setEnergy({ cumulative: true });
 				this.setClass('sensor');
 			} else {
 				this.setEnergy({ cumulative: false });
 				this.setClass('sensor');
 			}
+			this.restartDevice(1000);
+			return Promise.resolve(true);
+		} catch (error) {
+			this.error(error.message);
+			return Promise.reject(error);
 		}
 	}
 
 	async doPoll() {
-		// this.log('polling for new readings');
 		try {
+			if (this.watchDogCounter <= 0) {
+				// restart the app here
+				this.log('watchdog triggered, restarting device now');
+				this.restartDevice(60000);
+				return;
+			}
+			if (this.watchDogCounter < 9 && this.watchDogCounter > 1) {
+				// skip some polls
+				const isEven = this.watchDogCounter === parseFloat(this.watchDogCounter) ? !(this.watchDogCounter % 2) : undefined;
+				if (isEven) {
+					this.watchDogCounter -= 1;
+					// console.log('skipping poll');
+					return;
+				}
+			}
+			// get new readings and update the devicestate
 			if (!this.youless.loggedIn) {
 				await this.youless.login()
 					.catch((error) => {
@@ -153,50 +167,45 @@ class LS120Device extends Homey.Device {
 			const readings = await this.youless.getAdvancedStatus();
 			this.setAvailable();
 			this.handleNewReadings(readings);
+			this.watchDogCounter = 10;
 		} catch (error) {
+			this.setUnavailable(error.message);
 			this.watchDogCounter -= 1;
-			this.error(`poll error: ${error}`);
+			this.error('Poll error', error.message);
 		}
 	}
 
-	restartDevice() {
-		// stop polling the device, then start init after short delay
-		clearInterval(this.intervalIdDevicePoll);
-		setTimeout(() => {
-			this.onInit();
-		}, 10000);
-	}
-
 	initMeters() {
-		this.meters = {
-			lastMeasureWater: 0,
-			lastMeasureWaterTm: 0,
-			lastMeterWater: null,
-			lastMeasurePower: 0,									// 'measurePower' (W)
-			lastMeterPower: null,									// 'meterPower' (kWh)
-			lastMeterPowerTm: null, 							// timestamp epoch, e.g. 1514394325
-			// lastMeasurePowerAvg: 0,								// '2 minute average measurePower' (kWh)
-			// lastMeterPowerInterval: null,					// 'meterPower' at last interval (kWh)
-			// lastMeterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
+		this.lastMeters = {
+			measureWater: 0,
+			measureWaterTm: 0,
+			measureWaterTmHomey: 0,
+			meterWater: null,
+			measurePower: 0,						// 'measurePower' (W)
+			meterPower: null,						// 'meterPower' (kWh)
+			meterPowerTm: null, 					// timestamp epoch, e.g. 1514394325
 		};
 	}
 
 	setCapability(capability, value) {
 		if (this.hasCapability(capability)) {
-			this.setCapabilityValue(capability, value);
+			this.setCapabilityValue(capability, value)
+				.catch((error) => {
+					this.log(error, capability, value);
+				});
 		}
 	}
 
-	updateDeviceState() {
+	updateDeviceState(meters) {
 		// this.log(`updating states for: ${this.getName()}`);
 		try {
-			this.setCapability('measure_power', this.meters.lastMeasurePower);
-			this.setCapability('meter_power', this.meters.lastMeterPower);
-			this.setCapability('measure_water', this.meters.lastMeasureWater);
-			this.setCapability('meter_water', this.meters.lastMeterWater);
+			this.setCapability('measure_power', meters.measurePower);
+			this.setCapability('meter_power', meters.meterPower);
+			this.setCapability('measure_water', meters.measureWater);
+			this.setCapability('meter_water', meters.meterWater);
 			// update meter in device settings
 			const settings = this.getSettings();
-			const meter = Math.round((this.meters.lastMeterPower || this.meters.lastMeterWater) * 10000) / 10000;
+			const meter = Math.round((meters.meterPower || meters.meterWater) * 10000) / 10000;
 			if (meter !== settings.set_meter_s0) {
 				this.setSettings({ set_meter_s0: meter })
 					.catch(this.error);
@@ -212,10 +221,118 @@ class LS120Device extends Homey.Device {
 			// 	}
 			// });
 			// reset watchdog
-			this.watchDogCounter = 10;
 		} catch (error) {
 			this.error(error);
 		}
+	}
+
+	handleNewPowerReadings(readings) {
+		try {
+			// console.log(`handling new readings for ${this.getName()}`);
+			// electricity readings from device
+			const meterPower = readings.cs0;
+			const measurePower = readings.ps0;
+			const meterPowerTm = readings.ts0;
+
+			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+
+			// trigger the custom trigger flowcards
+			if (measurePower !== this.lastMeters.measurePower) {
+				const tokens = {
+					power: measurePower,
+					power_delta: measurePowerDelta,
+				};
+				this.homey.flow.getDeviceTriggerCard('power_changed')
+					.trigger(this, tokens)
+					.catch(this.error);
+			}
+
+			// update the ledring screensavers
+			if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
+
+			// store the new readings in memory
+			const meters = {
+				measurePower,
+				meterPower,
+				meterPowerTm,
+			};
+			// update the device state
+			this.updateDeviceState(meters);
+			// console.log(meters);
+			this.lastMeters = meters;
+		}	catch (error) {
+			this.error(error);
+		}
+
+	}
+
+	handleNewWaterReadings(readings) {
+		try {
+			// this.log(`handling new readings for ${this.getName()}`, readings);
+			// water readings from device
+			const meterWater = readings.cs0;
+			const measureWaterTm = readings.ts0; // readings.tm ,only changes on a new pulse
+			let measureWater = Math.round(readings.ps0 / 6) / 10; // readings.ps0 (in liter / hr) to liter / min
+
+			// recalculate measureWater for flow start and stop situations
+			let { measureWaterTmHomey } = this.lastMeters; // Homey time on last pulse
+
+			// new pulse received or device init
+			const timePast = this.lastMeters.measureWaterTm && (measureWaterTm - this.lastMeters.measureWaterTm); // booleanish
+			if (timePast) measureWaterTmHomey = Date.now();	// renew the homey time on last pulse
+
+			// water flow just started, set flow to 2 l/min when not in device init
+			if (!measureWater && timePast) measureWater = 2;
+
+			// keep old flow after water flow just started
+			if (!measureWater && !timePast) measureWater = this.lastMeters.measureWater;
+
+			// long time no pulse, water flow probably stopped
+			const timeout = (120 / (measureWater || 1)); // 2 min timeout @ 1 liter per minute, 2 min when flow=0
+			if (!timePast && ((Date.now() - measureWaterTmHomey) > (timeout * 1000))) measureWater = 0;
+
+			// trigger the custom trigger flowcards
+			if (measureWater !== this.lastMeters.measureWater) {
+				const tokens = {
+					flow: measureWater,
+				};
+				this.homey.flow.getDeviceTriggerCard('measure_water_changed')
+					.trigger(this, tokens)
+					.catch(this.error);
+			}
+
+			// update the ledring screensavers
+			if (measureWater !== this.lastMeters.measureWater) this.driver.ledring.change(this.getSettings(), measureWater);
+
+			// store the new readings in memory
+			const meters = {
+				meterWater,
+				measureWater,
+				measureWaterTm,
+				measureWaterTmHomey,
+			};
+			// update the device state
+			this.updateDeviceState(meters);
+			// console.log(meters);
+			this.lastMeters = meters;
+		}	catch (error) {
+			this.error(error);
+		}
+	}
+
+	handleNewReadings(readings) {
+		if (this.hasCapability('meter_power')) {
+			this.handleNewPowerReadings(readings);
+		}
+		if (this.hasCapability('meter_water')) {
+			this.handleNewWaterReadings(readings);
+		}
+	}
+
+	async reboot(source) {
+		this.log(`Rebooting ${this.getName()} via ${source}`);
+		await this.youless.reboot();
+		this.setUnavailable('rebooting now');
 	}
 
 }

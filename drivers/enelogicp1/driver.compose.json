@@ -1,0 +1,131 @@
+{
+  "name": {
+    "en": "Enelogic P1",
+    "nl": "Enelogic P1"
+  },
+  "images": {
+    "large": "./drivers/enelogicp1/assets/images/large.jpg",
+    "small": "./drivers/enelogicp1/assets/images/small.jpg"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "measure_power",
+    "meter_offPeak",
+    "measure_gas",
+    "meter_gas",
+    "meter_power",
+    "meter_power.peak",
+    "meter_power.offPeak",
+    "meter_power.producedPeak",
+    "meter_power.producedOffPeak"
+  ],
+  "capabilitiesOptions": {
+    "meter_power": {
+      "title": {
+        "en": "Power meter total",
+        "nl": "Energie totaal"
+      },
+      "decimals": 4
+    },
+    "meter_power.peak": {
+      "title": {
+        "en": "Power meter peak",
+        "nl": "Energie piek"
+      }
+    },
+    "meter_power.offPeak": {
+      "title": {
+        "en": "Power meter off-peak",
+        "nl": "Energie dal"
+      },
+      "decimals": 4
+    },
+    "meter_power.producedPeak": {
+      "title": {
+        "en": "Production peak",
+        "nl": "Productie piek"
+      },
+      "decimals": 4
+    },
+    "meter_power.producedOffPeak": {
+      "title": {
+        "en": "Production off-peak",
+        "nl": "Productie dal"
+      },
+      "decimals": 4
+    }
+  },
+  "energy": {
+    "cumulative": true
+  },
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Connection",
+        "nl": "Verbinding"
+      },
+      "children": [
+        {
+          "id": "enelogicIp",
+          "type": "text",
+          "label": {
+            "en": "URL or IP address",
+            "nl": "URL of IP adres"
+          },
+          "value": "enelogic"
+        },
+        {
+          "id": "pollingInterval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval (s)",
+            "nl": "Polling interval (s)"
+          },
+          "attr": {
+            "min": 10
+          },
+          "value": 10
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Ledring",
+        "nl": "Ledring"
+      },
+      "children": [
+        {
+          "id": "ledring_usage_limit",
+          "type": "number",
+          "label": {
+            "en": "Max consumption (W)",
+            "nl": "Max gebruik (W)"
+          },
+          "attr": {
+            "min": 0
+          },
+          "value": 3000
+        },
+        {
+          "id": "ledring_production_limit",
+          "type": "number",
+          "label": {
+            "en": "Max production (W)",
+            "nl": "Max productie (W)"
+          },
+          "attr": {
+            "min": 0
+          },
+          "value": 3000
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "type": "boolean",
+  "title": {
+    "en": "Off peak",
+    "nl": "Laag tarief"
+  },
+  "desc": {
+    "en": "Is off-peak tarriff active?",
+    "nl": "Is laag tarief actief?"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "insightsTitleTrue": {
+    "en": "Off-peak"
+  },
+  "insightsTitleFalse": {
+    "en": "Peak"
+  },
+  "icon": "./drivers/LS120/assets/images/offPeak_icon.svg"
+}

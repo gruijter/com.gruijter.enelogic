@@ -93,7 +93,7 @@ Version changelog: [changelog.txt]
 [pulse meters]: http://hw.homewizard.net/nl/support/solutions/articles/19000081111-het-watergebruik-meten-met-de-energylink
 [forum]: https://community.athom.com/t/4235
 [installation manual]: https://forum.athom.com/discussion/comment/61126/#Comment_61126
-[pp-donate-link]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=FV7VNCQ6XBY6L
+[pp-donate-link]: https://paypal.me/gruijter
 [pp-donate-image]: https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif
 [energy-device-image]: https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/7/7ab6df64224bb168feb4040646e4527ae1980499.jpeg
 [energy-insights-image]: https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/b/b9d85ac81450ad9ad18a2fb66b04d6a2d338f123.png

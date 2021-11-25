@@ -22,7 +22,7 @@ function testSettings () {
 					data: { id: settings.enelogicIp },
 					settings: settings
 				};
-				Homey.addDevice(device, function( err, result ){
+				Homey.createDevice(device, function( err, result ){
 		    	if( err ) {	Homey.alert(err, 'error'); return }
 					setTimeout(function () {
 						Homey.done();

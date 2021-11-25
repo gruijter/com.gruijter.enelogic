@@ -1,0 +1,14 @@
+{
+    "id": "reboot",
+    "title": {
+      "en": "Reboot device",
+      "nl": "Herstart device"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=LS120|LS120S0|LS110|LS110Water"
+        }
+    ]
+  }

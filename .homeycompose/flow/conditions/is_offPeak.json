@@ -1,0 +1,18 @@
+{
+  "id": "is_offPeak",
+  "title": {
+      "en": "Tariff !{{is|isn't}} off peak",
+      "nl": "Tarief !{{is|is niet}} dal"
+  },
+  "titleFormatted": {
+      "en": "Tariff !{{is|isn't}} off peak",
+      "nl": "Tarief !{{is|is niet}} dal"
+  },
+  "args": [
+      {
+          "type": "device",
+          "name": "device",
+          "filter": "driver_id=LS120|enelogicp1"
+      }
+  ]
+}

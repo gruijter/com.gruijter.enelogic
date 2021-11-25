@@ -1,0 +1,20 @@
+{
+  "type": "number",
+  "title": {
+    "en": "Gas",
+    "nl": "Gas"
+  },
+  "desc": {
+    "en": "Gas usage",
+    "nl": "Gasverbruik"
+  },
+  "decimals": 4,
+  "units": {
+    "en": "m³ /hr",
+    "nl": "m³ /uur"
+  },
+  "getable": true,
+  "setable": false,
+  "insights": true,
+  "icon": "./drivers/LS120/assets/images/gas_icon.svg"
+}

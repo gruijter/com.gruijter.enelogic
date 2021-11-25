@@ -19,59 +19,43 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 'use strict';
 
-const Homey = require('homey');
-const util = require('util');
-
-const setTimeoutPromise = util.promisify(setTimeout);
-
 class Ledring {
 	constructor(opts) {
-		this.log = opts.homey.log;
-		this.framesPower = [];
-		this.framePower = [];
-		this.animation = new Homey.LedringAnimation({
-			options: {
-				fps: 1, 	// real frames per second
-				tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
-				rpm: 10,	// rotations per minute
-			},
-			frames: this.framesPower,
-			priority: 'INFORMATIVE',
-			duration: false,
-		});
-		this.registerScreensaver(opts.screensaver)
-			.catch((error) => this.log(error));
+		this.homey = opts.homey;
+		this.animation = {};
+		this.registerScreensaver(opts.screensaver);
 	}
 
-	async registerScreensaver(screensaver) {
+	async registerScreensaver(screenSaverId) {
 		try {
-			// Homey V2 racing issues resolver
-			await setTimeoutPromise(1 * 1000, 'waiting is done');
-			// Init frame for every pixel...
-			for (let pixel = 0; pixel < 24; pixel += 1) {
-				if (pixel < 1) {
-					this.framePower.push({ r: 80, g: 0, b: 0 });
-				} else {
-					this.framePower.push({ r: 0, g: 80, b: 0 });
-				}
+			// init frames cyclops
+			const frame = [];
+			frame.push({ r: 80, g: 0, b: 0 }); // first pixel is red
+			for (let pixel = 1; pixel < 24; pixel += 1) {
+				frame.push({ r: 0, g: 80, b: 0 });
 			}
-			this.framesPower.push(this.framePower);
-			await this.animation
-				.register();
-			// Homey V2 racing issues resolver
-			await setTimeoutPromise(1 * 1000, 'waiting is done');
-			await this.animation.registerScreensaver(screensaver);
-			// Homey V2 racing issues resolver
-			await setTimeoutPromise(1 * 1000, 'waiting is done');
-			this.animation.updateFrames(this.framesPower);
-			this.log(`${screensaver} ledring screensaver ready!`);
+			// create the animation
+			this.animation = await this.homey.ledring.createAnimation({
+				options: {
+					fps: 1, 	// real frames per second
+					tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
+					rpm: 10,	// rotations per minute
+				},
+				frames: [frame],
+				priority: 'INFORMATIVE',
+				duration: false,
+			});
+			// register the animation as screensaver
+			await this.animation.registerScreensaver(screenSaverId);
+			this.homey.log(`${screenSaverId} ledring screensaver ready!`);
 		} catch (error) {
-			this.log(error);
+			this.homey.error(error);
 		}
 	}
 
 	change(deviceSettings, measurepower) {
 		try {
+			const frame = [];
 			let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
 			if (measurepower >= 0) {	// consuming power makes ledring red
 				if (deviceSettings.ledring_usage_limit === 0) {	// ignore change when limit setting is 0
@@ -80,10 +64,9 @@ class Ledring {
 				if (limit > 24) { limit = 24; }
 				for (let pixel = 0; pixel < 24; pixel += 1) {
 					if (pixel < limit) {
-						this.framePower[pixel] = { r: 80,	g: 0,	b: 0	};
-					} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+						frame[pixel] = { r: 80,	g: 0,	b: 0	};
+					} else { frame[pixel] = { r: 0, g: 80, b: 0 }; }
 				}
-				this.framesPower[0] = this.framePower;
 			} else {	// producing power makes ledring blue
 				if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
 					return;
@@ -92,14 +75,13 @@ class Ledring {
 				if (limit > 24) { limit = 24; }
 				for (let pixel = 0; pixel < 24; pixel += 1) {
 					if (pixel < limit) {
-						this.framePower[pixel] = { r: 0,	g: 0,	b: 120 };
-					} else { this.framePower[pixel] = { r: 0, g: 80, b: 0 }; }
+						frame[pixel] = { r: 0,	g: 0,	b: 120 };
+					} else { frame[pixel] = { r: 0, g: 80, b: 0 }; }
 				}
-				this.framesPower[0] = this.framePower;
 			}
-			this.animation.updateFrames(this.framesPower);
+			this.animation.updateFrames([frame]);
 		} catch (error) {
-			this.log(error);
+			this.homey.error(error);
 		}
 	}
 

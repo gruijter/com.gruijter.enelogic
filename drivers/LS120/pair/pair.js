@@ -48,7 +48,7 @@ function testSettings() {
 			} else {
 				Homey.alert(`${__('pair.success')} ${result}`, 'info');
 				const device = JSON.parse(result);
-				Homey.addDevice(device, (err, res) => {
+				Homey.createDevice(device, (err, res) => {
 					if (err) { Homey.alert(err, 'error'); return; }
 					setTimeout(() => {
 						Homey.done();

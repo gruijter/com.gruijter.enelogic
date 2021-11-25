@@ -1,0 +1,141 @@
+{
+  "name": {
+    "en": "LS110/120 E",
+    "nl": "LS110/120 E"
+  },
+  "images": {
+    "large": "./drivers/LS110/assets/images/large.jpg",
+    "small": "./drivers/LS110/assets/images/small.jpg"
+  },
+  "class": "sensor",
+  "capabilities": [
+    "measure_power",
+    "meter_power"
+  ],
+  "pair": [
+    {
+      "id": "pair"
+    }
+  ],
+  "settings": [
+    {
+      "type": "group",
+      "label": {
+        "en": "Connection",
+        "nl": "Verbinding"
+      },
+      "children": [
+        {
+          "id": "youLessIp",
+          "type": "text",
+          "label": {
+            "en": "URL or IP address",
+            "nl": "URL of IP adres"
+          },
+          "value": "youless"
+        },
+        {
+          "id": "password",
+          "type": "password",
+          "label": {
+            "en": "Password",
+            "nl": "Wachtwoord"
+          },
+          "value": ""
+        },
+        {
+          "id": "pollingInterval",
+          "type": "number",
+          "label": {
+            "en": "Polling interval (s)",
+            "nl": "Polling interval (s)"
+          },
+          "attr": {
+            "min": 10
+          },
+          "value": 10
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Ledring",
+        "nl": "Ledring"
+      },
+      "children": [
+        {
+          "id": "ledring_usage_limit",
+          "type": "number",
+          "label": {
+            "en": "Max consumption (W)",
+            "nl": "Max gebruik (W)"
+          },
+          "attr": {
+            "min": 0
+          },
+          "value": 3000
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Meter",
+        "nl": "Meter"
+      },
+      "children": [
+        {
+          "id": "set_meter_power",
+          "type": "number",
+          "label": {
+            "en": "Power meter (KWh)",
+            "nl": "Energie (KWh)"
+          },
+          "value": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "label": {
+        "en": "Homey Energy",
+        "nl": "Homey Energy"
+      },
+      "children": [
+        {
+          "id": "homey_energy_type",
+          "label": {
+            "en": "Behaviour",
+            "nl": "Gedrag"
+          },
+          "type": "dropdown",
+          "value": "default",
+          "values": [
+            {
+              "id": "default",
+              "label": {
+                "en": "Standard (socket device)",
+                "nl": "Standaard (apparaat)"
+              }
+            },
+            {
+              "id": "cumulative",
+              "label": {
+                "en": "Cumulative (main/smart meter)",
+                "nl": "Cumulatief (hoofd/slimme meter)"
+              }
+            },
+            {
+              "id": "solarpanel",
+              "label": {
+                "en": "Solar panel (producing)",
+                "nl": "Zonnepaneel (produceert)"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

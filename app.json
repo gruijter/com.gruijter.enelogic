@@ -1,1294 +1,1177 @@
 {
-	"id": "com.gruijter.enelogic",
-	"name": {
-		"en": "Enelogic and Youless",
-		"nl": "Enelogic and Youless"
-	},
-	"description": {
-		"en": "Reduce your CO2 footprint - meet Power, Gas, Water",
-		"nl": "Reduceer je CO2 footprint - meet Energie, Gas, Water"
-	},
-	"tags": {
-		"en": [ "dsmr", "p1", "youless", "LS110", "LS120", "smart meter", "enelogic", "energy", "power", "water", "gas" ],
-		"nl": [ "dsmr", "p1", "youless", "LS110", "LS120", "slimme meter", "enelogic", "energie", "power", "water", "gas" ]
-	},
-	"brandColor": "#469f00",
-	"version": "3.3.0",
-	"sdk": 2,
-	"compatibility": ">=3",
-	"author": {
-		"name": "Robin Gruijter",
-		"email": "gruijter@hotmail.com"
-	},
-	"copyright": "Robin de Gruijter (gruijter@hotmail.com)",
-	"license": " GPL-3.0-or-later",
-	"contributing": {
-		"donate": {
-			"paypal": {
-				"username": "gruijter"
-			}
-		}
-	},
-	"contributors": {
-		"developers": [{"name": "Robin de Gruijter","email": "gruijter@hotmail.com"}],
-		"translators": [{"name": "🇬🇧 Robin"},{"name": "🇳🇱 Robin"}]
-	},
-	"bugs": {
-	"url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
-	},
-	"homeyCommunityTopicId": 4235,
-	"images": {
-		"large": "./assets/images/large.jpg",
-		"small": "./assets/images/small.jpg"
-	},
-	"category": ["energy", "appliances","tools" ],
-
-	"capabilities": {
-		"meter_offPeak": {
-			"type": "boolean",
-			"title": {
-				"en": "Off-peak",
-				"nl": "Laag tarief"
-			},
-			"desc": {
-				"en": "Is off-peak tarriff active?",
-				"nl": "Is laag tarief actief?"
-			},
-			"getable": true,
-			"setable": false,
-			"insights": true,
-			"insightsTitleTrue": { "en": "Off-peak" },
-			"insightsTitleFalse": { "en": "Peak" },
-			"icon": "./drivers/LS120/assets/images/offPeak_icon.svg"
-		},
-		"measure_gas": {
-			"type": "number",
-			"title": {
-				"en": "Gas",
-				"nl": "Gas"
-			},
-			"desc": {
-				"en": "Gas usage",
-				"nl": "Gasverbruik"
-			},
-			"decimals": 4,
-			"units": {
-				"en": "m\u00B3 /hr",
-				"nl": "m\u00B3 /uur"
-			},
-			"getable": true,
-			"setable": false,
-			"insights": true,
-			"icon": "./drivers/LS120/assets/images/gas_icon.svg"
-		}
-	},
-	"drivers": [
-		{
-			"id": "enelogicp1",
-			"name": {
-				"en": "Enelogic P1",
-				"nl": "Enelogic P1"
-			},
-			"images": {
-				"large": "./drivers/enelogicp1/assets/images/large.jpg",
-				"small": "./drivers/enelogicp1/assets/images/small.jpg"
-			},
-			"class": "sensor",
-			"capabilities": [
-				"measure_power",
-				"meter_offPeak",
-				"measure_gas",
-				"meter_gas",
-				"meter_power",
-				"meter_power.peak",
-				"meter_power.offPeak",
-				"meter_power.producedPeak",
-				"meter_power.producedOffPeak"
-			],
-			"capabilitiesOptions": {
-				"meter_power": {
-					"title": {
-						"en": "Power meter total",
-						"nl": "Energie totaal"
-					},
-					"decimals": 4
-				},
-				"meter_power.peak": {
-					"title": {
-						"en": "Power meter peak",
-						"nl": "Energie piek"
-					}
-				},
-				"meter_power.offPeak": {
-					"title": {
-						"en": "Power meter off-peak",
-						"nl": "Energie dal"
-					},
-					"decimals": 4
-				},
-				"meter_power.producedPeak": {
-					"title": {
-						"en": "Production peak",
-						"nl": "Productie piek"
-					},
-					"decimals": 4
-				},
-				"meter_power.producedOffPeak": {
-					"title": {
-						"en": "Production off-peak",
-						"nl": "Productie dal"
-					},
-					"decimals": 4
-				}
-			},
-			"energy": {
-				"cumulative": true
-			},
-			"pair": [
-					{
-					"id": "pair"
-				}
-			],
-			"settings": [
-				{
-					"type": "group",
-					"label": {
-						"en": "Connection",
-						"nl": "Verbinding"
-					},
-					"children": [
-						{
-							"id": "enelogicIp",
-							"type": "text",
-							"label": {
-								"en": "URL or IP address",
-								"nl": "URL of IP adres"
-							},
-							"value": "enelogic"
-						},
-						{
-							"id": "pollingInterval",
-							"type": "number",
-							"label": {
-								"en": "Polling interval (s)",
-								"nl": "Polling interval (s)"
-							},
-							"attr": { "min": 10 },
-							"value": 10
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Ledring",
-						"nl": "Ledring"
-					},
-					"children": [
-						{
-							"id": "ledring_usage_limit",
-							"type": "number",
-							"label": {
-								"en": "Max consumption (W)",
-								"nl": "Max gebruik (W)"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						},
-						{
-							"id": "ledring_production_limit",
-							"type": "number",
-							"label": {
-								"en": "Max production (W)",
-								"nl": "Max productie (W)"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "LS120",
-			"name": {
-				"en": "LS120 P1",
-				"nl": "LS120 P1"
-			},
-			"images": {
-				"large": "./drivers/LS120/assets/images/large.jpg",
-				"small": "./drivers/LS120/assets/images/small.jpg"
-			},
-			"class": "sensor",
-			"capabilities": [
-				"measure_power",
-				"meter_offPeak",
-				"measure_gas",
-				"meter_gas",
-				"meter_power",
-				"meter_power.peak",
-				"meter_power.offPeak",
-				"meter_power.producedPeak",
-				"meter_power.producedOffPeak"
-			],
-			"capabilitiesOptions": {
-				"meter_power": {
-					"title": {
-						"en": "Power meter total",
-						"nl": "Energie totaal"
-					},
-					"decimals": 4
-				},
-				"meter_power.peak": {
-					"title": {
-						"en": "Power meter peak",
-						"nl": "Energie piek"
-					},
-					"decimals": 4
-				},
-				"meter_power.offPeak": {
-					"meter_power": {
-						"title": {
-							"en": "Power meter total",
-							"nl": "Energie totaal"
-					},
-					"decimals": 4
-				},
-					"title": {
-						"en": "Power meter off-peak",
-						"nl": "Energie dal"
-					},
-					"decimals": 4
-				},
-				"meter_power.producedPeak": {
-					"title": {
-						"en": "Production peak",
-						"nl": "Productie piek"
-					},
-					"decimals": 4
-				},
-				"meter_power.producedOffPeak": {
-					"title": {
-						"en": "Production off-peak",
-						"nl": "Productie dal"
-					},
-					"decimals": 4
-				}
-			},
-			"energy": {
-				"cumulative": true
-			},
-			"pair": [
-					{
-						"id": "pair"
-					}
-				],
-			"settings": [
-				{
-					"type": "group",
-					"label": {
-						"en": "Device information",
-						"nl": "Device informatie"
-					},
-					"children": [
-						{
-							"id": "model",
-							"type": "label",
-							"label": {
-								"en": "Model",
-								"nl": "Model"
-							},
-							"value": "unknown"
-						},
-						{
-							"id": "mac",
-							"type": "label",
-							"label": {
-								"en": "Mac",
-								"nl": "Mac"
-							},
-							"value": "unknown"
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Connection",
-						"nl": "Verbinding"
-					},
-					"children": [
-						{
-							"id": "youLessIp",
-							"type": "text",
-							"label": {
-								"en": "URL or IP address",
-								"nl": "URL of IP adres"
-							},
-							"value": "youless"
-						},
-						{
-							"id": "password",
-							"type": "password",
-							"label": {
-								"en": "Password",
-								"nl": "Wachtwoord"
-							},
-							"value": ""
-						},
-						{
-							"id": "pollingInterval",
-							"type": "number",
-							"label": {
-								"en": "Polling interval (s)",
-								"nl": "Polling interval (s)"
-							},
-							"attr": { "min": 10 },
-							"value": 10
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Ledring",
-						"nl": "Ledring"
-					},
-					"children": [
-						{
-							"id": "ledring_usage_limit",
-							"type": "number",
-							"label": {
-								"en": "Max consumption (W)",
-								"nl": "Max gebruik (W)"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						},
-						{
-							"id": "ledring_production_limit",
-							"type": "number",
-							"label": {
-								"en": "Max production (W)",
-								"nl": "Max productie (W)"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Meter functionality",
-						"nl": "Meter functionaliteit"
-					},
-					"children": [
-						{
-							"id": "include_off_peak",
-							"type": "checkbox",
-							"label": {
-								"en": "Report OffPeak",
-								"nl": "Rapporteer Dal"
-							},
-							"value": true
-						},
-						{
-							"id": "include_production",
-							"type": "checkbox",
-							"label": {
-								"en": "Report production",
-								"nl": "Rapporteer productie"
-							},
-							"value": true
-						},
-						{
-							"id": "include_gas",
-							"type": "checkbox",
-							"label": {
-								"en": "Report Gas",
-								"nl": "Rapporteer gas"
-							},
-							"value": true
-						},
-						{
-							"id": "filterReadings",
-							"type": "checkbox",
-							"label": {
-								"en": "Filter readings",
-								"nl": "Filter meetwaarden"
-							},
-							"hint": {
-								"en": "Ignore unrealistic meter readings",
-								"nl": "Negeer onrealistische meter waarden"
-							},
-							"value": false
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "LS110",
-			"name": {
-				"en": "LS110/120 E",
-				"nl": "LS110/120 E"
-			},
-			"images": {
-				"large": "./drivers/LS110/assets/images/large.jpg",
-				"small": "./drivers/LS110/assets/images/small.jpg"
-			},
-			"class": "sensor",
-			"capabilities": [
-				"measure_power",
-				"meter_power"
-			],
-			"pair": [
-					{
-					"id": "pair"
-				}
-			],
-			"settings": [
-				{
-					"type": "group",
-					"label": {
-						"en": "Connection",
-						"nl": "Verbinding"
-					},
-					"children": [
-						{
-							"id": "youLessIp",
-							"type": "text",
-							"label": {
-								"en": "URL or IP address",
-								"nl": "URL of IP adres"
-							},
-							"value": "youless"
-						},
-						{
-							"id": "password",
-							"type": "password",
-							"label": {
-								"en": "Password",
-								"nl": "Wachtwoord"
-							},
-							"value": ""
-						},
-						{
-							"id": "pollingInterval",
-							"type": "number",
-							"label": {
-								"en": "Polling interval (s)",
-								"nl": "Polling interval (s)"
-							},
-							"attr": { "min": 10 },
-							"value": 10
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Ledring",
-						"nl": "Ledring"
-					},
-					"children": [
-						{
-							"id": "ledring_usage_limit",
-							"type": "number",
-							"label": {
-								"en": "Max consumption (W)",
-								"nl": "Max gebruik (W)"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Meter",
-						"nl": "Meter"
-					},
-					"children": [
-						{
-							"id": "set_meter_power",
-							"type": "number",
-							"label": {
-								"en": "Power meter (KWh)",
-								"nl": "Energie (KWh)"
-							},
-							"value": 0
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Homey Energy",
-						"nl": "Homey Energy"
-					},
-					"children": [
-						{
-							"id": "homey_energy_type",
-							"label": {
-								"en": "Behaviour",
-								"nl": "Gedrag"
-							},
-							"type": "dropdown",
-							"value": "default",
-							"values": [
-								{
-									"id": "default",
-									"label": {
-										"en": "Standard (socket device)",
-										"nl": "Standaard (apparaat)"
-								}
-								},
-								{
-									"id": "cumulative",
-									"label": {
-										"en": "Cumulative (main/smart meter)",
-										"nl": "Cumulatief (hoofd/slimme meter)"
-									}
-								},
-								{
-									"id": "solarpanel",
-									"label": {
-										"en": "Solar panel (producing)",
-										"nl": "Zonnepaneel (produceert)"
-									}
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "LS120S0",
-			"name": {
-				"en": "LS120 S0",
-				"nl": "LS120 S0"
-			},
-			"images": {
-				"large": "./drivers/LS120S0/assets/images/large.jpg",
-				"small": "./drivers/LS120S0/assets/images/small.jpg"
-			},
-			"class": "sensor",
-			"capabilities": [
-				"measure_power",
-				"meter_power",
-				"measure_water",
-				"meter_water"
-			],
-			"capabilitiesOptions": {
-				"meter_power": {
-					"title": {
-						"en": "Power meter total",
-						"nl": "Energie totaal"
-				},
-				"decimals": 4
-			},
-				"meter_water": {
-					"decimals": 3
-				}
-			},
-			"pair": [
-				{
-					"id": "pair"
-				}
-			],
-			"settings": [
-				{
-					"type": "group",
-					"label": {
-						"en": "Device information",
-						"nl": "Device informatie"
-					},
-					"children": [
-						{
-							"id": "model",
-							"type": "label",
-							"label": {
-								"en": "Model",
-								"nl": "Model"
-							},
-							"value": "unknown"
-						},
-						{
-							"id": "mac",
-							"type": "label",
-							"label": {
-								"en": "Mac",
-								"nl": "Mac"
-							},
-							"value": "unknown"
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Connection",
-						"nl": "Verbinding"
-					},
-					"children": [
-						{
-							"id": "youLessIp",
-							"type": "text",
-							"label": {
-								"en": "URL or IP address",
-								"nl": "URL of IP adres"
-							},
-							"value": "youless"
-						},
-						{
-							"id": "password",
-							"type": "password",
-							"label": {
-								"en": "Password",
-								"nl": "Wachtwoord"
-							},
-							"value": ""
-						},
-						{
-							"id": "pollingInterval",
-							"type": "number",
-							"label": {
-								"en": "Polling interval (s)",
-								"nl": "Polling interval (s)"
-							},
-							"attr": { "min": 10 },
-							"value": 10
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Ledring",
-						"nl": "Ledring"
-					},
-					"children": [
-						{
-							"id": "ledring_usage_limit",
-							"type": "number",
-							"label": {
-								"en": "Max consumption",
-								"nl": "Max gebruik"
-							},
-							"attr": { "min": 0 },
-							"value": 3000
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Meter",
-						"nl": "Meter"
-					},
-					"children": [
-						{
-							"id": "set_meter_s0",
-							"type": "number",
-							"label": {
-								"en": "S0 meter value",
-								"nl": "S0 meter waarde"
-							},
-							"value": 0
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Homey Energy",
-						"nl": "Homey Energy"
-					},
-					"children": [
-						{
-							"id": "homey_energy_type",
-							"label": {
-								"en": "Behaviour",
-								"nl": "Gedrag"
-							},
-							"type": "dropdown",
-							"value": "default",
-							"values": [
-								{
-									"id": "default",
-									"label": {
-										"en": "Standard (socket device)",
-										"nl": "Standaard (apparaat)"
-								}
-								},
-								{
-									"id": "cumulative",
-									"label": {
-										"en": "Cumulative (main/smart meter)",
-										"nl": "Cumulatief (hoofd/slimme meter)"
-									}
-								},
-								{
-									"id": "solarpanel",
-									"label": {
-										"en": "Solar panel (producing)",
-										"nl": "Zonnepaneel (produceert)"
-									}
-								}
-							]
-						}
-					]
-				}
-			]
-		},
-		{
-			"id": "LS110Water",
-			"name": {
-				"en": "LS110/120 W",
-				"nl": "LS110/120 W"
-			},
-			"images": {
-				"large": "./drivers/LS110Water/assets/images/large.jpg",
-				"small": "./drivers/LS110Water/assets/images/small.jpg"
-			},
-			"class": "sensor",
-			"capabilities": [
-				"measure_water",
-				"meter_water"
-			],
-			"capabilitiesOptions": {
-				"measure_water": {
-					"type": "number",
-					"title": {
-						"en": "L/min",
-						"nl": "L/min"
-					},
-					"units": {
-						"en": "L/min"
-					},
-					"desc": {
-						"en": "Water flow in Liters per minute (L/min)",
-						"nl": "Waterdoorstroming in Liters per minuut (L/min)"
-					},
-					"chartType": "stepLine",
-					"decimals": 1,
-					"getable": true,
-					"setable": false
-				},
-				"meter_water": {
-					"decimals": 3
-				}
-			},
-			"pair": [
-					{
-					"id": "pair"
-				}
-			],
-			"settings": [
-				{
-					"type": "group",
-					"label": {
-						"en": "Connection",
-						"nl": "Verbinding"
-					},
-					"children": [
-						{
-							"id": "youLessIp",
-							"type": "text",
-							"label": {
-								"en": "URL or IP address",
-								"nl": "URL of IP adres"
-							},
-							"value": "youless"
-						},
-						{
-							"id": "password",
-							"type": "password",
-							"label": {
-								"en": "Password",
-								"nl": "Wachtwoord"
-							},
-							"value": ""
-						},
-						{
-							"id": "pollingInterval",
-							"type": "number",
-							"label": {
-								"en": "Polling interval (ms)",
-								"nl": "Polling interval (ms)"
-							},
-							"attr": { "min": 100 },
-							"value": 350
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Ledring",
-						"nl": "Ledring"
-					},
-					"children": [
-						{
-							"id": "ledring_usage_limit",
-							"type": "number",
-							"label": {
-								"en": "Max consumption",
-								"nl": "Max gebruik"
-							},
-							"attr": { "min": 0 },
-							"value": 20
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Water meter settings",
-						"nl": "Watermeter instellingen"
-					},
-					"children": [
-						{
-							"id": "meter_water_offset",
-							"type": "number",
-							"label": {
-								"en": "Set watermeter (m\u00B3)",
-								"nl": "Stand instellen (m\u00B3)"
-							},
-							"attr": { "min": 0, "step": 0.0001},
-							"value": 0
-						},
-						{
-							"id": "optical_sensor_pulse",
-							"type": "number",
-							"label": {
-								"en": "Pulses per m\u00B3",
-								"nl": "Pulsen per m\u00B3"
-							},
-							"attr": { "min": 0 },
-							"value": 1000
-						}
-					]
-				},
-				{
-					"type": "group",
-					"label": {
-						"en": "Optical sensor settings",
-						"nl": "Optische sensor instellingen"
-					},
-					"children": [
-						{
-							"id": "optical_sensor_raw_max",
-							"type": "number",
-							"label": {
-								"en": "Peak value",
-								"nl": "Maximale waarde"
-							},
-							"attr": { "min": 0, "max": 1000 },
-							"value": 700
-						},
-						{
-							"id": "optical_sensor_raw_min",
-							"type": "number",
-							"label": {
-								"en": "Minimum value",
-								"nl": "Minimale waarde"
-							},
-							"attr": { "min": 0, "max": 1000 },
-							"value": 600
-						},
-						{
-							"id": "auto_calibrate",
-							"type": "checkbox",
-							"value": true,
-							"label": {
-									"en": "Automatic calibration",
-									"nl": "Automatisch calibreren"
-							}
-						},
-						{
-							"id": "log_raw",
-							"type": "checkbox",
-							"value": false,
-							"label": {
-									"en": "Log raw sensor data",
-									"nl": "Ruwe sensordata loggen"
-							}
-						}
-					]
-				}
-			]
-		}
-	],
-	"flow":	{
-		"triggers":[
-			{
-				"id":"power_changed_LS110",
-				"title": {
-					"en":"Power use changed",
-					"nl":"Stroomverbruik gewijzigd"
-				},
-				"args": [
-					{
-						"name": "PowerChanged",
-						"type": "device",
-						"filter": "driver_id=LS110",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"power",
-						"type": "number",
-						"title": {
-							"en":"Watt",
-							"nl":"Watt"
-						},
-						"example" : 850
-					},
-					{
-						"name":"power_delta",
-						"type": "number",
-						"title": {
-							"en":"+- W",
-							"nl":"+- W"
-						},
-					"example" : 18
-					}
-				]
-			},
-			{
-				"id":"measure_water_changed",
-				"title": {
-					"en":"L/min changed",
-					"nl":"L/min gewijzigd"
-				},
-				"args": [
-					{
-						"name": "LS110Water",
-						"type": "device",
-						"filter": "driver_id=LS110Water",
-						"placeholder": {
-							"en": "Which YouLess device",
-							"nl": "Welk YouLess apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"flow",
-						"type": "number",
-						"title": {
-							"en":"L/min",
-							"nl":"L/min"
-						},
-						"example" : 9.8
-					}
-				]
-			},
-			{
-				"id":"tariff_changed",
-				"title": {
-					"en":"Tariff has changed",
-					"nl":"Tarief is gewijzigd"
-				},
-				"args": [
-					{
-						"name": "TariffChanged",
-						"type": "device",
-						"filter": "driver_id=LS120|enelogicp1",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"tariff",
-						"type": "boolean",
-						"title": {
-							"en":"off-peak",
-							"nl":"dal"
-						},
-						"example" : false
-					}
-				]
-			},
-			{
-				"id":"power_changed",
-				"title": {
-					"en":"Power use changed",
-					"nl":"Stroomverbruik gewijzigd"
-				},
-				"args": [
-					{
-						"name": "enelogic",
-						"type": "device",
-						"filter": "driver_id=enelogicp1",
-						"placeholder": {
-							"en": "Which enelogic device",
-							"nl": "Welk enelogic apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"power",
-						"type": "number",
-						"title": {
-							"en":"Watt",
-							"nl":"Watt"
-						},
-						"example" : 850
-					},
-					{
-						"name":"power_delta",
-						"type": "number",
-						"title": {
-							"en":"+- W",
-							"nl":"+- W"
-						},
-					"example" : 18
-					}
-				]
-			},
-			{
-				"id":"power_changed_LS120",
-				"title": {
-					"en":"Power use changed",
-					"nl":"Stroomverbruik gewijzigd"
-				},
-				"args": [
-					{
-						"name": "PowerChanged",
-						"type": "device",
-						"filter": "driver_id=LS120",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"power",
-						"type": "number",
-						"title": {
-							"en":"Watt",
-							"nl":"Watt"
-						},
-						"example" : 850
-					},
-					{
-						"name":"power_delta",
-						"type": "number",
-						"title": {
-							"en":"+- W",
-							"nl":"+- W"
-						},
-					"example" : 18
-					}
-				]
-			},
-			{
-				"id":"power_changed_LS120S0",
-				"title": {
-					"en":"Power use changed",
-					"nl":"Stroomverbruik gewijzigd"
-				},
-				"args": [
-					{
-						"name": "PowerChanged",
-						"type": "device",
-						"filter": "driver_id=LS120S0",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				],
-				"tokens":[
-					{
-						"name":"power",
-						"type": "number",
-						"title": {
-							"en":"Watt",
-							"nl":"Watt"
-						},
-						"example" : 850
-					},
-					{
-						"name":"power_delta",
-						"type": "number",
-						"title": {
-							"en":"+- W",
-							"nl":"+- W"
-						},
-					"example" : 18
-					}
-				]
-			}
-
-		],
-		"conditions": [
-			{
-				"id": "offPeakLS120",
-				"title": {
-					"en": "Tariff !{{is|isn't}} off-peak",
-					"nl": "Tarief !{{is|is niet}} dal"
-				},
-				"args": [
-					{
-						"name": "LS120",
-						"type": "device",
-						"filter": "driver_id=LS120",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			},
-			{
-				"id": "offPeak",
-				"title": {
-					"en": "Tariff !{{is|isn't}} off-peak",
-					"nl": "Tarief !{{is|is niet}} dal"
-				},
-				"args": [
-					{
-						"name": "enelogic",
-						"type": "device",
-						"filter": "driver_id=enelogic",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			}
-		],
-		"actions": [
-			{
-				"id": "reboot_LS110",
-				"title": {
-					"en": "Reboot device",
-					"nl": "Herstart device"
-				},
-				"args": [
-					{
-						"name": "reboot",
-						"type": "device",
-						"filter": "driver_id=LS110",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			},
-			{
-				"id": "reboot_LS110Water",
-				"title": {
-					"en": "Reboot device",
-					"nl": "Herstart device"
-				},
-				"args": [
-					{
-						"name": "reboot",
-						"type": "device",
-						"filter": "driver_id=LS110Water",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			},
-			{
-				"id": "reboot_LS120",
-				"title": {
-					"en": "Reboot device",
-					"nl": "Herstart device"
-				},
-				"args": [
-					{
-						"name": "reboot",
-						"type": "device",
-						"filter": "driver_id=LS120",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			},
-			{
-				"id": "reboot_LS120S0",
-				"title": {
-					"en": "Reboot device",
-					"nl": "Herstart device"
-				},
-				"args": [
-					{
-						"name": "reboot",
-						"type": "device",
-						"filter": "driver_id=LS120S0",
-						"placeholder": {
-							"en": "Which device",
-							"nl": "Welk apparaat"
-							}
-					}
-				]
-			}
-		]
-	},
-	"screensavers": [
-		{
-			"name": "enelogic_power_legacy",
-			"title": {
-				"en": "Enelogic P1 Power (Legacy)",
-				"nl": "Enelogic P1 Energie (oud)"
-			}
-		},
-		{
-			"name": "enelogic_power",
-			"title": {
-				"en": "Enelogic P1 Power",
-				"nl": "Enelogic P1 Energie"
-			}
-		},
-		{
-			"name": "enelogic_s0",
-			"title": {
-				"en": "Enelogic S0",
-				"nl": "Enelogic S0"
-			}
-		},
-		{
-			"name": "enelogic_optical",
-			"title": {
-				"en": "Enelogic Optical",
-				"nl": "Enelogic Optisch"
-			}
-		},
-		{
-			"name": "enelogic_water",
-			"title": {
-				"en": "Enelogic Water",
-				"nl": "Enelogic Water"
-			}
-		}
-	],
-	"permissions": [
-		"homey:manager:ledring"
-	]
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.gruijter.enelogic",
+  "name": {
+    "en": "Youless and Enelogic",
+    "nl": "Youless and Enelogic"
+  },
+  "description": {
+    "en": "Reduce your CO2 footprint - meet Power, Gas, Water",
+    "nl": "Reduceer je CO2 footprint - meet Energie, Gas, Water"
+  },
+  "tags": {
+    "en": [
+      "dsmr",
+      "p1",
+      "youless",
+      "LS110",
+      "LS120",
+      "smart meter",
+      "enelogic",
+      "energy",
+      "power",
+      "water",
+      "gas"
+    ],
+    "nl": [
+      "dsmr",
+      "p1",
+      "youless",
+      "LS110",
+      "LS120",
+      "slimme meter",
+      "enelogic",
+      "energie",
+      "power",
+      "water",
+      "gas"
+    ]
+  },
+  "brandColor": "#469f00",
+  "version": "4.0.0",
+  "sdk": 3,
+  "compatibility": ">=5.0.0",
+  "author": {
+    "name": "Robin Gruijter",
+    "email": "gruijter@hotmail.com"
+  },
+  "copyright": "Robin de Gruijter (gruijter@hotmail.com)",
+  "license": " GPL-3.0-or-later",
+  "contributing": {
+    "donate": {
+      "paypal": {
+        "username": "gruijter"
+      }
+    }
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Robin de Gruijter",
+        "email": "gruijter@hotmail.com"
+      }
+    ],
+    "translators": [
+      {
+        "name": "🇬🇧 Robin"
+      },
+      {
+        "name": "🇳🇱 Robin"
+      }
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/gruijter/com.gruijter.enelogic/issues"
+  },
+  "homeyCommunityTopicId": 4235,
+  "images": {
+    "large": "./assets/images/large.jpg",
+    "small": "./assets/images/small.jpg"
+  },
+  "category": [
+    "energy",
+    "appliances",
+    "tools"
+  ],
+  "permissions": [
+    "homey:manager:ledring"
+  ],
+  "api": {
+    "getLogs": {
+      "method": "get",
+      "path": "/getlogs"
+    },
+    "deleteLogs": {
+      "method": "get",
+      "path": "/deletelogs"
+    }
+  },
+  "flow": {
+    "triggers": [
+      {
+        "id": "measure_water_changed",
+        "title": {
+          "en": "L/min changed",
+          "nl": "L/min gewijzigd"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=LS110Water"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "flow",
+            "type": "number",
+            "title": {
+              "en": "L/min",
+              "nl": "L/min"
+            },
+            "example": 9.8
+          }
+        ]
+      },
+      {
+        "id": "power_changed",
+        "title": {
+          "en": "Power delta",
+          "nl": "Stroomverbruik delta"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=LS120|LS110|LS12S0|enelogicp1"
+          }
+        ],
+        "tokens": [
+          {
+            "name": "power",
+            "type": "number",
+            "title": {
+              "en": "Watt",
+              "nl": "Watt"
+            },
+            "example": 850
+          },
+          {
+            "name": "power_delta",
+            "type": "number",
+            "title": {
+              "en": "+- W",
+              "nl": "+- W"
+            },
+            "example": 18
+          }
+        ]
+      },
+      {
+        "id": "tariff_changed",
+        "title": {
+          "en": "Tariff has changed",
+          "nl": "Tarief is gewijzigd"
+        },
+        "titleFormatted": {
+          "en": "Tariff has changed",
+          "nl": "Tarief is gewijzigd"
+        },
+        "tokens": [
+          {
+            "name": "tariff",
+            "type": "boolean",
+            "title": {
+              "en": "off-peak",
+              "nl": "dal"
+            },
+            "example": false
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=LS120|enelogicp1"
+          }
+        ]
+      }
+    ],
+    "conditions": [
+      {
+        "id": "is_offPeak",
+        "title": {
+          "en": "Tariff !{{is|isn't}} off peak",
+          "nl": "Tarief !{{is|is niet}} dal"
+        },
+        "titleFormatted": {
+          "en": "Tariff !{{is|isn't}} off peak",
+          "nl": "Tarief !{{is|is niet}} dal"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=LS120|enelogicp1"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "reboot",
+        "title": {
+          "en": "Reboot device",
+          "nl": "Herstart device"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=LS120|LS120S0|LS110|LS110Water"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "LS110/120 E",
+        "nl": "LS110/120 E"
+      },
+      "images": {
+        "large": "./drivers/LS110/assets/images/large.jpg",
+        "small": "./drivers/LS110/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_power"
+      ],
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "nl": "Verbinding"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+            {
+              "id": "password",
+              "type": "password",
+              "label": {
+                "en": "Password",
+                "nl": "Wachtwoord"
+              },
+              "value": ""
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (s)",
+                "nl": "Polling interval (s)"
+              },
+              "attr": {
+                "min": 10
+              },
+              "value": 10
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Ledring",
+            "nl": "Ledring"
+          },
+          "children": [
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Max consumption (W)",
+                "nl": "Max gebruik (W)"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Meter",
+            "nl": "Meter"
+          },
+          "children": [
+            {
+              "id": "set_meter_power",
+              "type": "number",
+              "label": {
+                "en": "Power meter (KWh)",
+                "nl": "Energie (KWh)"
+              },
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Homey Energy",
+            "nl": "Homey Energy"
+          },
+          "children": [
+            {
+              "id": "homey_energy_type",
+              "label": {
+                "en": "Behaviour",
+                "nl": "Gedrag"
+              },
+              "type": "dropdown",
+              "value": "default",
+              "values": [
+                {
+                  "id": "default",
+                  "label": {
+                    "en": "Standard (socket device)",
+                    "nl": "Standaard (apparaat)"
+                  }
+                },
+                {
+                  "id": "cumulative",
+                  "label": {
+                    "en": "Cumulative (main/smart meter)",
+                    "nl": "Cumulatief (hoofd/slimme meter)"
+                  }
+                },
+                {
+                  "id": "solarpanel",
+                  "label": {
+                    "en": "Solar panel (producing)",
+                    "nl": "Zonnepaneel (produceert)"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "LS110"
+    },
+    {
+      "name": {
+        "en": "LS110/120 W",
+        "nl": "LS110/120 W"
+      },
+      "images": {
+        "large": "./drivers/LS110Water/assets/images/large.jpg",
+        "small": "./drivers/LS110Water/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_water",
+        "meter_water"
+      ],
+      "capabilitiesOptions": {
+        "measure_water": {
+          "type": "number",
+          "title": {
+            "en": "L/min",
+            "nl": "L/min"
+          },
+          "units": {
+            "en": "L/min"
+          },
+          "desc": {
+            "en": "Water flow in Liters per minute (L/min)",
+            "nl": "Waterdoorstroming in Liters per minuut (L/min)"
+          },
+          "chartType": "stepLine",
+          "decimals": 1,
+          "getable": true,
+          "setable": false
+        },
+        "meter_water": {
+          "decimals": 3
+        }
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "nl": "Verbinding"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+            {
+              "id": "password",
+              "type": "password",
+              "label": {
+                "en": "Password",
+                "nl": "Wachtwoord"
+              },
+              "value": ""
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (ms)",
+                "nl": "Polling interval (ms)"
+              },
+              "attr": {
+                "min": 100
+              },
+              "value": 350
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Ledring",
+            "nl": "Ledring"
+          },
+          "children": [
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Max consumption",
+                "nl": "Max gebruik"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 20
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Water meter settings",
+            "nl": "Watermeter instellingen"
+          },
+          "children": [
+            {
+              "id": "meter_water_offset",
+              "type": "number",
+              "label": {
+                "en": "Set watermeter (m³)",
+                "nl": "Stand instellen (m³)"
+              },
+              "attr": {
+                "min": 0,
+                "step": 0.0001
+              },
+              "value": 0
+            },
+            {
+              "id": "optical_sensor_pulse",
+              "type": "number",
+              "label": {
+                "en": "Pulses per m³",
+                "nl": "Pulsen per m³"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 1000
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Optical sensor settings",
+            "nl": "Optische sensor instellingen"
+          },
+          "children": [
+            {
+              "id": "optical_sensor_raw_max",
+              "type": "number",
+              "label": {
+                "en": "Peak value",
+                "nl": "Maximale waarde"
+              },
+              "attr": {
+                "min": 0,
+                "max": 1000
+              },
+              "value": 700
+            },
+            {
+              "id": "optical_sensor_raw_min",
+              "type": "number",
+              "label": {
+                "en": "Minimum value",
+                "nl": "Minimale waarde"
+              },
+              "attr": {
+                "min": 0,
+                "max": 1000
+              },
+              "value": 600
+            },
+            {
+              "id": "auto_calibrate",
+              "type": "checkbox",
+              "value": true,
+              "label": {
+                "en": "Automatic calibration",
+                "nl": "Automatisch calibreren"
+              }
+            },
+            {
+              "id": "log_raw",
+              "type": "checkbox",
+              "value": false,
+              "label": {
+                "en": "Log raw sensor data",
+                "nl": "Ruwe sensordata loggen"
+              }
+            }
+          ]
+        }
+      ],
+      "id": "LS110Water"
+    },
+    {
+      "name": {
+        "en": "LS120 P1",
+        "nl": "LS120 P1"
+      },
+      "images": {
+        "large": "./drivers/LS120/assets/images/large.jpg",
+        "small": "./drivers/LS120/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_offPeak",
+        "measure_gas",
+        "meter_gas",
+        "meter_power",
+        "meter_power.peak",
+        "meter_power.offPeak",
+        "meter_power.producedPeak",
+        "meter_power.producedOffPeak"
+      ],
+      "capabilitiesOptions": {
+        "meter_power": {
+          "title": {
+            "en": "Power meter total",
+            "nl": "Energie totaal"
+          },
+          "decimals": 4
+        },
+        "meter_power.peak": {
+          "title": {
+            "en": "Power meter peak",
+            "nl": "Energie piek"
+          },
+          "decimals": 4
+        },
+        "meter_power.offPeak": {
+          "meter_power": {
+            "title": {
+              "en": "Power meter total",
+              "nl": "Energie totaal"
+            },
+            "decimals": 4
+          },
+          "title": {
+            "en": "Power meter off-peak",
+            "nl": "Energie dal"
+          },
+          "decimals": 4
+        },
+        "meter_power.producedPeak": {
+          "title": {
+            "en": "Production peak",
+            "nl": "Productie piek"
+          },
+          "decimals": 4
+        },
+        "meter_power.producedOffPeak": {
+          "title": {
+            "en": "Production off-peak",
+            "nl": "Productie dal"
+          },
+          "decimals": 4
+        }
+      },
+      "energy": {
+        "cumulative": true
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Device information",
+            "nl": "Device informatie"
+          },
+          "children": [
+            {
+              "id": "model",
+              "type": "label",
+              "label": {
+                "en": "Model",
+                "nl": "Model"
+              },
+              "value": "unknown"
+            },
+            {
+              "id": "mac",
+              "type": "label",
+              "label": {
+                "en": "Mac",
+                "nl": "Mac"
+              },
+              "value": "unknown"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "nl": "Verbinding"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+            {
+              "id": "password",
+              "type": "password",
+              "label": {
+                "en": "Password",
+                "nl": "Wachtwoord"
+              },
+              "value": ""
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (s)",
+                "nl": "Polling interval (s)"
+              },
+              "attr": {
+                "min": 10
+              },
+              "value": 10
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Ledring",
+            "nl": "Ledring"
+          },
+          "children": [
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Max consumption (W)",
+                "nl": "Max gebruik (W)"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            },
+            {
+              "id": "ledring_production_limit",
+              "type": "number",
+              "label": {
+                "en": "Max production (W)",
+                "nl": "Max productie (W)"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Meter functionality",
+            "nl": "Meter functionaliteit"
+          },
+          "children": [
+            {
+              "id": "include_off_peak",
+              "type": "checkbox",
+              "label": {
+                "en": "Report OffPeak",
+                "nl": "Rapporteer Dal"
+              },
+              "value": true
+            },
+            {
+              "id": "include_production",
+              "type": "checkbox",
+              "label": {
+                "en": "Report production",
+                "nl": "Rapporteer productie"
+              },
+              "value": true
+            },
+            {
+              "id": "include_gas",
+              "type": "checkbox",
+              "label": {
+                "en": "Report Gas",
+                "nl": "Rapporteer gas"
+              },
+              "value": true
+            },
+            {
+              "id": "filterReadings",
+              "type": "checkbox",
+              "label": {
+                "en": "Filter readings",
+                "nl": "Filter meetwaarden"
+              },
+              "hint": {
+                "en": "Ignore unrealistic meter readings",
+                "nl": "Negeer onrealistische meter waarden"
+              },
+              "value": false
+            }
+          ]
+        }
+      ],
+      "id": "LS120"
+    },
+    {
+      "name": {
+        "en": "LS120 S0",
+        "nl": "LS120 S0"
+      },
+      "images": {
+        "large": "./drivers/LS120S0/assets/images/large.jpg",
+        "small": "./drivers/LS120S0/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_power",
+        "measure_water",
+        "meter_water"
+      ],
+      "capabilitiesOptions": {
+        "meter_power": {
+          "title": {
+            "en": "Power meter total",
+            "nl": "Energie totaal"
+          },
+          "decimals": 4
+        },
+        "meter_water": {
+          "decimals": 3
+        }
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Device information",
+            "nl": "Device informatie"
+          },
+          "children": [
+            {
+              "id": "model",
+              "type": "label",
+              "label": {
+                "en": "Model",
+                "nl": "Model"
+              },
+              "value": "unknown"
+            },
+            {
+              "id": "mac",
+              "type": "label",
+              "label": {
+                "en": "Mac",
+                "nl": "Mac"
+              },
+              "value": "unknown"
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "nl": "Verbinding"
+          },
+          "children": [
+            {
+              "id": "youLessIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "youless"
+            },
+            {
+              "id": "password",
+              "type": "password",
+              "label": {
+                "en": "Password",
+                "nl": "Wachtwoord"
+              },
+              "value": ""
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (s)",
+                "nl": "Polling interval (s)"
+              },
+              "attr": {
+                "min": 10
+              },
+              "value": 10
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Ledring",
+            "nl": "Ledring"
+          },
+          "children": [
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Max consumption",
+                "nl": "Max gebruik"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Meter",
+            "nl": "Meter"
+          },
+          "children": [
+            {
+              "id": "set_meter_s0",
+              "type": "number",
+              "label": {
+                "en": "S0 meter value",
+                "nl": "S0 meter waarde"
+              },
+              "value": 0
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Homey Energy",
+            "nl": "Homey Energy"
+          },
+          "children": [
+            {
+              "id": "homey_energy_type",
+              "label": {
+                "en": "Behaviour",
+                "nl": "Gedrag"
+              },
+              "type": "dropdown",
+              "value": "default",
+              "values": [
+                {
+                  "id": "default",
+                  "label": {
+                    "en": "Standard (socket device)",
+                    "nl": "Standaard (apparaat)"
+                  }
+                },
+                {
+                  "id": "cumulative",
+                  "label": {
+                    "en": "Cumulative (main/smart meter)",
+                    "nl": "Cumulatief (hoofd/slimme meter)"
+                  }
+                },
+                {
+                  "id": "solarpanel",
+                  "label": {
+                    "en": "Solar panel (producing)",
+                    "nl": "Zonnepaneel (produceert)"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "id": "LS120S0"
+    },
+    {
+      "name": {
+        "en": "Enelogic P1",
+        "nl": "Enelogic P1"
+      },
+      "images": {
+        "large": "./drivers/enelogicp1/assets/images/large.jpg",
+        "small": "./drivers/enelogicp1/assets/images/small.jpg"
+      },
+      "class": "sensor",
+      "capabilities": [
+        "measure_power",
+        "meter_offPeak",
+        "measure_gas",
+        "meter_gas",
+        "meter_power",
+        "meter_power.peak",
+        "meter_power.offPeak",
+        "meter_power.producedPeak",
+        "meter_power.producedOffPeak"
+      ],
+      "capabilitiesOptions": {
+        "meter_power": {
+          "title": {
+            "en": "Power meter total",
+            "nl": "Energie totaal"
+          },
+          "decimals": 4
+        },
+        "meter_power.peak": {
+          "title": {
+            "en": "Power meter peak",
+            "nl": "Energie piek"
+          }
+        },
+        "meter_power.offPeak": {
+          "title": {
+            "en": "Power meter off-peak",
+            "nl": "Energie dal"
+          },
+          "decimals": 4
+        },
+        "meter_power.producedPeak": {
+          "title": {
+            "en": "Production peak",
+            "nl": "Productie piek"
+          },
+          "decimals": 4
+        },
+        "meter_power.producedOffPeak": {
+          "title": {
+            "en": "Production off-peak",
+            "nl": "Productie dal"
+          },
+          "decimals": 4
+        }
+      },
+      "energy": {
+        "cumulative": true
+      },
+      "pair": [
+        {
+          "id": "pair"
+        }
+      ],
+      "settings": [
+        {
+          "type": "group",
+          "label": {
+            "en": "Connection",
+            "nl": "Verbinding"
+          },
+          "children": [
+            {
+              "id": "enelogicIp",
+              "type": "text",
+              "label": {
+                "en": "URL or IP address",
+                "nl": "URL of IP adres"
+              },
+              "value": "enelogic"
+            },
+            {
+              "id": "pollingInterval",
+              "type": "number",
+              "label": {
+                "en": "Polling interval (s)",
+                "nl": "Polling interval (s)"
+              },
+              "attr": {
+                "min": 10
+              },
+              "value": 10
+            }
+          ]
+        },
+        {
+          "type": "group",
+          "label": {
+            "en": "Ledring",
+            "nl": "Ledring"
+          },
+          "children": [
+            {
+              "id": "ledring_usage_limit",
+              "type": "number",
+              "label": {
+                "en": "Max consumption (W)",
+                "nl": "Max gebruik (W)"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            },
+            {
+              "id": "ledring_production_limit",
+              "type": "number",
+              "label": {
+                "en": "Max production (W)",
+                "nl": "Max productie (W)"
+              },
+              "attr": {
+                "min": 0
+              },
+              "value": 3000
+            }
+          ]
+        }
+      ],
+      "id": "enelogicp1"
+    }
+  ],
+  "capabilities": {
+    "measure_gas": {
+      "type": "number",
+      "title": {
+        "en": "Gas",
+        "nl": "Gas"
+      },
+      "desc": {
+        "en": "Gas usage",
+        "nl": "Gasverbruik"
+      },
+      "decimals": 4,
+      "units": {
+        "en": "m³ /hr",
+        "nl": "m³ /uur"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "icon": "./drivers/LS120/assets/images/gas_icon.svg"
+    },
+    "meter_offPeak": {
+      "type": "boolean",
+      "title": {
+        "en": "Off peak",
+        "nl": "Laag tarief"
+      },
+      "desc": {
+        "en": "Is off-peak tarriff active?",
+        "nl": "Is laag tarief actief?"
+      },
+      "getable": true,
+      "setable": false,
+      "insights": true,
+      "insightsTitleTrue": {
+        "en": "Off-peak"
+      },
+      "insightsTitleFalse": {
+        "en": "Peak"
+      },
+      "icon": "./drivers/LS120/assets/images/offPeak_icon.svg"
+    }
+  },
+  "screensavers": [
+    {
+      "name": "youless_p1",
+      "title": {
+        "en": "Youless P1 (smart power and gas)",
+        "nl": "Youless P1 (slimme energie en gas)"
+      }
+    },
+    {
+      "name": "youless_power",
+      "title": {
+        "en": "Youless E (power)",
+        "nl": "Youless E (energie)"
+      }
+    },
+    {
+      "name": "youless_s0",
+      "title": {
+        "en": "Youless S0 (power or water)",
+        "nl": "Youless S0 (energie of water)"
+      }
+    },
+    {
+      "name": "youless_water",
+      "title": {
+        "en": "Youless Optical (water)",
+        "nl": "Youless Optical (water)"
+      }
+    }
+  ]
 }
