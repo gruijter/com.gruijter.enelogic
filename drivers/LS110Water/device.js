@@ -34,16 +34,16 @@ class LS110WaterDevice extends Device {
 			// init some stuff
 			this.restarting = false;
 			this.watchDogCounter = 10;
-			const settings = this.getSettings();
+			this.settings = this.getSettings();
 			this.meters = {};
 			this.burstMode = true;
 			this.initMeters();
 
 			// create session
 			const options = {
-				password: settings.password,
-				host: settings.youLessIp,
-				timeout: (settings.pollingInterval * 900),
+				password: this.settings.password,
+				host: this.settings.youLessIp,
+				timeout: (this.settings.pollingInterval * 900),
 			};
 			this.youless = new Youless(options);
 
@@ -60,7 +60,7 @@ class LS110WaterDevice extends Device {
 				});
 
 			// start polling device for info
-			this.startPolling(settings.pollingInterval);
+			this.startPolling(this.settings.pollingInterval);
 		} catch (error) {
 			this.error(error);
 		}
@@ -68,10 +68,10 @@ class LS110WaterDevice extends Device {
 
 	startPolling(interval) {
 		this.homey.clearInterval(this.intervalIdDevicePoll);
-		this.log(`start polling ${this.getName()} @${interval} seconds interval`);
+		this.log(`start polling ${this.getName()} @${interval} ms interval`);
 		this.intervalIdDevicePoll = this.homey.setInterval(() => {
 			this.doPoll();
-		}, interval * 1000);
+		}, interval);
 	}
 
 	stopPolling() {
@@ -114,7 +114,7 @@ class LS110WaterDevice extends Device {
 	}
 
 	async doPoll() {
-		// this.log('polling for new readings');
+		// console.log('polling for new readings');
 		try {
 			if (this.watchDogCounter <= 0) {
 				// restart the app here
@@ -132,8 +132,8 @@ class LS110WaterDevice extends Device {
 				}
 			}
 			let pollOnce = false;
-			if ((Date.now() - this.meters.lastSlowPollTm) > 2000) {
-				// this.log('polling in slow mode');
+			if ((Date.now() - this.meters.lastSlowPollTm) > 1500) {
+				// console.log('polling in slow mode');
 				pollOnce = true;
 				this.meters.lastSlowPollTm = Date.now();
 			}

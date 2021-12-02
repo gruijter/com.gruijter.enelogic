@@ -10,5 +10,8 @@
   },
   "4.0.0": {
     "en": "Rewrite to SDK3 and Compose. Rebranded to Youless and Enelogic. Ledring code updated. Removed legacy screensaver. Renamed screensavers. Fixed offPeak state after app restart. Fixed several 0-value bugs. Http timeout depending on poll time."
+  },
+  "4.0.1": {
+    "en": "Fix optical water driver."
   }
 }
