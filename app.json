@@ -38,7 +38,7 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.0.1",
+  "version": "4.0.3",
   "sdk": 3,
   "compatibility": ">=5.0.0",
   "author": {
@@ -1145,6 +1145,13 @@
     }
   },
   "screensavers": [
+    {
+      "name": "enelogic_power_legacy",
+      "title": {
+        "en": "Enelogic P1 Power (Legacy)",
+        "nl": "Enelogic P1 Energie (oud)"
+      }
+    },
     {
       "name": "youless_p1",
       "title": {

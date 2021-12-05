@@ -35,7 +35,6 @@ class EnelogicDevice extends Device {
 			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			this.meters = {};
 			this.initMeters();
 
 			// create enelogic session
@@ -128,38 +127,45 @@ class EnelogicDevice extends Device {
 	}
 
 	initMeters() {
-		this.meters = {
-			lastMeasureGas: 0,										// 'measureGas' (m3)
-			lastMeterGas: null, 									// 'meterGas' (m3)
-			lastMeterGasTm: 0,										// timestamp of gas meter reading, e.g. 1514394325
-			lastMeasurePower: 0,									// 'measurePower' (W)
-			lastMeasurePowerAvg: 0,								// '2 minute average measurePower' (kWh)
-			lastMeterPower: null,									// 'meterPower' (kWh)
-			lastMeterPowerPeak: null,							// 'meterPower_peak' (kWh)
-			lastMeterPowerOffpeak: null,					// 'meterPower_offpeak' (kWh)
-			lastMeterPowerPeakProduced: null,			// 'meterPower_peak_produced' (kWh)
-			lastMeterPowerOffpeakProduced: null,	// 'meterPower_offpeak_produced' (kWh)
-			lastMeterPowerTm: null, 							// timestamp epoch, e.g. 1514394325
-			lastMeterPowerInterval: null,					// 'meterPower' at last interval (kWh)
-			lastMeterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
-			lastOffpeak: null,										// 'meterPower_offpeak' (true/false)
+		this.lastMeters = {
+			measureGas: 0,							// 'measureGas' (m3)
+			meterGas: null, 						// 'meterGas' (m3)
+			meterGasTm: 0,							// timestamp of gas meter reading, e.g. 1514394325
+			measurePower: 0,						// 'measurePower' (W)
+			measurePowerAvg: 0,						// '1 minute average measurePower' (W)
+			meterPower: null,						// 'meterPower' (kWh)
+			meterPowerPeak: null,					// 'meterPower_peak' (kWh)
+			meterPowerOffPeak: null,				// 'meterPower_offpeak' (kWh)
+			meterPowerPeakProduced: null,			// 'meterPower_peak_produced' (kWh)
+			meterPowerOffPeakProduced: null,		// 'meterPower_offpeak_produced' (kWh)
+			meterPowerTm: null, 					// timestamp epoch, e.g. 1514394325
+			meterPowerInterval: null,				// 'meterPower' at last interval (kWh)
+			meterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
+			offPeak: null,							// 'meterPower_offpeak' (true/false)
 		};
 	}
 
-	updateDeviceState() {
+	setCapability(capability, value) {
+		if (this.hasCapability(capability)) {
+			this.setCapabilityValue(capability, value)
+				.catch((error) => {
+					this.log(error, capability, value);
+				});
+		}
+	}
+
+	updateDeviceState(meters) {
 		// this.log(`updating states for: ${this.getName()}`);
 		try {
-			this.setCapabilityValue('measure_power', this.meters.lastMeasurePower);
-			this.setCapabilityValue('meter_offPeak', this.meters.lastOffpeak);
-			this.setCapabilityValue('measure_gas', this.meters.lastMeasureGas);
-			this.setCapabilityValue('meter_gas', this.meters.lastMeterGas);
-			this.setCapabilityValue('meter_power', this.meters.lastMeterPower);
-			this.setCapabilityValue('meter_power.peak', this.meters.lastMeterPowerPeak);
-			this.setCapabilityValue('meter_power.offPeak', this.meters.lastMeterPowerOffpeak);
-			this.setCapabilityValue('meter_power.producedPeak', this.meters.lastMeterPowerPeakProduced);
-			this.setCapabilityValue('meter_power.producedOffPeak', this.meters.lastMeterPowerOffpeakProduced);
-			// reset watchdog
-			this.watchDogCounter = 10;
+			this.setCapability('measure_power', meters.measurePower);
+			this.setCapability('meter_power', meters.meterPower);
+			this.setCapability('measure_gas', meters.measureGas);
+			this.setCapability('meter_gas', meters.meterGas);
+			this.setCapability('meter_power.peak', meters.meterPowerPeak);
+			this.setCapability('meter_offPeak', meters.offPeak);
+			this.setCapability('meter_power.offPeak', meters.meterPowerOffPeak);
+			this.setCapability('meter_power.producedPeak', meters.meterPowerPeakProduced);
+			this.setCapability('meter_power.producedOffPeak', meters.meterPowerOffPeakProduced);
 		} catch (error) {
 			this.error(error);
 		}
@@ -168,51 +174,47 @@ class EnelogicDevice extends Device {
 	handleNewReadings(readings) {
 		// this.log(`handling new readings for ${this.getName()}`);
 		// gas readings from device
-		let meterGas = this.meters.lastMeterGas;
-		let measureGas = this.meters.lastMeasureGas;
-		if (readings.g !== undefined) {
-			meterGas = readings.g.gas; // gas_cumulative_meter
-			const meterGasTm = Date.now() / 1000; // gas_meter_timestamp
-			// constructed gas readings
-			if (this.meters.lastMeterGas !== meterGas) {
-				if (this.meters.lastMeterGas !== null) {	// first reading after init
-					let hoursPassed = (meterGasTm - this.meters.lastMeterGasTm) / 3600;	// hrs
-					if (hoursPassed > 1.5) { // too long ago; assume 1 hour interval
-						hoursPassed = 1;
-					}
-					measureGas = Math.round(1000 * ((meterGas - this.meters.lastMeterGas) / hoursPassed)) / 1000; // gas_interval_meter
-				}
-				this.meters.lastMeterGasTm = meterGasTm;
-			}
+		const meterGas = readings.g && readings.g.gas; // gas_cumulative_meter
+		const meterGasTm = (meterGas && (meterGas !== this.lastMeters.meterGas)) ? Date.now() / 1000 : this.lastMeters.meterGasTm;
+		let { measureGas } = this.lastMeters;
+
+		// constructed gas readings
+		const meterGasTmChanged = (meterGasTm !== this.lastMeters.meterGasTm) && (this.lastMeters.meterGasTm !== 0);
+		if (meterGasTmChanged) {
+			const passedHours = (meterGasTm - this.lastMeters.meterGasTm) / 3600;	// timestamp is in seconds
+			measureGas = Math.round(1000 * ((meterGas - this.lastMeters.meterGas) / passedHours)) / 1000; // gas_interval_meter
 		}
 
 		// electricity readings from device
-		const meterPowerOffpeakProduced = readings.e.powerOffpeakProduced;
+		const meterPowerOffPeakProduced = readings.e.powerOffpeakProduced;
 		const meterPowerPeakProduced = readings.e.powerPeakProduced;
-		const meterPowerOffpeak = readings.e.powerOffpeak;
+		const meterPowerOffPeak = readings.e.powerOffpeak;
 		const meterPowerPeak = readings.e.powerPeak;
+		const meterPower = (meterPowerOffPeak + meterPowerPeak) - (meterPowerOffPeakProduced + meterPowerPeakProduced);
 		let measurePower = (readings.e.measurePower - readings.e.measurePowerProduced);
-		let measurePowerAvg = this.meters.lastMeasurePowerAvg;
-		const meterPowerTm = Date.now() / 1000; // readings.tm;
+		let { measurePowerAvg } = this.lastMeters;
+		const meterPowerTm = Date.now() / 1000;
 		// constructed electricity readings
-		const meterPower = (meterPowerOffpeak + meterPowerPeak) - (meterPowerOffpeakProduced + meterPowerPeakProduced);
-		let offPeak = this.meters.lastOffpeak;
-		if ((meterPower - this.meters.lastMeterPower) !== 0) {
-			offPeak = ((meterPowerOffpeakProduced - this.meters.lastMeterPowerOffpeakProduced) > 0
-			|| (meterPowerOffpeak - this.meters.lastMeterPowerOffpeak) > 0);
+		let { offPeak } = this.lastMeters;
+		if ((this.lastMeters.meterPowerTm !== null) && ((meterPower - this.lastMeters.meterPower) !== 0)) {
+			offPeak = ((meterPowerOffPeakProduced - this.lastMeters.meterPowerOffPeakProduced) > 0
+			|| (meterPowerOffPeak - this.lastMeters.meterPowerOffPeak) > 0);
 		}
-		// measurePowerAvg 2 minutes average based on cumulative meters
-		if (this.meters.lastMeterPowerIntervalTm === null) {	// first reading after init
-			this.meters.lastMeterPowerInterval = meterPower;
-			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+		// measurePowerAvg 1 minute average based on cumulative meters
+		let { meterPowerInterval, meterPowerIntervalTm } = this.lastMeters;
+		if (this.lastMeters.meterPowerIntervalTm === null) {	// first reading after init
+			meterPowerInterval = meterPower;
+			meterPowerIntervalTm = meterPowerTm;
+			measurePowerAvg = measurePower;
 		}
-		if ((meterPowerTm - this.meters.lastMeterPowerIntervalTm) >= 120) {
-			measurePowerAvg = Math.round((3600000 / 120) * (meterPower - this.meters.lastMeterPowerInterval));
-			this.meters.lastMeterPowerInterval = meterPower;
-			this.meters.lastMeterPowerIntervalTm = meterPowerTm;
+		if ((meterPowerTm - meterPowerIntervalTm) >= 60) {
+			measurePowerAvg = Math.round((3600000 / (meterPowerTm - meterPowerIntervalTm)) * (meterPower - meterPowerInterval));
+			meterPowerInterval = meterPower;
+			meterPowerIntervalTm = meterPowerTm;
 		}
 		// correct measurePower with average measurePower_produced in case point_meter_produced is always zero
-		if (measurePower === 0 && measurePowerAvg < 0) {
+		const producing = (this.lastMeters.meterPowerTm !== null) && (meterPower <= this.lastMeters.meterPower);
+		if (producing && (measurePower < 100) && (measurePower > -50) && (measurePowerAvg < 0)) {
 			measurePower = measurePowerAvg;
 		}
 
@@ -234,22 +236,32 @@ class EnelogicDevice extends Device {
 				.catch(this.error);
 		}
 
+		// update the ledring screensavers
+		if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
+
 		// store the new readings in memory
-		this.meters.lastMeasureGas = measureGas;
-		this.meters.lastMeterGas = meterGas;
-		// this.meters.lastMeterGasTm = meterGasTm || this.meters.lastMeterGasTm;
-		this.meters.lastMeasurePower = measurePower;
-		this.meters.lastMeasurePowerAvg = measurePowerAvg;
-		this.meters.lastMeterPower = meterPower;
-		this.meters.lastMeterPowerPeak = meterPowerPeak;
-		this.meters.lastMeterPowerOffpeak = meterPowerOffpeak;
-		this.meters.lastMeterPowerPeakProduced = meterPowerPeakProduced;
-		this.meters.lastMeterPowerOffpeakProduced = meterPowerOffpeakProduced;
-		this.meters.lastMeterPowerTm = meterPowerTm;
-		this.meters.lastOffpeak = offPeak;
+		const meters = {
+			measureGas,
+			meterGas,
+			meterGasTm,
+			measurePower,
+			measurePowerAvg,
+			meterPower,
+			meterPowerPeak,
+			meterPowerOffPeak,
+			meterPowerPeakProduced,
+			meterPowerOffPeakProduced,
+			meterPowerTm,
+			meterPowerInterval,
+			meterPowerIntervalTm,
+			offPeak,
+		};
+
 		// update the device state
-		// this.log(this.meters);
-		this.updateDeviceState();
+		this.updateDeviceState(meters);
+		// console.log(meters);
+		this.lastMeters = meters;
+		this.watchDogCounter = 10;
 	}
 
 }

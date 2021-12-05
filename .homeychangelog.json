@@ -13,5 +13,11 @@
   },
   "4.0.1": {
     "en": "Fix optical water driver."
+  },
+  "4.0.2": {
+    "en": "***WIP*** Fix Enelogic P1 driver. Re-added legacy screensaver."
+  },
+  "4.0.3": {
+    "en": "Fix Enelogic P1 driver. Re-added legacy screensaver."
   }
 }

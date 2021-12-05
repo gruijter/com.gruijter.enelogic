@@ -21,17 +21,17 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Enelogic = require('../../enelogic.js');
-// const Ledring = require('../../ledring.js');
+const Ledring = require('../../ledring.js');
 
 class EnelogicDriver extends Homey.Driver {
 
 	onInit() {
 		this.log('entering Enelogic driver');
-		// this.ledring = new Ledring({ screensaver: 'enelogic_power_legacy', homey: this.homey });
+		this.ledring = new Ledring({ screensaver: 'enelogic_power_legacy', homey: this.homey });
 	}
 
 	async onPair(session) {
-		session.on('validate', async (data) => {
+		session.setHandler('validate', async (data) => {
 			try {
 				this.log('save button pressed in frontend');
 				// this.settings.host = data.enelogicIp;
