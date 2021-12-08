@@ -83,41 +83,65 @@ async function doTest() {
 
 		// get basic power readings
 		log.push('trying to get basic power readings');
-		const basicStatus = await youless.getBasicStatus()
+		await youless.getBasicStatus()
+			.then((basicStatus) => {
+				log.push(basicStatus);
+			})
 			.catch((error) => logError(error));
-		log.push(basicStatus);
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
 		// get analogue and P1 power, S0 and gas meter readings (not available in LS110)
 		log.push('trying to get advanced power readings (LS120 only)');
-		const advancedStatus = await youless.getAdvancedStatus()
+		await youless.getAdvancedStatus()
+			.then((advancedStatus) => {
+				log.push(advancedStatus);
+				log.push('Available digital meters:');
+				log.push(youless.hasMeter);
+			})
 			.catch((error) => logError(error));
-		log.push(advancedStatus);
-		log.push('Available digital meters:');
-		log.push(youless.hasMeter);
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
 		// get electricity Power log of the present month
 		log.push('trying to get historic Power log of present month');
-		const powerLog = await youless.getPowerlog()
+		await youless.getPowerlog()
+			.then((powerLog) => {
+				log.push(powerLog);
+			})
 			.catch((error) => logError(error));
-		log.push(powerLog);
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
 		// get gas log of the present month
 		log.push('trying to get historic gas log of present month (LS120 only)');
-		const gasLog = await youless.getGaslog()
+		await youless.getGaslog()
+			.then((gasLog) => {
+				log.push(gasLog);
+			})
 			.catch((error) => logError(error));
-		log.push(gasLog);
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
 		// get S0 log of the present month
 		log.push('trying to get historic S0 log of present month (LS120 only)');
-		const s0Log = await youless.getS0log()
+		await youless.getS0log()
+			.then((s0Log) => {
+				log.push(s0Log);
+			})
 			.catch((error) => logError(error));
-		log.push(s0Log);
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
+
+		// get S0 log of the present month
+		log.push('trying to get the raw P1 status');
+		await youless.getRawP1Status({ noCheck: true })
+			.then((rawP1Status) => {
+				log.push(rawP1Status);
+			})
+			.catch((error) => logError(error));
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
 		// synchronize the device time
-		log.push('trying to set the device time');
-		const dateTime = await youless.syncTime()
-			.catch((error) => logError(error));
-		log.push(dateTime);
+		// log.push('trying to set the device time');
+		// const dateTime = await youless.syncTime()
+		// 	.catch((error) => logError(error));
+		// log.push(dateTime);
 
 		// // set optical sensor luminace
 		// log.push('trying to set optical sensor luminance');

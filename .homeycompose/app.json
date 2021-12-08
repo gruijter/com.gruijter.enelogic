@@ -5,7 +5,7 @@
     "nl": "Youless and Enelogic"
   },
   "description": {
-    "en": "Reduce your CO2 footprint - meet Power, Gas, Water",
+    "en": "Reduce your CO2 footprint - measure Power, Gas, Water",
     "nl": "Reduceer je CO2 footprint - meet Energie, Gas, Water"
   },
   "tags": {
@@ -37,7 +37,7 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.0.3",
+  "version": "4.1.0",
   "sdk": 3,
   "compatibility": ">=5.0.0",
   "author": {

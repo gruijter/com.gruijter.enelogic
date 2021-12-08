@@ -179,6 +179,19 @@
       },
       "children": [
         {
+          "id": "reversed",
+          "type": "checkbox",
+          "label": {
+            "en": "Reverse P1 meters",
+            "nl": "P1 meters omdraaien"
+          },
+          "hint": {
+            "en": "Set to reversed for Belgian P1 meters",
+            "nl": "Zet op omdraaien voor Belgische P1 meters"
+          },
+          "value": false
+        },
+        {
           "id": "include_off_peak",
           "type": "checkbox",
           "label": {

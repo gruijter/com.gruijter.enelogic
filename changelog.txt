@@ -1,3 +1,4 @@
+v4.1.0  2021.12.08 Added support for Belgian P1 (reversed peak-offPeak). youless@2.4.0.
 v4.0.3  2021.12.04 Fix Enelogic P1 driver. Re-added legacy screensaver.
 v4.0.1  2021.12.02 Fix optical water driver.
 v4.0.0  2021.11.25 Rewrite to SDK3 and Compose. Rebranded to Youless and Enelogic. Ledring code updated. Removed legacy screensaver. Renamed screensavers. Fixed offPeak state after app restart. Fixed several 0-value bugs. Http timeout depending on poll time.

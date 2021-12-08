@@ -42,6 +42,7 @@ class LS120Device extends Device {
 			const options = {
 				password: settings.password,
 				host: settings.youLessIp,
+				reversed: settings.reversed,
 				timeout: (settings.pollingInterval * 900),
 			};
 			this.youless = new Youless(options);

@@ -19,5 +19,8 @@
   },
   "4.0.3": {
     "en": "Fix Enelogic P1 driver. Re-added legacy screensaver."
+  },
+  "4.1.0": {
+    "en": "Added support for Belgian P1 (reversed peak-offPeak). youless@2.4.0."
   }
 }

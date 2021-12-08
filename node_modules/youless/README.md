@@ -43,7 +43,7 @@ To install the youless package:
 ```
 
 ### Test:
-From the folder in which you installed the youless package, just run below command. If you have no password set in the device you can leave out that part. You can optionally provide the IP and port by adding `host=deviceIP port=devicePort`.
+From the folder in which you installed the youless package, just run below command. If you have no password set in the device you can leave out that part. You can optionally provide the IP and port by adding `host=deviceIP port=devicePort`. For Belgian P1 meters you need to add `reversed=true`
 ```
 > npm test password=devicePassword
 ```

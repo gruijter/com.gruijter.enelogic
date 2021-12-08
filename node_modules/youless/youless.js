@@ -68,8 +68,9 @@ class Youless {
 		this.password = opts instanceof Object ? opts.password || defaultPassword : opts;
 		this.host = opts.host || hostLegacy;
 		this.port = opts.port || portLegacy || defaultPort;
-		this.timeout = opts.timeout || 4000;	// milliseconds for http request
+		this.timeout = opts.timeout || 10000;	// milliseconds for http request
 		this.loggedIn = this.password === defaultPassword;
+		this.reversed = !!opts.reversed; // for Belgian meters. Default is false.
 		this.cookie = defaultCookie;
 		this.info = {	// will be filled automatically on getInfo2()
 			model: undefined,
@@ -149,6 +150,7 @@ class Youless {
 			this.host = opts.host || hostLegacy || await this.host;
 			this.port = opts.port || portLegacy || this.port;
 			this.timeout = opts.timeout || this.timeout;	// milliseconds for http request
+			this.reversed = Object.prototype.hasOwnProperty.call(opts, 'reversed') ? opts.reversed : this.reversed;
 
 			if (!this.host || this.host === '' || !this.port) {
 				await this.discover()
@@ -269,6 +271,13 @@ class Youless {
 				advancedStatus.ts0 = 0;
 				advancedStatus.ps0 = 0;
 				advancedStatus.cs0 = 0;
+			}
+			if (this.reversed) {
+				const tmp = { ...advancedStatus };
+				advancedStatus.p1 = tmp.p2;
+				advancedStatus.p2 = tmp.p1;
+				advancedStatus.n1 = tmp.n2;
+				advancedStatus.n2 = tmp.n1;
 			}
 			return Promise.resolve(advancedStatus);
 		} catch (error) {
@@ -724,6 +733,7 @@ getPower();
 * @property {string} [host] - The url or ip address of the youless device. Leave undefined to try autodiscovery.
 * @property {number} [port = 80] - The port of the youless device. Defaults to 80.
 * @property {number} [timeout = 4000] - http timeout in milliseconds. Defaults to 4000ms.
+* @property {boolean} [reversed = false] - Reverse the peak and offPeak meters. Required in Belgium.
 * @example // session options
 { password: 'mySecretPassword',
   host:'10.0.0.12',

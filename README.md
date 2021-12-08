@@ -66,7 +66,7 @@ To setup, go to "Devices" and choose the correct driver. Homey will try to disco
 
 **Analogue Energy meter**: choose the LS110/120-E driver.
 
-**P1 Energy and Gas smart meter**: Use the LS120-P1 if you have a P1 connection to your smart meter. In the next screen select which P1 meters you want to include in Homey. The totalized power meter is always included.
+**P1 Energy and Gas smart meter**: Use the LS120-P1 if you have a P1 connection to your smart meter. In the next screen select which P1 meters you want to include in Homey. The totalized power meter is always included. For Belgian P1 meters you must switch on 'reversed' in the device settings.
 
 <img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/6/66edb77ec4f82b4818916068ba4eb114334f3b4b.png" alt="meter selection" width="300"/>
 
