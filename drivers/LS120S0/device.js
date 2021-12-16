@@ -35,7 +35,6 @@ class LS120Device extends Device {
 			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			this.meters = {};
 			this.initMeters();
 
 			// create session
@@ -234,18 +233,8 @@ class LS120Device extends Device {
 			const measurePower = readings.ps0;
 			const meterPowerTm = readings.ts0;
 
-			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
-
-			// trigger the custom trigger flowcards
-			if (measurePower !== this.lastMeters.measurePower) {
-				const tokens = {
-					power: measurePower,
-					power_delta: measurePowerDelta,
-				};
-				this.homey.flow.getDeviceTriggerCard('power_changed')
-					.trigger(this, tokens)
-					.catch(this.error);
-			}
+			// setup custom trigger flowcards
+			const powerChanged = measurePower !== this.lastMeters.measurePower;
 
 			// update the ledring screensavers
 			if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
@@ -258,6 +247,17 @@ class LS120Device extends Device {
 			};
 			// update the device state
 			this.updateDeviceState(meters);
+
+			// execute flow triggers
+			if (powerChanged) {
+				const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+				const tokens = {
+					power: measurePower,
+					power_delta: measurePowerDelta,
+				};
+				this.homey.app.triggerPowerChanged(this, tokens, {});
+			}
+
 			// console.log(meters);
 			this.lastMeters = meters;
 		}	catch (error) {
@@ -291,16 +291,6 @@ class LS120Device extends Device {
 			const timeout = (120 / (measureWater || 1)); // 2 min timeout @ 1 liter per minute, 2 min when flow=0
 			if (!timePast && ((Date.now() - measureWaterTmHomey) > (timeout * 1000))) measureWater = 0;
 
-			// trigger the custom trigger flowcards
-			if (measureWater !== this.lastMeters.measureWater) {
-				const tokens = {
-					flow: measureWater,
-				};
-				this.homey.flow.getDeviceTriggerCard('measure_water_changed')
-					.trigger(this, tokens)
-					.catch(this.error);
-			}
-
 			// update the ledring screensavers
 			if (measureWater !== this.lastMeters.measureWater) this.driver.ledring.change(this.getSettings(), measureWater);
 
@@ -313,6 +303,15 @@ class LS120Device extends Device {
 			};
 			// update the device state
 			this.updateDeviceState(meters);
+
+			// trigger the custom trigger flowcards
+			if (measureWater !== this.lastMeters.measureWater) {
+				const tokens = {
+					flow: measureWater,
+				};
+				this.homey.app.triggerMeasureWaterChanged(this, tokens, {});
+			}
+
 			// console.log(meters);
 			this.lastMeters = meters;
 		}	catch (error) {

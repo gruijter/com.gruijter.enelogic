@@ -218,23 +218,9 @@ class EnelogicDevice extends Device {
 			measurePower = measurePowerAvg;
 		}
 
-		// trigger the custom trigger flowcards
-		if ((this.lastMeters.offPeak !== null) && (offPeak !== this.lastMeters.offPeak)) {
-			const tokens = { tariff: offPeak };
-			this.homey.flow.getDeviceTriggerCard('tariff_changed')
-				.trigger(this, tokens)
-				.catch(this.error);
-		}
-		if ((this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower)) {
-			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
-			const tokens = {
-				power: measurePower,
-				power_delta: measurePowerDelta,
-			};
-			this.homey.flow.getDeviceTriggerCard('power_changed')
-				.trigger(this, tokens)
-				.catch(this.error);
-		}
+		// setup custom trigger flowcards
+		const tariffChanged = (this.lastMeters.offPeak !== null) && (offPeak !== this.getCapabilityValue('meter_offPeak'));
+		const powerChanged = (this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower);
 
 		// update the ledring screensavers
 		if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
@@ -259,6 +245,21 @@ class EnelogicDevice extends Device {
 
 		// update the device state
 		this.updateDeviceState(meters);
+
+		// execute flow triggers
+		if (tariffChanged) {
+			const tokens = { tariff: offPeak };
+			this.homey.app.triggerTariffChanged(this, tokens, {});
+		}
+		if (powerChanged) {
+			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+			const tokens = {
+				power: measurePower,
+				power_delta: measurePowerDelta,
+			};
+			this.homey.app.triggerPowerChanged(this, tokens, {});
+		}
+
 		// console.log(meters);
 		this.lastMeters = meters;
 		this.watchDogCounter = 10;

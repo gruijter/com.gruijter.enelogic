@@ -55,7 +55,7 @@ class LS120S0Driver extends Homey.Driver {
 					data: { id: `LS120S0_${info.mac}` },
 					settings: {
 						youLessIp: options.host,
-						paswword: options.password,
+						password: options.password,
 						model: info.model,
 						mac: info.mac,
 					},

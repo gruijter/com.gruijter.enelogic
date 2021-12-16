@@ -35,7 +35,6 @@ class LS110Device extends Device {
 			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			this.meters = {};
 			this.initMeters();
 
 			// create session
@@ -209,18 +208,8 @@ class LS110Device extends Device {
 			const meterPower = readings.net;
 			const measurePower = readings.pwr;
 
-			const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
-
-			// trigger the custom trigger flowcards
-			if (measurePower !== this.lastMeters.measurePower) {
-				const tokens = {
-					power: measurePower,
-					power_delta: measurePowerDelta,
-				};
-				this.homey.flow.getDeviceTriggerCard('power_changed')
-					.trigger(this, tokens)
-					.catch(this.error);
-			}
+			// setup custom trigger flowcards
+			const powerChanged = measurePower !== this.lastMeters.measurePower;
 
 			// update the ledring screensavers
 			if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
@@ -232,6 +221,17 @@ class LS110Device extends Device {
 			};
 			// update the device state
 			this.updateDeviceState(meters);
+
+			// execute flow triggers
+			if (powerChanged) {
+				const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+				const tokens = {
+					power: measurePower,
+					power_delta: measurePowerDelta,
+				};
+				this.homey.app.triggerPowerChanged(this, tokens, {});
+			}
+
 			// console.log(meters);
 			this.lastMeters = meters;
 		}	catch (error) {

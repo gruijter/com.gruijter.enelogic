@@ -333,9 +333,7 @@ class LS110WaterDevice extends Device {
 					const tokens = {
 						flow: measureWater,
 					};
-					this.homey.flow.getDeviceTriggerCard('measure_water_changed')
-						.trigger(this, tokens)
-						.catch(this.error);
+					this.homey.app.triggerMeasureWaterChanged(this, tokens, {});
 					// update the ledring screensavers
 					this.driver.ledring.change(this.getSettings(), measureWater);
 				}

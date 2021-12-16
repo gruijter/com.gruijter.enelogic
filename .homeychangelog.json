@@ -22,5 +22,8 @@
   },
   "4.1.0": {
     "en": "Added support for Belgian P1 (reversed peak-offPeak). youless@2.4.0."
+  },
+  "4.2.0": {
+    "en": "Fix tariff change flow trigger. Fix filter unrealistic values option. Fix password pair S0. Added error on connection loss to smart meter."
   }
 }

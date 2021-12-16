@@ -1,3 +1,4 @@
+v4.2.0  2021.12.16 Fix tariff change flow trigger. Fix filter unrealistic values option. Fix password pair S0. Added error on connection loss to smart meter.
 v4.1.0  2021.12.08 Added support for Belgian P1 (reversed peak-offPeak). youless@2.4.0.
 v4.0.3  2021.12.04 Fix Enelogic P1 driver. Re-added legacy screensaver.
 v4.0.1  2021.12.02 Fix optical water driver.

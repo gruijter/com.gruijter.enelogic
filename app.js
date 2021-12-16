@@ -72,6 +72,29 @@ class MyApp extends Homey.App {
 		// condition cards
 		const offPeakCondition = this.homey.flow.getConditionCard('is_offPeak');
 		offPeakCondition.registerRunListener((args) => args.device.getCapabilityValue('meter_offPeak'));
+
+		// trigger cards
+		this._tariffChanged = this.homey.flow.getDeviceTriggerCard('tariff_changed');
+		this.triggerTariffChanged = (device, tokens, state) => {
+			this._tariffChanged
+				.trigger(device, tokens, state)
+				// .then(this.log(device.getName(), tokens))
+				.catch(this.error);
+		};
+		this._powerChanged = this.homey.flow.getDeviceTriggerCard('power_changed');
+		this.triggerPowerChanged = (device, tokens, state) => {
+			this._powerChanged
+				.trigger(device, tokens, state)
+				// .then(this.log(device.getName(), tokens))
+				.catch(this.error);
+		};
+		this._measureWaterChanged = this.homey.flow.getDeviceTriggerCard('measure_water_changed');
+		this.triggerMeasureWaterChanged = (device, tokens, state) => {
+			this._measureWaterChanged
+				.trigger(device, tokens, state)
+				// .then(this.log(device.getName(), tokens))
+				.catch(this.error);
+		};
 	}
 }
 

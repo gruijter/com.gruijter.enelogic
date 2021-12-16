@@ -35,7 +35,6 @@ class LS120Device extends Device {
 			this.restarting = false;
 			this.watchDogCounter = 10;
 			const settings = this.getSettings();
-			this.meters = {};
 			this.initMeters();
 
 			// create session
@@ -174,16 +173,9 @@ class LS120Device extends Device {
 				}
 			}
 			// get new readings and update the devicestate
-			if (!this.youless.loggedIn) {
-				await this.youless.login()
-					.catch((error) => {
-						this.setUnavailable(error)
-							.catch(this.error);
-						// throw Error('Failed to login');
-					});
-			}
-			if (!this.youless.loggedIn) { return; }
+			if (!this.youless.loggedIn) await this.youless.login();
 			const readings = await this.youless.getAdvancedStatus();
+			if (!this.youless.hasMeter.p1 && !this.youless.hasMeter.gas) throw Error('No connection with Smart Meter');
 			if (this.getSettings().filterReadings && !this.isValidReading(readings)) {
 				this.watchDogCounter -= 1;
 				return;
@@ -256,26 +248,26 @@ class LS120Device extends Device {
 
 	isValidReading(readings) {
 		let validReading = true;
-		if (this.meters.lastMeterPowerIntervalTm === null) { // first reading after init
+		if (this.lastMeters.meterPowerIntervalTm === null) { // first reading after init
 			return validReading;	// We have to assume that the first reading after init is a valid reading :(
 		}
 		// check if gas readings make sense
 		const meterGas = readings.gas;
-		if (meterGas < this.meters.lastMeterGas) {
+		if (meterGas < this.lastMeters.meterGas) {
 			this.log('negative gas usage');
 			validReading = false;
 		}
-		if (meterGas - this.meters.lastMeterGas > 40) {
+		if (meterGas - this.lastMeters.meterGas > 40) {
 			this.log('unrealistic high gas usage > G25');
 			validReading = false;
 		}
 		// check if timestamps make sense
 		const { tm, gtm } = readings; // power meter timestamp, gas meter timestamp
-		if (tm - this.meters.lastMeterPowerTm < 0) {
+		if (tm - this.lastMeters.meterPowerIntervalTm < 0) {
 			this.log('power time is negative');
 			validReading = false;
 		}
-		if (gtm - this.meters.lastMeterGasTm < 0) {
+		if (gtm - this.lastMeters.meterGasTm < 0) {
 			this.log('gas time is negative');
 			validReading = false;
 		}
@@ -285,7 +277,7 @@ class LS120Device extends Device {
 		}
 		// check if power readings make sense
 		if (Math.abs(readings.pwr) > 56000) {
-			this.log('unrealistic high power >3X80A');
+			this.log('unrealistic high power >3x80A');
 			validReading = false;
 		}
 		const {
@@ -295,13 +287,13 @@ class LS120Device extends Device {
 			this.log('power meters do not add up');
 			validReading = false;
 		}
-		const timeDelta = tm - this.meters.lastMeterPowerIntervalTm; // in seconds
-		if (Math.abs(net - this.meters.lastMeterPower) / (timeDelta / 60 / 60) > 56) {
-			this.log('unrealistic high power meter delta >3X80A / 56KWh');
+		const timeDelta = tm - this.lastMeters.meterPowerIntervalTm; // in seconds
+		if (Math.abs(net - this.lastMeters.meterPower) / (timeDelta / 60 / 60) > 56) {
+			this.log('unrealistic high power meter delta >3x80A / 56KWh');
 			validReading = false;
 		}
 		if (!validReading) {
-			this.log(this.meters);
+			// this.log(this.lastMeters);
 			this.log(readings);
 		}
 		return validReading;
@@ -354,23 +346,9 @@ class LS120Device extends Device {
 				measurePower = measurePowerAvg;
 			}
 
-			// trigger the custom trigger flowcards
-			if ((this.lastMeters.offPeak !== null) && (offPeak !== this.lastMeters.offPeak)) {
-				const tokens = { tariff: offPeak };
-				this.homey.flow.getDeviceTriggerCard('tariff_changed')
-					.trigger(this, tokens)
-					.catch(this.error);
-			}
-			if ((this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower)) {
-				const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
-				const tokens = {
-					power: measurePower,
-					power_delta: measurePowerDelta,
-				};
-				this.homey.flow.getDeviceTriggerCard('power_changed')
-					.trigger(this, tokens)
-					.catch(this.error);
-			}
+			// setup custom trigger flowcards
+			const tariffChanged = (this.lastMeters.offPeak !== null) && (offPeak !== this.getCapabilityValue('meter_offPeak'));
+			const powerChanged = (this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower);
 
 			// update the ledring screensavers
 			if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
@@ -394,6 +372,21 @@ class LS120Device extends Device {
 			};
 			// update the device state
 			this.updateDeviceState(meters);
+
+			// execute flow triggers
+			if (tariffChanged) {
+				const tokens = { tariff: offPeak };
+				this.homey.app.triggerTariffChanged(this, tokens, {});
+			}
+			if (powerChanged) {
+				const measurePowerDelta = (measurePower - this.lastMeters.measurePower);
+				const tokens = {
+					power: measurePower,
+					power_delta: measurePowerDelta,
+				};
+				this.homey.app.triggerPowerChanged(this, tokens, {});
+			}
+
 			// console.log(meters);
 			this.lastMeters = meters;
 			this.watchDogCounter = 10;
