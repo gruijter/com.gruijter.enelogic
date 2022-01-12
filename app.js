@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -78,7 +78,7 @@ class MyApp extends Homey.App {
 		this.triggerTariffChanged = (device, tokens, state) => {
 			this._tariffChanged
 				.trigger(device, tokens, state)
-				// .then(this.log(device.getName(), tokens))
+				// .then(console.log(device.getName(), tokens))
 				.catch(this.error);
 		};
 		this._powerChanged = this.homey.flow.getDeviceTriggerCard('power_changed');

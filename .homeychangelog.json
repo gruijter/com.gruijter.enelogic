@@ -25,5 +25,8 @@
   },
   "4.2.0": {
     "en": "Fix tariff change flow trigger. Fix filter unrealistic values option. Fix password pair S0. Added error on connection loss to smart meter."
+  },
+  "4.2.1": {
+    "en": "Fix flow start before capabilities update. Log tarrif change."
   }
 }
