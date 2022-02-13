@@ -1,3 +1,4 @@
+v4.2.2  2022.02.13 Changed internal FLOW code. Fix flow AND card for tariff sometimes incorrect.
 v4.2.1  2022.01.12 Fix flow start before capabilities update. Log tarrif change.
 v4.2.0  2021.12.16 Fix tariff change flow trigger. Fix filter unrealistic values option. Fix password pair S0. Added error on connection loss to smart meter.
 v4.1.0  2021.12.08 Added support for Belgian P1 (reversed peak-offPeak). youless@2.4.0.

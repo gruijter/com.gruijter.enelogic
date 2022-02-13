@@ -38,7 +38,7 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "sdk": 3,
   "compatibility": ">=5.0.0",
   "author": {
@@ -99,7 +99,6 @@
   "flow": {
     "triggers": [
       {
-        "id": "measure_water_changed",
         "title": {
           "en": "L/min changed",
           "nl": "L/min gewijzigd"
@@ -121,10 +120,10 @@
             },
             "example": 9.8
           }
-        ]
+        ],
+        "id": "measure_water_changed"
       },
       {
-        "id": "power_changed",
         "title": {
           "en": "Power delta",
           "nl": "Stroomverbruik delta"
@@ -155,15 +154,11 @@
             },
             "example": 18
           }
-        ]
+        ],
+        "id": "power_changed"
       },
       {
-        "id": "tariff_changed",
         "title": {
-          "en": "Tariff has changed",
-          "nl": "Tarief is gewijzigd"
-        },
-        "titleFormatted": {
           "en": "Tariff has changed",
           "nl": "Tarief is gewijzigd"
         },
@@ -172,10 +167,10 @@
             "name": "tariff",
             "type": "boolean",
             "title": {
-              "en": "off-peak",
+              "en": "off peak",
               "nl": "dal"
             },
-            "example": false
+            "example": true
           }
         ],
         "args": [
@@ -184,12 +179,12 @@
             "name": "device",
             "filter": "driver_id=LS120|enelogicp1"
           }
-        ]
+        ],
+        "id": "tariff_changed"
       }
     ],
     "conditions": [
       {
-        "id": "is_offPeak",
         "title": {
           "en": "Tariff !{{is|isn't}} off peak",
           "nl": "Tarief !{{is|is niet}} dal"
@@ -204,12 +199,12 @@
             "name": "device",
             "filter": "driver_id=LS120|enelogicp1"
           }
-        ]
+        ],
+        "id": "is_offPeak"
       }
     ],
     "actions": [
       {
-        "id": "reboot",
         "title": {
           "en": "Reboot device",
           "nl": "Herstart device"
@@ -220,7 +215,8 @@
             "name": "device",
             "filter": "driver_id=LS120|LS120S0|LS110|LS110Water"
           }
-        ]
+        ],
+        "id": "reboot"
       }
     ]
   },

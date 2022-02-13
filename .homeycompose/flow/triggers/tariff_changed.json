@@ -1,22 +1,17 @@
 {
-  "id": "tariff_changed",
   "title": {
       "en": "Tariff has changed",
       "nl": "Tarief is gewijzigd"
-  },
-  "titleFormatted": {
-    "en": "Tariff has changed",
-    "nl": "Tarief is gewijzigd"
   },
   "tokens": [
     {
       "name": "tariff",
       "type": "boolean",
       "title": {
-        "en": "off-peak",
+        "en": "off peak",
         "nl": "dal"
       },
-      "example": false
+      "example": true
     }
   ],
   "args": [
