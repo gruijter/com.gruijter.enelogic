@@ -18,7 +18,7 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "fixture-stdout": "^0.2.1",
-    "youless": "^2.4.0"
+    "youless": "^2.5.1"
   },
   "repository": {
     "type": "git",

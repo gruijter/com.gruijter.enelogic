@@ -4,7 +4,7 @@
 	License, v. 2.0. If a copy of the MPL was not distributed with this
 	file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-	Copyright 2017 - 2021, Robin de Gruijter <gruijter@hotmail.com> */
+	Copyright 2017 - 2022, Robin de Gruijter <gruijter@hotmail.com> */
 
 // INSTRUCTIONS FOR TESTING FROM DESKTOP:
 // install node (https://nodejs.org)
@@ -43,7 +43,7 @@ const getOptions = () => {
 
 const test = async () => {
 	try {
-		const options = await getOptions();
+		const options = getOptions();
 		const log = await _test.test(options);
 		for (let i = 0; i < (log.length); i += 1) {
 			console.log(log[i]);

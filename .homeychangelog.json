@@ -31,5 +31,8 @@
   },
   "4.2.2": {
     "en": "Changed internal FLOW code. Fix flow AND card for tariff sometimes incorrect."
+  },
+  "4.2.3": {
+    "en": "youless@2.5.1. Improved autodiscovery. Added support for German firmware in LS110/LS120."
   }
 }
