@@ -1,6 +1,6 @@
 /* eslint-disable prefer-destructuring */
 /*
-Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -22,7 +22,7 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Youless = require('youless');
-const Ledring = require('../../ledring.js');
+const Ledring = require('../../ledring');
 
 class LS120S0Driver extends Homey.Driver {
 
@@ -71,6 +71,13 @@ class LS120S0Driver extends Homey.Driver {
 					device.capabilities = [
 						'measure_water',
 						'meter_water',
+					];
+					device.settings.ledring_usage_limit = 0;
+				}
+				if (data.meterSelection === 'Gas') {
+					device.capabilities = [
+						'measure_gas',
+						'meter_gas',
 					];
 					device.settings.ledring_usage_limit = 0;
 				}

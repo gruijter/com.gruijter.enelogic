@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -183,6 +183,9 @@ class LS120Device extends Device {
 			measurePower: 0,						// 'measurePower' (W)
 			meterPower: null,						// 'meterPower' (kWh)
 			meterPowerTm: null, 					// timestamp epoch, e.g. 1514394325
+			measureGas: 0,						// 'measurePower' (W)
+			meterGas: null,						// 'meterPower' (kWh)
+			meterGasTm: null, 					// timestamp epoch, e.g. 1514394325
 		};
 	}
 
@@ -202,9 +205,11 @@ class LS120Device extends Device {
 			this.setCapability('meter_power', meters.meterPower);
 			this.setCapability('measure_water', meters.measureWater);
 			this.setCapability('meter_water', meters.meterWater);
+			this.setCapability('measure_gas', meters.measureGas);
+			this.setCapability('meter_gas', meters.meterGas);
 			// update meter in device settings
 			const settings = this.getSettings();
-			const meter = Math.round((meters.meterPower || meters.meterWater) * 10000) / 10000;
+			const meter = Math.round((meters.meterPower || meters.meterWater || meters.meterGas) * 10000) / 10000;
 			if (meter !== settings.set_meter_s0) {
 				this.setSettings({ set_meter_s0: meter })
 					.catch(this.error);
@@ -319,12 +324,46 @@ class LS120Device extends Device {
 		}
 	}
 
+	handleNewGasReadings(readings) {
+		try {
+			// console.log(`handling new readings for ${this.getName()}`);
+			// gas readings from device
+			const meterGas = readings.cs0;
+			const measureGas = readings.ps0;
+			const meterGasTm = readings.ts0;
+
+			// setup custom trigger flowcards
+			const gasChanged = measureGas !== this.lastMeters.measureGas;
+
+			// update the ledring screensavers
+			if (gasChanged) this.driver.ledring.change(this.getSettings(), measureGas);
+
+			// store the new readings in memory
+			const meters = {
+				measureGas,
+				meterGas,
+				meterGasTm,
+			};
+			// update the device state
+			this.updateDeviceState(meters);
+
+			// console.log(meters);
+			this.lastMeters = meters;
+		}	catch (error) {
+			this.error(error);
+		}
+
+	}
+
 	handleNewReadings(readings) {
 		if (this.hasCapability('meter_power')) {
 			this.handleNewPowerReadings(readings);
 		}
 		if (this.hasCapability('meter_water')) {
 			this.handleNewWaterReadings(readings);
+		}
+		if (this.hasCapability('meter_gas')) {
+			this.handleNewGasReadings(readings);
 		}
 	}
 

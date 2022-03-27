@@ -57,8 +57,13 @@ function toEpoch(time) {	// yymmddhhmm, e.g. 1712282000 > 1514487600
 		// util.log('time has an invalid format');
 		return 0;
 	}
-	const tm = new Date(`20${tmString.slice(0, 2)}`, Number(tmString.slice(2, 4)) - 1,
-		tmString.slice(4, 6), tmString.slice(6, 8), tmString.slice(8, 10));
+	const tm = new Date(
+		`20${tmString.slice(0, 2)}`,
+		Number(tmString.slice(2, 4)) - 1,
+		tmString.slice(4, 6),
+		tmString.slice(6, 8),
+		tmString.slice(8, 10),
+	);
 	return tm.getTime() / 1000 || 0;
 }
 
@@ -92,7 +97,6 @@ class Youless {
 	* @returns {Promise<info[]>} Array with info on discovered devices, including host ip address.
 	*/
 	async discover() {
-		const timeoutBefore = this.timeout;
 		const hostBefore = this.host;
 		try {
 			const hostsToTest = [];	// make an array of all host IP's in the LAN
@@ -106,7 +110,7 @@ class Youless {
 					}
 				});
 			});
-			servers.map((server) => {
+			servers.forEach((server) => {	// make an array of all host IP's in the LAN
 				const splitServer = server.split('.').slice(0, 3);
 				const reducer = (accumulator, currentValue) => `${accumulator}.${currentValue}`;
 				const segment = splitServer.reduce(reducer);
@@ -115,20 +119,32 @@ class Youless {
 					const ipToTest = `${segment}.${host}`;
 					hostsToTest.push(ipToTest);
 				}
-				return hostsToTest;
+				return true;
 			});
-			this.timeout = 4000;	// temporarily set http timeout to 4 seconds
-			const allHostsPromise = hostsToTest.map((hostToTest) => Promise.resolve(this.getInfo(hostToTest).catch(() => undefined)));
+
+			// try all servers for login response, with http timeout 4 seconds
+			const allHostsPromise = hostsToTest.map(async (hostToTest) => {
+				let found = false;
+				const res = await this._makeRequest(loginPath + this.password, hostToTest, undefined, 4000)
+					.catch(async (error) => {
+						if (error.message && error.message === 'Incorrect password') { // device found, but wrong password
+							found = await this.getInfo(hostToTest, undefined, 4000).catch(() => undefined);
+							if (!found) found = { host: hostToTest };
+						}
+					});
+				if (res && res.statusCode && res.statusCode === 302) { // device found, correct password
+					found = this.getInfo(hostToTest, undefined, 4000).catch(() => undefined);
+				}
+				return Promise.resolve(found);
+			});
 			const allHosts = await Promise.all(allHostsPromise);
 			const discoveredHosts = allHosts.filter((host) => host);
-			this.timeout = timeoutBefore;	// reset the timeout
 			if (discoveredHosts[0]) {
 				this.host = discoveredHosts[0].host;
 			} else { throw Error('No device discovered. Please provide host ip manually'); }
 			return Promise.resolve(discoveredHosts);
 		} catch (error) {
 			this.host = hostBefore;
-			this.timeout = timeoutBefore;
 			this.lastResponse = error;
 			return Promise.reject(error);
 		}
@@ -170,13 +186,11 @@ class Youless {
 	* @param {string} [host] - The url or ip address of the device.
 	* @returns {Promise<info>}
 	*/
-	async getInfo(host) {
+	async getInfo(host, port, timeout) {
 		try {
-			const { info } = this;
-			let info1;
+			const info = { ...this.info };
 			// first try info2 (only available when loggedIn)
-			const info2 = await this._getInfo2(host || this.host)
-				.catch(() => undefined);
+			const info2 = await this._getInfo2(host, port, timeout).catch(() => Promise.resolve(undefined));
 			if (info2) {
 				info.model = info2.model;
 				info.mac = info2.mac;
@@ -184,15 +198,12 @@ class Youless {
 				info.host = info2.host;
 			} else {
 				// now try info1 (only available for LS120)
-				info1 = await this._getInfo1(host || this.host)
-					.catch(() => undefined);
-				if (info1) {
-					info.model = info1.model;
-					info.mac = info1.mac;
-					info.host = info1.host;
-				}
+				const info1 = await this._getInfo1(host, port, timeout);
+				info.model = info1.model;
+				info.mac = info1.mac;
+				info.host = info1.host;
 			}
-			if (!info1 && !info2) {
+			if (!info.host) {
 				throw Error('Info could not be retrieved from device');
 			}
 			this.info = info;
@@ -572,34 +583,27 @@ class Youless {
 	}
 
 	// Get device information without need for credentials. NOTE: Only works for LS120
-	async _getInfo1(host) {
-		const hostBefore = this.host;
+	async _getInfo1(host, port, timeout) {
 		try {
-			this.host = host || hostBefore;
-			const result = await this._makeRequest(discoverPath);
-			this.host = hostBefore;
+			const result = await this._makeRequest(discoverPath, host, port, timeout);
 			const info1 = JSON.parse(result.body);
 			if (!info1.model) {
 				throw Error('no youless model found');
 			}
-			info1.host = host || hostBefore;
+			info1.host = host || this.host;
 			return Promise.resolve(info1);
 		} catch (error) {
-			this.host = hostBefore;
 			return Promise.reject(error);
 		}
 	}
 
 	// Get device information. NOTE: Login is required if a password is set in the device.
-	async _getInfo2(host) {
-		const hostBefore = this.host;
+	async _getInfo2(host, port, timeout) {
 		try {
 			// this.loggedIn = true;
 			const info2 = { };
-			this.host = host || hostBefore;
-			const res = await this._makeRequest(homePath);
-			const res2 = await this._makeRequest(networkPath);
-			this.host = hostBefore;
+			const res = await this._makeRequest(homePath, host, port, timeout);
+			const res2 = await this._makeRequest(networkPath, host, port, timeout);
 
 			// correct for German GUI
 			res.body = res.body.replace('Modell:', 'Model:').replace('Firmware-Version:', 'Firmware versie:');
@@ -611,15 +615,14 @@ class Youless {
 			info2.mac = mac.replace(regExTagRemove, '');
 			const firmware = res.body.match(regExFirmwareResponse)[1];
 			info2.firmware = firmware.replace(regExTagRemove, '');
-			info2.host = host || hostBefore;
+			info2.host = host || this.host;
 			return Promise.resolve(info2);
 		} catch (error) {
-			this.host = hostBefore;
 			return Promise.reject(error);
 		}
 	}
 
-	async _makeRequest(action) {
+	async _makeRequest(action, host, port, timeout) {
 		try {
 			if (!this.loggedIn && !action.includes(loginPath) && !action.includes(discoverPath)) {
 				return Promise.reject(Error('Not logged in'));
@@ -632,14 +635,14 @@ class Youless {
 				headers.Cookie = this.cookie;
 			}
 			const options = {
-				hostname: this.host,
-				port: this.port,
+				hostname: host || this.host,
+				port: port || this.port,
 				path: action,
 				headers,
 				method: 'GET',
 				'User-Agent': 'Youless.js',
 			};
-			const res = await this._makeHttpRequest(options, '');
+			const res = await this._makeHttpRequest(options, '', timeout);
 			this.lastResponse = res.body;
 			const { statusCode } = res;
 			const contentType = res.headers['content-type'];
@@ -685,13 +688,14 @@ class Youless {
 					return resolve(res); // resolve the request
 				});
 			});
-			req.on('error', (e) => {
+			req.once('error', (e) => {
 				req.destroy();
 				this.lastResponse = e;	// e.g. ECONNREFUSED on wrong soap port or wrong IP // ECONNRESET on wrong IP
 				return reject(e);
 			});
-			req.on('timeout', () => {
+			req.once('timeout', () => {
 				req.destroy();
+				return reject(Error('timeout'));
 			});
 			// req.write(postData);
 			req.end(postData);

@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2021, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -20,8 +20,8 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const Enelogic = require('../../enelogic.js');
-const Ledring = require('../../ledring.js');
+const Enelogic = require('../../enelogic');
+const Ledring = require('../../ledring');
 
 class EnelogicDriver extends Homey.Driver {
 

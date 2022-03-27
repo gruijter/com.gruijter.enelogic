@@ -13,7 +13,7 @@
 
 'use strict';
 
-const _test = require('./_test.js');
+const _test = require('./_test');
 
 console.log('Testing now. Hang on.....');
 

@@ -13,6 +13,7 @@
 		"meterSelection": "Which meter type is connected",
 		"powerMeter": "Power",
 		"waterMeter": "Water",
+		"gasMeter": "Gas",
 		"genericMeter": "Generic",
 		"titleLs110W": "Youless LS110 / LS120 Water",
 		"instructionsLs110W": "This driver should be used if you have a LS110 or LS120 connected to a water meter via the optical sensor. Enter the fixed IP addresss of the LS110/LS120. Password is only supported for the LS120. Leave the password field empty if you have a LS110, or no password is set in the LS120.",

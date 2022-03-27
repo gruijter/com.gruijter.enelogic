@@ -21,7 +21,7 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 
 const Homey = require('homey');
 const Youless = require('youless');
-const Ledring = require('../../ledring.js');
+const Ledring = require('../../ledring');
 
 class LS110Driver extends Homey.Driver {
 

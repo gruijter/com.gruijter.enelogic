@@ -1,3 +1,4 @@
+2.6.0 - 27-03-2022 Improved and fixed autodiscovery.
 2.5.1 - 13-02-2022 Fix syncTime.
 2.5.0 - 13-02-2022 Improved autodiscovery. Added support for german firmware.
 2.4.0 - 08-12-2021 Added reversed P1 (Belgian meters). Improved test.

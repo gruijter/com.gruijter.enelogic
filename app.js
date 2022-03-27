@@ -20,7 +20,7 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 const Homey = require('homey');
-const Logger = require('./captureLogs.js');
+const Logger = require('./captureLogs');
 
 class MyApp extends Homey.App {
 

@@ -12,7 +12,7 @@
 'use strict';
 
 const os = require('os');
-const YoulessSession = require('../youless.js');
+const YoulessSession = require('../youless');
 const { version } = require('../package.json');
 // const util = require('util');
 
@@ -32,10 +32,11 @@ async function setupSession(options) {
 		t0 = Date.now();
 		log.push('t = 0');
 		const opts = options;
-		if (!options.host) {
+		if (!opts.host) {
 			// discover youless devices in the network
 			log.push('no host was set: trying to discover youless devices');
-			const devices = await youless.discover();
+			if (opts.password) youless.password = opts.password;
+			const devices = await youless.discover(opts);
 			opts.host = youless.host;
 			log.push(devices);
 			log.push(`t = ${(Date.now() - t0) / 1000}`);
