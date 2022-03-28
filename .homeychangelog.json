@@ -40,5 +40,8 @@
   },
   "4.2.5": {
     "en": "Added Gas meter support via LS120 S0. Fixed autodiscovery. youless@2.6.0."
+  },
+  "4.2.6": {
+    "en": "Fixed gas via LS120 S0 m3/hour rate."
   }
 }
