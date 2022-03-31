@@ -329,7 +329,7 @@ class LS120Device extends Device {
 			// console.log(`handling new readings for ${this.getName()}`);
 			// gas readings from device
 			const meterGas = readings.cs0;
-			const measureGas = readings.ps0 / 1000;
+			const measureGas = Math.round(readings.ps0 / 100) / 10;
 			const meterGasTm = readings.ts0;
 
 			// setup custom trigger flowcards
