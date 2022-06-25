@@ -8,6 +8,7 @@
 		"includeProduction": "Stroom teruglevering",
 		"includeOffPeak": "Dal tarief",
 		"includeGas": "Gas",
+		"include3phase": "3 Fase",
 		"titleLs120S0": "Youless LS120 S0",
 		"instructionsLs120S0":  "Deze driver kan gebruikt worden als je een LS120 hebt aangesloten op een stroommeter of watermeter via S0. Voer het vaste IP adres in van het apparaat. Laat het wachtwoord veld leeg als er geen wachtwoord is ingesteld. Selecteer ten slotte Energie of Water als metertype.",
 		"meterSelection": "Welk metertype is aangesloten",

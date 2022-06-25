@@ -9,27 +9,49 @@
   },
   "class": "sensor",
   "capabilities": [
-    "measure_power",
-    "meter_offPeak",
     "measure_gas",
-    "meter_gas",
-    "meter_power",
+
+    "meter_offPeak",
+
+    "measure_power",
+
+    "measure_power.l1",
+    "measure_power.l2",
+    "measure_power.l3",
+    "measure_current.l1",
+    "measure_current.l2",
+    "measure_current.l3",
+
+    "measure_voltage.l1",
+    "measure_voltage.l2",
+    "measure_voltage.l3",
+
     "meter_power.peak",
     "meter_power.offPeak",
     "meter_power.producedPeak",
-    "meter_power.producedOffPeak"
+    "meter_power.producedOffPeak",
+
+    "meter_power",
+    "meter_gas"
   ],
   "capabilitiesOptions": {
+    "measure_power": {
+      "title": {
+        "en": "Power total",
+        "nl": "Vermogen totaal"
+      },
+      "decimals": 2
+    },
     "meter_power": {
       "title": {
-        "en": "Power meter total",
+        "en": "Energy meter total",
         "nl": "Energie totaal"
       },
       "decimals": 4
     },
     "meter_power.peak": {
       "title": {
-        "en": "Power meter peak",
+        "en": "Energy meter peak",
         "nl": "Energie piek"
       },
       "decimals": 4
@@ -37,13 +59,13 @@
     "meter_power.offPeak": {
       "meter_power": {
         "title": {
-          "en": "Power meter total",
+          "en": "Energy meter total",
           "nl": "Energie totaal"
         },
         "decimals": 4
       },
       "title": {
-        "en": "Power meter off-peak",
+        "en": "Energy meter off-peak",
         "nl": "Energie dal"
       },
       "decimals": 4
@@ -61,6 +83,69 @@
         "nl": "Productie dal"
       },
       "decimals": 4
+    },
+    "measure_power.l1": {
+      "title": {
+        "en": "Power L1",
+        "nl": "Vermogen L1"
+      },
+      "decimals": 2
+    },
+    "measure_power.l2": {
+      "title": {
+        "en": "Power L2",
+        "nl": "Vermogen L2"
+      },
+      "decimals": 2
+    },
+    "measure_power.l3": {
+      "title": {
+        "en": "Power L3",
+        "nl": "Vermogen L3"
+      },
+      "decimals": 2
+    },
+    "measure_current.l1": {
+      "title": {
+        "en": "Current L1",
+        "nl": "Stroom L1"
+      },
+      "decimals": 2
+    },
+    "measure_current.l2": {
+      "title": {
+        "en": "Current L2",
+        "nl": "Stroom L2"
+      },
+      "decimals": 2
+    },
+    "measure_current.l3": {
+      "title": {
+        "en": "Current L3",
+        "nl": "Stroom L3"
+      },
+      "decimals": 2
+    },
+    "measure_voltage.l1": {
+      "title": {
+        "en": "Voltage L1",
+        "nl": "Spanning L1"
+      },
+      "decimals": 2
+    },
+    "measure_voltage.l2": {
+      "title": {
+        "en": "Voltage L2",
+        "nl": "Spanning L2"
+      },
+      "decimals": 2
+    },
+    "measure_voltage.l3": {
+      "title": {
+        "en": "Voltage L3",
+        "nl": "Spanning L3"
+      },
+      "decimals": 2
     }
   },
   "energy": {
@@ -208,6 +293,15 @@
             "nl": "Rapporteer productie"
           },
           "value": true
+        },
+        {
+          "id": "include3phase",
+          "type": "checkbox",
+          "label": {
+            "en": "Report 3 phases",
+            "nl": "Rapporteer 3 fasen"
+          },
+          "value": false
         },
         {
           "id": "include_gas",

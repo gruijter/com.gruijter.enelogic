@@ -62,34 +62,78 @@ class LS120Driver extends Homey.Driver {
 						mac: info.mac,
 						ledring_usage_limit: 3000,
 						ledring_production_limit: 3000,
+						include_off_peak: data.includeOffPeak,
+						include_production: data.includeProduction,
+						include_gas: data.includeGas,
+						include3phase: data.include3phase,
 					},
-					capabilities: [
-						'measure_power',
-						'meter_power',
-						// 'measure_gas',
-						// 'meter_gas',
-						// 'meter_offPeak',
-						// 'meter_power.peak',
-						// 'meter_power.offPeak',
-						// 'meter_power.producedPeak',
-						// 'meter_power.producedOffPeak',
-					],
+					capabilities: [],
+					// 'measure_gas',
+					// 'meter_offPeak',
+					// 'measure_power',	// total power
+					// 'measure_power.l1',
+					// 'measure_power.l2',
+					// 'measure_power.l3',
+					// 'measure_current.l1',
+					// 'measure_current.l2',
+					// 'measure_current.l3',
+					// 'measure_voltage.l1',
+					// 'measure_voltage.l2',
+					// 'measure_voltage.l3',
+					// 'meter_power.peak',
+					// 'meter_power.offPeak',
+					// 'meter_power.producedPeak',
+					// 'meter_power.producedOffPeak',
+					// 'meter_power', // total energy
+					// 'meter_gas',
+					// ],
 				};
-				if (data.includeOffPeak) {
-					device.capabilities.push('meter_offPeak');
-					device.capabilities.push('meter_power.peak');
-					device.capabilities.push('meter_power.offPeak');
+
+				const settings = device.settings;
+				const p1Status = await youless.getP1Status().catch(this.error);
+				// set capability(order)
+				const correctCaps = [];
+				if (settings.include_gas) {
+					correctCaps.push('measure_gas');
 				}
-				if (data.includeProduction) {
-					device.capabilities.push('meter_power.producedPeak');
+				if (settings.include_off_peak) {
+					correctCaps.push('meter_offPeak');
 				}
-				if (data.includeProduction && data.includeOffPeak) {
-					device.capabilities.push('meter_power.producedOffPeak');
+				correctCaps.push('measure_power');	// always include measure_power
+				if (p1Status && (p1Status.ver >= 40 || p1Status.l1)) { //  has current and power per phase
+					correctCaps.push('measure_power.l1');
+					if (settings.include3phase) {
+						correctCaps.push('measure_power.l2');
+						correctCaps.push('measure_power.l3');
+					}
+					correctCaps.push('measure_current.l1');
+					if (settings.include3phase) {
+						correctCaps.push('measure_current.l2');
+						correctCaps.push('measure_current.l3');
+					}
 				}
-				if (data.includeGas) {
-					device.capabilities.push('measure_gas');
-					device.capabilities.push('meter_gas');
+				if (p1Status && (p1Status.ver >= 50 || p1Status.v1)) { // has voltage per phase
+					correctCaps.push('measure_voltage.l1');
+					if (settings.include3phase) {
+						correctCaps.push('measure_voltage.l2');
+						correctCaps.push('measure_voltage.l3');
+					}
 				}
+				if (settings.include_off_peak) {
+					correctCaps.push('meter_power.peak');
+					correctCaps.push('meter_power.offPeak');
+				}
+				if (settings.include_production) {
+					correctCaps.push('meter_power.producedPeak');
+				}
+				if (settings.include_production && settings.include_off_peak) {
+					correctCaps.push('meter_power.producedOffPeak');
+				}
+				correctCaps.push('meter_power');	// always include meter_power
+				if (settings.include_gas) {
+					correctCaps.push('meter_gas');
+				}
+				device.capabilities = correctCaps;
 				return JSON.stringify(device); // report success to frontend
 			}	catch (error) {
 				this.error('Pair error', error);

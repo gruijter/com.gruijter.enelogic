@@ -102,6 +102,15 @@ async function doTest() {
 			.catch((error) => logError(error));
 		log.push(`t = ${(Date.now() - t0) / 1000}`);
 
+		// get P1 version, tariff and current/voltage/power information per phase. (not available in LS110)
+		log.push('trying to get P1 phase readings (LS120 only)');
+		await youless.getP1Status()
+			.then((P1Status) => {
+				log.push(P1Status);
+			})
+			.catch((error) => logError(error));
+		log.push(`t = ${(Date.now() - t0) / 1000}`);
+
 		// get electricity Power log of the present month
 		log.push('trying to get historic Power log of present month');
 		await youless.getPowerlog()

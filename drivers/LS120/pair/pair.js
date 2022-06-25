@@ -40,6 +40,7 @@ function testSettings() {
 			includeProduction: $('#includeProduction').prop('checked'),
 			includeOffPeak: $('#includeOffPeak').prop('checked'),
 			includeGas: $('#includeGas').prop('checked'),
+			include3phase: $('#include3phase').prop('checked'),
 		};
 		// Continue to back-end, pass along data
 		Homey.emit('validate', data, (error, result) => {

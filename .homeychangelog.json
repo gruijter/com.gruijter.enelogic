@@ -46,5 +46,8 @@
   },
   "4.2.7": {
     "en": "Reduced decimals for gas via LS120 S0 m3/hour rate."
+  },
+  "4.3.0": {
+    "en": "youless@2.7.0. Added 3 phase info. Changed capabilities order."
   }
 }

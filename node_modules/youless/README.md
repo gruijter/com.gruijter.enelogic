@@ -8,6 +8,7 @@
 * live energy and gas readings of P1 smart meters (LS120 only)
 * live readings of the S0 input (LS120 only)
 * live readings of the optical sensor
+* live P1 tariff, power, voltage, current readings per phase (LS120 only)
 * raw P1 data (Experimental and unstable!)
 * historic logs of power
 * historic log of gas (LS120 only)

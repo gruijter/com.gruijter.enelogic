@@ -1,3 +1,4 @@
+2.7.0 - 23-06-2022 Added P1Status method (3 phase P1 information, only for LS120 fw ^1.5.0)
 2.6.0 - 27-03-2022 Improved and fixed autodiscovery.
 2.5.1 - 13-02-2022 Fix syncTime.
 2.5.0 - 13-02-2022 Improved autodiscovery. Added support for german firmware.

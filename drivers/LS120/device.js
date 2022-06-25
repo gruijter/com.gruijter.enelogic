@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 /*
 Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
 
@@ -58,6 +59,9 @@ class LS120Device extends Device {
 					this.error(error.message);
 				});
 
+			// check for version migration or capability change
+			if (!this.migrated) await this.migrate();
+
 			// start polling device for info
 			this.startPolling(settings.pollingInterval);
 		} catch (error) {
@@ -105,54 +109,91 @@ class LS120Device extends Device {
 		this.log(`Meter renamed to: ${name}`);
 	}
 
+	// Capability change or version migration before v4.3.0
+	async migrate() {
+		try {
+			this.log(`checking migration for ${this.getName()}`);
+			await setTimeoutPromise(5 * 1000); // wait a bit for Homey to settle
+			const settings = this.getSettings();
+			const p1Status = await this.youless.getP1Status().catch(this.error);
+			// check and repair incorrect capability(order)
+			const correctCaps = [];
+			if (settings.include_gas) {
+				correctCaps.push('measure_gas');
+			}
+			if (settings.include_off_peak) {
+				correctCaps.push('meter_offPeak');
+			}
+			correctCaps.push('measure_power');	// always include measure_power
+			if (p1Status && (p1Status.ver >= 40 || p1Status.l1)) { //  has current and power per phase
+				correctCaps.push('measure_power.l1');
+				if (settings.include3phase) {
+					correctCaps.push('measure_power.l2');
+					correctCaps.push('measure_power.l3');
+				}
+				correctCaps.push('measure_current.l1');
+				if (settings.include3phase) {
+					correctCaps.push('measure_current.l2');
+					correctCaps.push('measure_current.l3');
+				}
+			}
+			if (p1Status && (p1Status.ver >= 50 || p1Status.v1)) { // has voltage per phase
+				correctCaps.push('measure_voltage.l1');
+				if (settings.include3phase) {
+					correctCaps.push('measure_voltage.l2');
+					correctCaps.push('measure_voltage.l3');
+				}
+			}
+			if (settings.include_off_peak) {
+				correctCaps.push('meter_power.peak');
+				correctCaps.push('meter_power.offPeak');
+			}
+			if (settings.include_production) {
+				correctCaps.push('meter_power.producedPeak');
+			}
+			if (settings.include_production && settings.include_off_peak) {
+				correctCaps.push('meter_power.producedOffPeak');
+			}
+			correctCaps.push('meter_power');	// always include meter_power
+			if (settings.include_gas) {
+				correctCaps.push('meter_gas');
+			}
+
+			// set selected capabilities in correct order
+			for (let index = 0; index < correctCaps.length; index += 1) {
+				const caps = await this.getCapabilities();
+				const newCap = correctCaps[index];
+				if (caps[index] !== newCap) {
+					// remove all caps from here
+					for (let i = index; i < caps.length; i += 1) {
+						this.log(`removing capability ${caps[i]} for ${this.getName()}`);
+						await this.removeCapability(caps[i])
+							.catch((error) => this.log(error));
+						await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
+					}
+					// add the new cap
+					this.log(`adding capability ${newCap} for ${this.getName()}`);
+					await this.addCapability(newCap);
+					await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
+				}
+			}
+			// set new migrate level
+			this.setSettings({ level: this.homey.app.manifest.version });
+			this.migrated = true;
+			Promise.resolve(this.migrated);
+		} catch (error) {
+			this.error('Migration failed', error);
+			Promise.reject(error);
+		}
+	}
+
 	// this method is called when the user has changed the device's settings in Homey.
-	async onSettings({ newSettings, changedKeys }) {
+	async onSettings({ newSettings }) {
 		this.log(`${this.getName()} device settings changed`);
 		this.log(newSettings);
-		try {
-			await changedKeys.forEach(async (key) => {
-				switch (key) {
-					case 'include_off_peak':
-						if (newSettings.include_off_peak) {
-							await this.addCapability('meter_offPeak');
-							await this.addCapability('meter_power.peak');
-							await this.addCapability('meter_power.offPeak');
-						} else {
-							await this.removeCapability('meter_offPeak');
-							await this.removeCapability('meter_power.peak');
-							await this.removeCapability('meter_power.offPeak');
-						}
-						break;
-					case 'include_production':
-						if (newSettings.include_production) {
-							await this.addCapability('meter_power.producedPeak');
-							if (newSettings.include_off_peak) {
-								await this.addCapability('meter_power.producedOffPeak');
-							}
-						} else {
-							await this.removeCapability('meter_power.producedPeak');
-							await this.removeCapability('meter_power.producedOffPeak');
-						}
-						break;
-					case 'include_gas':
-						if (newSettings.include_gas) {
-							await this.addCapability('measure_gas');
-							await this.addCapability('meter_gas');
-						} else {
-							await this.removeCapability('measure_gas');
-							await this.removeCapability('meter_gas');
-						}
-						break;
-					default:
-						break;
-				}
-			});
-			this.restartDevice(1000);
-			return Promise.resolve(true);
-		} catch (error) {
-			this.error(error.message);
-			return Promise.reject(error);
-		}
+		this.migrated = false;
+		this.restartDevice(2000);
+		return Promise.resolve(true);
 	}
 
 	async doPoll() {
@@ -180,6 +221,11 @@ class LS120Device extends Device {
 				this.watchDogCounter -= 1;
 				return;
 			}
+			let p1Status = {};
+			if (this.hasCapability('measure_power.l1')) {
+				p1Status = await this.youless.getP1Status().catch(this.error);
+			}
+			readings.p1Status = p1Status || {};
 			this.setAvailable();
 			await this.handleNewReadings(readings);
 			this.watchDogCounter = 10;
@@ -206,6 +252,7 @@ class LS120Device extends Device {
 			meterPowerInterval: null,				// 'meterPower' at last interval (kWh)
 			meterPowerIntervalTm: null, 			// timestamp epoch, e.g. 1514394325
 			offPeak: null,							// 'meterPower_offpeak' (true/false)
+			p1Status: {},							// 3 phase info DSMR ^4
 		};
 	}
 
@@ -223,13 +270,22 @@ class LS120Device extends Device {
 		try {
 			await this.setCapability('meter_offPeak', meters.offPeak);
 			await this.setCapability('measure_power', meters.measurePower);
-			await this.setCapability('meter_power', meters.meterPower);
 			await this.setCapability('measure_gas', meters.measureGas);
+			await this.setCapability('meter_power', meters.meterPower);
 			await this.setCapability('meter_gas', meters.meterGas);
 			await this.setCapability('meter_power.peak', meters.meterPowerPeak);
 			await this.setCapability('meter_power.offPeak', meters.meterPowerOffPeak);
 			await this.setCapability('meter_power.producedPeak', meters.meterPowerPeakProduced);
 			await this.setCapability('meter_power.producedOffPeak', meters.meterPowerOffPeakProduced);
+			await this.setCapability('measure_power.l1', meters.p1Status.l1);
+			await this.setCapability('measure_power.l2', meters.p1Status.l2);
+			await this.setCapability('measure_power.l3', meters.p1Status.l3);
+			await this.setCapability('measure_current.l1', meters.p1Status.i1);
+			await this.setCapability('measure_current.l2', meters.p1Status.i2);
+			await this.setCapability('measure_current.l3', meters.p1Status.i3);
+			await this.setCapability('measure_voltage.l1', meters.p1Status.v1);
+			await this.setCapability('measure_voltage.l2', meters.p1Status.v2);
+			await this.setCapability('measure_voltage.l3', meters.p1Status.v3);
 			// update the device info
 			// const deviceInfo = this.youless.info;
 			// const settings = this.getSettings();
@@ -369,6 +425,7 @@ class LS120Device extends Device {
 				meterPowerInterval,
 				meterPowerIntervalTm,
 				offPeak,
+				p1Status: readings.p1Status,
 			};
 			// update the device state
 			await this.updateDeviceState(meters);

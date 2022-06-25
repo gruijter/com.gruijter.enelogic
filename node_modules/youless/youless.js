@@ -41,6 +41,9 @@ const setS0PulsesPath = '/M?s='; // add pulses per kWh, e.g. /M?&s=1000
 const setS0CounterPath = '/M?c='; // add counter value. e.g. /M?c=12345
 const s0LogPath = '/Z';	// add range h/w/d/m, selection, and json format. e.g. ?h=1&f=j
 
+//  Only available for LS120 fw>-1.5:
+const P1StatusPath = '/f'; // Power, Voltage, Current per phase. Active Tariff.
+
 // Unknown where available
 const rawP1Path = '/V?p=';
 const setLumiPath = '/M?l=';
@@ -287,6 +290,24 @@ class Youless {
 				advancedStatus.n2 = tmp.n1;
 			}
 			return Promise.resolve(advancedStatus);
+		} catch (error) {
+			return Promise.reject(error);
+		}
+	}
+
+	/**
+	* Get P1 version, tariff and power, voltage, current information per phase.
+	* @returns {Promise<P1Status>}
+	*/
+	async getP1Status() {
+		try {
+			const result = await this._makeRequest(P1StatusPath);
+			const P1Status = JSON.parse(result.body);
+			if (!Object.prototype.hasOwnProperty.call(P1Status, 'ver')) {
+				throw Error('no P1 phase status information found');
+			}
+			P1Status.tm = Math.round(Date.now() / 1000);
+			return Promise.resolve(P1Status);
 		} catch (error) {
 			return Promise.reject(error);
 		}
@@ -778,10 +799,10 @@ getPower();
 * @property {number} [ps0] computed S0 power. e.g. 0.  NOTE: only for LS120 ^1.4 version firmware
 * @property {number} raw raw 10-bit light reflection level (without averaging). e.g. 732
 * @property {number} net netto counter cnt converted to a number. e.g. 16844.321
-* @property {number} tm time of retrieving info. unix-time-format. e.g. 1542575626.489
+* @property {number} tm time of retrieving info. unix-time-format. e.g. 1542575626
 * @example // basicStatus information
 { cnt: ' 20289,512', pwr: 640, lvl: 62, dev: '(&plusmn;0%)', det: '', con: 'OK',
-sts: '(17)', cs0: ' 12345,0000', ps0: 0, raw: 627, net: 20289.512, tm: 1543065737.936 }
+sts: '(17)', cs0: ' 12345,0000', ps0: 0, raw: 627, net: 20289.512, tm: 1543065737 }
 */
 
 /**
@@ -805,10 +826,58 @@ p2: 9942.712, n1: 1570.936, n2: 4250.937, gas: 6192.638, gts: 1811241400, gtm: 1
 */
 
 /**
+* @typedef P1Status
+* @description P1Status is an object containing P1 version, tariff and current/voltage/power information per phase.
+* @property {number} ver P1 interface version e.g. 50
+* @property {number} tr Active tariff. 1 = high, 2 = low
+* @property {number} i1 phase 1 current (Ampere), e.g. 5.000
+* @property {number} i2 phase 2 current (Ampere), e.g. 5.000
+* @property {number} i3 phase 3 current (Ampere), e.g. 5.000
+* @property {number} v1 phase 1 voltage (Volt), e.g. 238.400
+* @property {number} v2 phase 2 voltage (Volt), e.g. 238.400
+* @property {number} v3 phase 3 voltage (Volt), e.g. 238.400
+* @property {number} l1 phase 1 power (Watt), e.g. 1129
+* @property {number} l2 phase 2 power (Watt), e.g. 1129
+* @property {number} l3 phase 3 power (Watt), e.g. 1129
+* @property {number} tm time of retrieving info. unix-time-format. e.g. 1542575626
+* @example // P1Status information
+{ ver: 50, tr: 2, i1: 5.000, i2: 0.000, i3: 0.000, v1: 238.400, v2: 0.000, v3: 0.000, l1:-1129, l2: 0, l3: 0, tm: 1543065737 }
+*/
+
+/**
 * @typedef rawP1Status
 * @description rawP1Status  is an object containing the raw string coming from the DSMR P1 interface.
 * @property {string} rawP1Status DSMR P1 text string
 * @example // rawP1Status
+/XMX5LGF0000444086356       - start symbol and manufacturer/meter id
+
+1-3:0.2.8(50)               - P1 version (only for newer smart meters)
+0-0:1.0.0(220623113116S)    - yymmddhhmmss time of P1 message
+0-0:96.1.1(4530303531303034343038363335363138)   - serial number of meter in hex ascii
+1-0:1.8.1(002083.849*kWh)   - Total consumed from grid tarriff 1 (low/night)
+1-0:1.8.2(002107.144*kWh)   - Total consumed from grid tarriff 2 (high/day)
+1-0:2.8.1(000794.052*kWh)   - Total  delivered to grid tarriff 1 (low/night)
+1-0:2.8.2(001783.721*kWh)   - Total delivered to grid tarriff 2 (high/day)
+0-0:96.14.0(0002)           - Actual tarriff  (1 or 2)
+1-0:1.7.0(00.000*kW)        - actual power used from grid
+1-0:2.7.0(01.274*kW)        - actual power delivery to grid
+0-0:96.7.21(00012)          - Number of power failures in any phase
+0-0:96.7.9(00004)           - Number of long power failures in any phase
+1-0:99.97.0(2)(0-0:96.7.19)(181022154127S)(0000001018*s)(000101000000W)(0000240127*s)  - Power Failure Event Log (long power failures)
+1-0:32.32.0(00009)          - Number of voltage sags in phase L1
+1-0:32.36.0(00002)          - Number of voltage swells in phase L1
+0-0:96.13.0()               - text message (max 1024 chars)
+1-0:32.7.0(240.2*V)         - phase 1 voltage
+1-0:31.7.0(005*A)           - phase 1 current
+1-0:21.7.0(00.000*kW)       - phase 1 power consumed from grid
+1-0:22.7.0(01.274*kW)       - phase 1 power delivered to grid
+0-1:24.1.0(003)             - other devices on M-bus
+0-1:96.1.0(4730303634303032303133353634383230)   - serial number of gas meter in hex ascii
+0-1:24.2.1(220623113008S)(01154.237*m3)  - yymmddhhmmss time of last gas update and Total consumed gas
+!4BF5                       - end symbol and optional CRC16-IBM reversed
+*/
+
+/** Old DSMR1 response:
 /KMP5 ZABF001587315111     - start symbol and manufacturer/meter id
 
 0-0:96.1.1(205C4D246333034353537383234323121)      - serial number of meter in hex ascii
