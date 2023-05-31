@@ -1,6 +1,6 @@
 /* eslint-disable no-await-in-loop */
 /*
-Copyright 2017 - 2022, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2023, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -180,10 +180,10 @@ class LS120Device extends Device {
 			// set new migrate level
 			this.setSettings({ level: this.homey.app.manifest.version });
 			this.migrated = true;
-			Promise.resolve(this.migrated);
+			return Promise.resolve(this.migrated);
 		} catch (error) {
 			this.error('Migration failed', error);
-			Promise.reject(error);
+			return Promise.reject(error);
 		}
 	}
 

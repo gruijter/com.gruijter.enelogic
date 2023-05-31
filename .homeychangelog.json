@@ -49,5 +49,8 @@
   },
   "4.3.0": {
     "en": "youless@2.7.0. Added 3 phase info. Changed capabilities order."
+  },
+  "4.3.1": {
+    "en": "youless@2.7.1. Fixed compatibility with Youless firmware ^1.6.0. Fixed HP2023 compatibility."
   }
 }

@@ -1,8 +1,10 @@
+/* eslint-disable default-param-last */
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
 	License, v. 2.0. If a copy of the MPL was not distributed with this
 	file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-	Copyright 2017 - 2022, Robin de Gruijter <gruijter@hotmail.com> */
+	Copyright 2017 - 2023, Robin de Gruijter <gruijter@hotmail.com> */
 
 'use strict';
 
@@ -303,7 +305,7 @@ class Youless {
 		try {
 			const result = await this._makeRequest(P1StatusPath);
 			const P1Status = JSON.parse(result.body);
-			if (!Object.prototype.hasOwnProperty.call(P1Status, 'ver')) {
+			if (!Object.prototype.hasOwnProperty.call(P1Status, 'tr')) {
 				throw Error('no P1 phase status information found');
 			}
 			P1Status.tm = Math.round(Date.now() / 1000);

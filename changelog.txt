@@ -1,3 +1,4 @@
+v4.3.1  2023.05.31 youless@2.7.1. Fixed compatibility with Youless firmware ^1.6.0. Fixed HP2023 compatibility.
 v4.3.0  2022.06.25 youless@2.7.0. Added 3 phase info. Changed capabilities order.
 v4.2.7  2022.03.30 Reduced decimals for gas via LS120 S0 m3/hour rate.
 v4.2.6  2022.03.29 Fixed gas via LS120 S0 m3/hour rate.
