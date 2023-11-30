@@ -45,6 +45,7 @@ class LS120Driver extends Homey.Driver {
 				const options = {
 					password: data.password,
 					host: data.youLessIp,
+					port: data.port,
 				};
 				const youless = new Youless(options);	// password, host, [port]
 				await youless.login();
@@ -57,6 +58,7 @@ class LS120Driver extends Homey.Driver {
 					data: { id: `LS120P1_${info.mac}` },
 					settings: {
 						youLessIp: options.host,
+						port: options.port,
 						password: options.password,
 						model: info.model,
 						mac: info.mac,
@@ -66,6 +68,7 @@ class LS120Driver extends Homey.Driver {
 						include_production: data.includeProduction,
 						include_gas: data.includeGas,
 						include3phase: data.include3phase,
+						includeWater: data.includeWater,
 					},
 					capabilities: [],
 					// 'measure_gas',
@@ -86,6 +89,8 @@ class LS120Driver extends Homey.Driver {
 					// 'meter_power.producedOffPeak',
 					// 'meter_power', // total energy
 					// 'meter_gas',
+					// 'meter_water',
+					// 'measure_water'
 					// ],
 				};
 
@@ -93,14 +98,11 @@ class LS120Driver extends Homey.Driver {
 				const p1Status = await youless.getP1Status().catch(this.error);
 				// set capability(order)
 				const correctCaps = [];
-				if (settings.include_gas) {
-					correctCaps.push('measure_gas');
-				}
 				if (settings.include_off_peak) {
 					correctCaps.push('meter_offPeak');
 				}
 				correctCaps.push('measure_power');	// always include measure_power
-				if (p1Status && (p1Status.ver >= 40 || p1Status.l1)) { //  has current and power per phase
+				if (p1Status && p1Status.l1) { //  has current and power per phase
 					correctCaps.push('measure_power.l1');
 					if (settings.include3phase) {
 						correctCaps.push('measure_power.l2');
@@ -112,7 +114,7 @@ class LS120Driver extends Homey.Driver {
 						correctCaps.push('measure_current.l3');
 					}
 				}
-				if (p1Status && (p1Status.ver >= 50 || p1Status.v1)) { // has voltage per phase
+				if (p1Status && p1Status.v1) { // has voltage per phase
 					correctCaps.push('measure_voltage.l1');
 					if (settings.include3phase) {
 						correctCaps.push('measure_voltage.l2');
@@ -131,7 +133,12 @@ class LS120Driver extends Homey.Driver {
 				}
 				correctCaps.push('meter_power');	// always include meter_power
 				if (settings.include_gas) {
+					correctCaps.push('measure_gas');
 					correctCaps.push('meter_gas');
+				}
+				if (settings.includeWater) {
+					correctCaps.push('measure_water');
+					correctCaps.push('meter_water');
 				}
 				device.capabilities = correctCaps;
 				return JSON.stringify(device); // report success to frontend

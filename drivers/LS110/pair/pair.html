@@ -1,33 +1,18 @@
-<!doctype html>
-<html>
-<head>
-	<link rel="stylesheet" type="text/css" href="styles.css" />
-	<script type="text/javascript" src="/manager/webserver/assets/js/jquery.js"></script>
-	<script type="text/javascript" src="pair.js" data-origin="pair"></script>
-	<style>
-		/* place on top of Homey navigation window */
-		#hy-views { position: static; }
-	</style>
-</head>
-<body>
-	<div class="setting">
-		<p data-i18n="pair.instructionsLs110" class="instructions">Instructions</p>
+<script type="text/javascript" src="pair.js" data-origin="pair"></script>
 
-		<label class="settings-item-description" data-i18n="pair.discover">Discover</label>
-		<button id="discover" class="btn" onclick="discover()" data-i18n="pair.discover">Discover</button>
+<form class="homey-form">
+	<div class="homey-form-group">
 
-		<label class="settings-item-description" data-i18n="pair.host">host</label>
-		<div class="settings-itemgroup">
-			<input id="host" type="text" value="">
-		</div>
+		<!-- <h1 class="homey-title" data-i18n="pair.titleLs120"></h1> -->
+		<p class="instructions" data-i18n="pair.instructionsLs110">Instructions</p>
 
-		<label class="settings-item-description" data-i18n="pair.password">password</label>
-		<div class="settings-itemgroup">
-			<input id="password" type="password" value="">
-		</div>
+		<label class="homey-form-label" for="host" data-i18n="pair.host"></label>
+		<input class="homey-form-input" id="host" type="text" placeholder="" value="" />
 
-		<label class="settings-item-description" data-i18n="pair.testSettings">Start test</label>
-		<button id="runTest" class="btn" onclick="testSettings()" data-i18n="pair.testSettings">Start Test</button>
+		<label class="homey-form-label" for="password" data-i18n="pair.password"></label>
+		<input class="homey-form-input" id="password" type="password" placeholder="default" value="" />
+	
 	</div>
-</body>
-</html>
+</form>
+<br>
+<button class="homey-button-primary-full" id="runTest" onclick="testSettings()" data-i18n="pair.testSettings" ></button>

@@ -34,12 +34,14 @@ function testSettings() {
 	const host = $('#host').val();
 	if (host !== '') {
 		const data = {
-			youLessIp: host,
+			youLessIp: host.split(':')[0],
+			port: Number(host.split(':')[1]) || 80,
 			password: $('#password').val(),
 			// includeConsumption: $('#includeConsumption').prop('checked'),
 			includeProduction: $('#includeProduction').prop('checked'),
 			includeOffPeak: $('#includeOffPeak').prop('checked'),
 			includeGas: $('#includeGas').prop('checked'),
+			includeWater: $('#includeWater').prop('checked'),
 			include3phase: $('#include3phase').prop('checked'),
 		};
 		// Continue to back-end, pass along data

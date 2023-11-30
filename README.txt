@@ -1,3 +1,4 @@
+With the LS120 it is possible to register your electricity usage, your electricity production, your gas usage, and your water usage, simultaneously!
 A local connection over IP is used, so there is no need for an internet connection.
 
 The app logs and provides flow cards for the following data:
@@ -10,7 +11,3 @@ The app logs and provides flow cards for the following data:
 - Recent gas usage (m3/hour)
 - Water meter (m3)
 - Actual water usage (L/min)
-
-Ledring screensaver:
-- See how much energy you are using or producing just by looking at your Homey!
-- Is the wash-dryer ready? Am I now producing power to the grid?

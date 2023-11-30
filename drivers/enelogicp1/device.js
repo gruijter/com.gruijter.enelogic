@@ -67,7 +67,7 @@ class EnelogicDevice extends Device {
 		// this.destroyListeners();
 		const dly = delay || 2000;
 		this.log(`Device will restart in ${dly / 1000} seconds`);
-		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		// this.setUnavailable('Device is restarting. Wait a few minutes!').catch(this.error);
 		await setTimeoutPromise(dly).then(() => this.onInit());
 	}
 
@@ -116,11 +116,11 @@ class EnelogicDevice extends Device {
 				.catch(() => {
 					// ignore if no gasmeter present
 				});
-			this.setAvailable();
+			this.setAvailable().catch(this.error);
 			this.handleNewReadings(readings);
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.setUnavailable(error.message);
+			this.setUnavailable(error.message).catch(this.error);
 			this.watchDogCounter -= 1;
 			this.error('Poll error', error.message);
 		}

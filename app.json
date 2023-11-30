@@ -38,7 +38,7 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.3.1",
+  "version": "4.4.0",
   "sdk": 3,
   "compatibility": ">=5.0.0",
   "author": {
@@ -258,11 +258,28 @@
               "value": "youless"
             },
             {
+              "id": "port",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "nl": "Poort"
+              },
+              "hint": {
+                "en": "Default is 80.",
+                "nl": "Default is 80."
+              },
+              "value": 80
+            },
+            {
               "id": "password",
               "type": "password",
               "label": {
                 "en": "Password",
                 "nl": "Wachtwoord"
+              },
+              "hint": {
+                "en": "Leave empty if no password is set in the LS120.",
+                "nl": "Laat leeg als er geen wachtwoord is ingesteld in de LS120."
               },
               "value": ""
             },
@@ -274,7 +291,7 @@
                 "nl": "Polling interval (s)"
               },
               "attr": {
-                "min": 10
+                "min": 1
               },
               "value": 10
             }
@@ -293,6 +310,10 @@
               "label": {
                 "en": "Max consumption (W)",
                 "nl": "Max gebruik (W)"
+              },
+              "hint": {
+                "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+                "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
               },
               "attr": {
                 "min": 0
@@ -423,11 +444,28 @@
               "value": "youless"
             },
             {
+              "id": "port",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "nl": "Poort"
+              },
+              "hint": {
+                "en": "Default is 80.",
+                "nl": "Default is 80."
+              },
+              "value": 80
+            },
+            {
               "id": "password",
               "type": "password",
               "label": {
                 "en": "Password",
                 "nl": "Wachtwoord"
+              },
+              "hint": {
+                "en": "Leave empty if no password is set in the LS120.",
+                "nl": "Laat leeg als er geen wachtwoord is ingesteld in de LS120."
               },
               "value": ""
             },
@@ -458,6 +496,10 @@
               "label": {
                 "en": "Max consumption",
                 "nl": "Max gebruik"
+              },
+              "hint": {
+                "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+                "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
               },
               "attr": {
                 "min": 0
@@ -584,7 +626,9 @@
         "meter_power.producedPeak",
         "meter_power.producedOffPeak",
         "meter_power",
-        "meter_gas"
+        "meter_gas",
+        "meter_water",
+        "measure_water"
       ],
       "capabilitiesOptions": {
         "measure_power": {
@@ -698,6 +742,9 @@
             "nl": "Spanning L3"
           },
           "decimals": 2
+        },
+        "meter_water": {
+          "decimals": 3
         }
       },
       "energy": {
@@ -753,11 +800,28 @@
               "value": "youless"
             },
             {
+              "id": "port",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "nl": "Poort"
+              },
+              "hint": {
+                "en": "Default is 80.",
+                "nl": "Default is 80."
+              },
+              "value": 80
+            },
+            {
               "id": "password",
               "type": "password",
               "label": {
                 "en": "Password",
                 "nl": "Wachtwoord"
+              },
+              "hint": {
+                "en": "Leave empty if no password is set in the LS120.",
+                "nl": "Laat leeg als er geen wachtwoord is ingesteld in de LS120."
               },
               "value": ""
             },
@@ -769,7 +833,7 @@
                 "nl": "Polling interval (s)"
               },
               "attr": {
-                "min": 10
+                "min": 1
               },
               "value": 10
             }
@@ -789,6 +853,10 @@
                 "en": "Max consumption (W)",
                 "nl": "Max gebruik (W)"
               },
+              "hint": {
+                "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+                "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
+              },
               "attr": {
                 "min": 0
               },
@@ -800,6 +868,10 @@
               "label": {
                 "en": "Max production (W)",
                 "nl": "Max productie (W)"
+              },
+              "hint": {
+                "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+                "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
               },
               "attr": {
                 "min": 0
@@ -823,8 +895,8 @@
                 "nl": "P1 meters omdraaien"
               },
               "hint": {
-                "en": "Set to reversed for Belgian P1 meters",
-                "nl": "Zet op omdraaien voor Belgische P1 meters"
+                "en": "Set to reversed for Belgian P1 meters.",
+                "nl": "Zet op omdraaien voor Belgische P1 meters."
               },
               "value": false
             },
@@ -865,6 +937,19 @@
               "value": true
             },
             {
+              "id": "includeWater",
+              "type": "checkbox",
+              "label": {
+                "en": "Report Water (BE)",
+                "nl": "Rapporteer water (BE)"
+              },
+              "hint": {
+                "en": "Only for Belgian meters.",
+                "nl": "Alleen voor Belgische meters."
+              },
+              "value": false
+            },
+            {
               "id": "filterReadings",
               "type": "checkbox",
               "label": {
@@ -872,8 +957,8 @@
                 "nl": "Filter meetwaarden"
               },
               "hint": {
-                "en": "Ignore unrealistic meter readings",
-                "nl": "Negeer onrealistische meter waarden"
+                "en": "Ignore unrealistic meter readings.",
+                "nl": "Negeer onrealistische meter waarden."
               },
               "value": false
             }
@@ -960,11 +1045,28 @@
               "value": "youless"
             },
             {
+              "id": "port",
+              "type": "number",
+              "label": {
+                "en": "Port",
+                "nl": "Poort"
+              },
+              "hint": {
+                "en": "Default is 80.",
+                "nl": "Default is 80."
+              },
+              "value": 80
+            },
+            {
               "id": "password",
               "type": "password",
               "label": {
                 "en": "Password",
                 "nl": "Wachtwoord"
+              },
+              "hint": {
+                "en": "Leave empty if no password is set in the LS120.",
+                "nl": "Laat leeg als er geen wachtwoord is ingesteld in de LS120."
               },
               "value": ""
             },
@@ -976,7 +1078,7 @@
                 "nl": "Polling interval (s)"
               },
               "attr": {
-                "min": 10
+                "min": 1
               },
               "value": 10
             }
@@ -995,6 +1097,10 @@
               "label": {
                 "en": "Max consumption",
                 "nl": "Max gebruik"
+              },
+              "hint": {
+                "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+                "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
               },
               "attr": {
                 "min": 0

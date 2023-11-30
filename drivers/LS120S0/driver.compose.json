@@ -76,11 +76,28 @@
           "value": "youless"
         },
         {
+          "id": "port",
+          "type": "number",
+          "label": {
+            "en": "Port",
+            "nl": "Poort"
+          },
+          "hint": {
+            "en": "Default is 80.",
+            "nl": "Default is 80."
+          },
+          "value": 80
+        },
+        {
           "id": "password",
           "type": "password",
           "label": {
             "en": "Password",
             "nl": "Wachtwoord"
+          },
+          "hint": {
+            "en": "Leave empty if no password is set in the LS120.",
+            "nl": "Laat leeg als er geen wachtwoord is ingesteld in de LS120."
           },
           "value": ""
         },
@@ -92,7 +109,7 @@
             "nl": "Polling interval (s)"
           },
           "attr": {
-            "min": 10
+            "min": 1
           },
           "value": 10
         }
@@ -111,6 +128,10 @@
           "label": {
             "en": "Max consumption",
             "nl": "Max gebruik"
+          },
+          "hint": {
+            "en": "LED ring is only available on Homey Pro 2016 and Homey Pro 2019.",
+            "nl": "LED ring is alleen beschikbaar op Homey Pro 2016 en Homey Pro 2019."
           },
           "attr": {
             "min": 0

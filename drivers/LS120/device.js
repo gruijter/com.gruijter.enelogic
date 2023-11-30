@@ -42,6 +42,7 @@ class LS120Device extends Device {
 			const options = {
 				password: settings.password,
 				host: settings.youLessIp,
+				port: settings.port,
 				reversed: settings.reversed,
 				timeout: (settings.pollingInterval * 900),
 			};
@@ -89,7 +90,7 @@ class LS120Device extends Device {
 		// this.destroyListeners();
 		const dly = delay || 2000;
 		this.log(`Device will restart in ${dly / 1000} seconds`);
-		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		// this.setUnavailable('Device is restarting. Wait a few minutes!').catch(this.error);
 		await setTimeoutPromise(dly).then(() => this.onInit());
 	}
 
@@ -114,18 +115,15 @@ class LS120Device extends Device {
 		try {
 			this.log(`checking migration for ${this.getName()}`);
 			await setTimeoutPromise(5 * 1000); // wait a bit for Homey to settle
-			const settings = this.getSettings();
-			const p1Status = await this.youless.getP1Status().catch(this.error);
-			// check and repair incorrect capability(order)
+			const settings = await this.getSettings();
+			const p1Status = await this.youless.getP1Status();
+
 			const correctCaps = [];
-			if (settings.include_gas) {
-				correctCaps.push('measure_gas');
-			}
 			if (settings.include_off_peak) {
 				correctCaps.push('meter_offPeak');
 			}
 			correctCaps.push('measure_power');	// always include measure_power
-			if (p1Status && (p1Status.ver >= 40 || p1Status.l1)) { //  has current and power per phase
+			if (p1Status && p1Status.l1) { //  has current and power per phase
 				correctCaps.push('measure_power.l1');
 				if (settings.include3phase) {
 					correctCaps.push('measure_power.l2');
@@ -137,7 +135,7 @@ class LS120Device extends Device {
 					correctCaps.push('measure_current.l3');
 				}
 			}
-			if (p1Status && (p1Status.ver >= 50 || p1Status.v1)) { // has voltage per phase
+			if (p1Status && p1Status.v1) { // has voltage per phase
 				correctCaps.push('measure_voltage.l1');
 				if (settings.include3phase) {
 					correctCaps.push('measure_voltage.l2');
@@ -156,29 +154,45 @@ class LS120Device extends Device {
 			}
 			correctCaps.push('meter_power');	// always include meter_power
 			if (settings.include_gas) {
+				correctCaps.push('measure_gas');
 				correctCaps.push('meter_gas');
 			}
+			if (settings.includeWater) {
+				correctCaps.push('measure_water');
+				correctCaps.push('meter_water');
+			}
 
-			// set selected capabilities in correct order
-			for (let index = 0; index < correctCaps.length; index += 1) {
+			// store the capability states before migration
+			const sym = Object.getOwnPropertySymbols(this).find((s) => String(s) === 'Symbol(state)');
+			const state = this[sym];
+
+			// check and repair incorrect capability(order)
+			for (let index = 0; index <= correctCaps.length; index += 1) {
 				const caps = await this.getCapabilities();
 				const newCap = correctCaps[index];
 				if (caps[index] !== newCap) {
+					this.setUnavailable('Migrating. Please wait...').catch(() => null);
 					// remove all caps from here
 					for (let i = index; i < caps.length; i += 1) {
 						this.log(`removing capability ${caps[i]} for ${this.getName()}`);
-						await this.removeCapability(caps[i])
-							.catch((error) => this.log(error));
+						await this.removeCapability(caps[i]).catch((error) => this.log(error));
 						await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
 					}
 					// add the new cap
-					this.log(`adding capability ${newCap} for ${this.getName()}`);
-					await this.addCapability(newCap);
-					await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
+					if (newCap !== undefined) {
+						this.log(`adding capability ${newCap} for ${this.getName()}`);
+						await this.addCapability(newCap);
+						// restore capability state
+						if (state[newCap]) this.log(`${this.getName()} restoring value ${newCap} to ${state[newCap]}`);
+						// else this.log(`${this.getName()} has gotten a new capability ${newCap}!`);
+						if (state[newCap] !== undefined) this.setCapability(newCap, state[newCap]);
+						await setTimeoutPromise(2 * 1000); // wait a bit for Homey to settle
+					}
 				}
 			}
+
 			// set new migrate level
-			this.setSettings({ level: this.homey.app.manifest.version });
+			await this.setSettings({ level: this.homey.app.manifest.version }).catch(this.error);
 			this.migrated = true;
 			return Promise.resolve(this.migrated);
 		} catch (error) {
@@ -192,7 +206,7 @@ class LS120Device extends Device {
 		this.log(`${this.getName()} device settings changed`);
 		this.log(newSettings);
 		this.migrated = false;
-		this.restartDevice(2000);
+		this.restartDevice(2000).catch(this.error);
 		return Promise.resolve(true);
 	}
 
@@ -226,11 +240,11 @@ class LS120Device extends Device {
 				p1Status = await this.youless.getP1Status().catch(this.error);
 			}
 			readings.p1Status = p1Status || {};
-			this.setAvailable();
+			this.setAvailable().catch(this.error);
 			await this.handleNewReadings(readings);
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.setUnavailable(error.message);
+			this.setUnavailable(error.message).catch(this.error);
 			this.watchDogCounter -= 1;
 			this.error('Poll error', error.message);
 		}
@@ -241,6 +255,9 @@ class LS120Device extends Device {
 			measureGas: 0,							// 'measureGas' (m3)
 			meterGas: null, 						// 'meterGas' (m3)
 			meterGasTm: 0,							// timestamp of gas meter reading, e.g. 1514394325
+			measureWater: 0,							// 'measureWater' (m3)
+			meterWater: null, 						// 'meterWater' (m3)
+			meterWaterTm: 0,							// timestamp of water meter reading, e.g. 1514394325
 			measurePower: 0,						// 'measurePower' (W)
 			measurePowerAvg: 0,						// '1 minute average measurePower' (W)
 			meterPower: null,						// 'meterPower' (kWh)
@@ -257,7 +274,7 @@ class LS120Device extends Device {
 	}
 
 	async setCapability(capability, value) {
-		if (this.hasCapability(capability)) {
+		if (this.hasCapability(capability) && value !== undefined) {
 			await this.setCapabilityValue(capability, value)
 				.catch((error) => {
 					this.log(error, capability, value);
@@ -271,6 +288,8 @@ class LS120Device extends Device {
 			await this.setCapability('meter_offPeak', meters.offPeak);
 			await this.setCapability('measure_power', meters.measurePower);
 			await this.setCapability('measure_gas', meters.measureGas);
+			await this.setCapability('measure_water', meters.measureWater);
+			await this.setCapability('meter_water', meters.meterWater);
 			await this.setCapability('meter_power', meters.meterPower);
 			await this.setCapability('meter_gas', meters.meterGas);
 			await this.setCapability('meter_power.peak', meters.meterPowerPeak);
@@ -292,8 +311,7 @@ class LS120Device extends Device {
 			// Object.keys(deviceInfo).forEach((key) => {
 			// 	if (settings[key] !== deviceInfo[key].toString()) {
 			// 		this.log(`device information has changed. ${key}: ${deviceInfo[key].toString()}`);
-			// 		this.setSettings({ [key]: deviceInfo[key].toString() })
-			// 			.catch(this.error);
+			// 		this.setSettings({ [key]: deviceInfo[key].toString() }).catch(this.error);
 			// 	}
 			// });
 			// reset watchdog
@@ -358,6 +376,17 @@ class LS120Device extends Device {
 	async handleNewReadings(readings) {
 		try {
 			// this.log(`handling new readings for ${this.getName()}`);
+			// water readings from device
+			const meterWater = readings.wtr; // water_cumulative_meter
+			const meterWaterTm = readings.wtm; // water_meter_timestamp
+			let { measureWater } = this.lastMeters;
+
+			// constructed water readings
+			const meterWaterTmChanged = (meterWaterTm !== this.lastMeters.meterWaterTm) && (this.lastMeters.meterWaterTm !== 0);
+			if (meterWaterTmChanged) {
+				const passedMinutes = (meterWaterTm - this.lastMeters.meterWaterTm) / 60;	// timestamp is in seconds
+				measureWater = Math.round(1000 * 1000 * ((meterWater - this.lastMeters.meterWater) / passedMinutes)) / 1000; // l/min
+			}
 			// gas readings from device
 			const meterGas = readings.gas; // gas_cumulative_meter
 			const meterGasTm = readings.gtm; // gas_meter_timestamp
@@ -411,6 +440,9 @@ class LS120Device extends Device {
 
 			// store the new readings in memory
 			const meters = {
+				measureWater,
+				meterWater,
+				meterWaterTm,
 				measureGas,
 				meterGas,
 				meterGasTm,
@@ -431,7 +463,7 @@ class LS120Device extends Device {
 			await this.updateDeviceState(meters);
 
 			// execute flow triggers
-			if (tariffChanged) {
+			if (tariffChanged && this.hasCapability('meter_offPeak')) {
 				this.log('Tariff changed. offPeak:', offPeak);
 				const tokens = { tariff: offPeak };
 				this.homey.app.triggerTariffChanged(this, tokens, {});
@@ -456,7 +488,7 @@ class LS120Device extends Device {
 	async reboot(source) {
 		this.log(`Rebooting ${this.getName()} via ${source}`);
 		await this.youless.reboot();
-		this.setUnavailable('rebooting now');
+		this.setUnavailable('rebooting now').catch(this.error);
 	}
 
 }

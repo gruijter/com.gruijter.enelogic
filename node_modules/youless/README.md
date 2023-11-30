@@ -6,13 +6,15 @@
 * device information, including firmware version
 * live energy readings of analogue and digital meters
 * live energy and gas readings of P1 smart meters (LS120 only)
+* live water readings of P1 smart meters (LS120 with Belgium meters only)
 * live readings of the S0 input (LS120 only)
 * live readings of the optical sensor
 * live P1 tariff, power, voltage, current readings per phase (LS120 only)
 * raw P1 data (Experimental and unstable!)
 * historic logs of power
-* historic log of gas (LS120 only)
-* historic log of S0 (LS120 only)
+* historic logs of gas (LS120 only)
+* historic logs of S0 (LS120 only)
+* historic logs of water (LS120 only)
 
 
 #### set:
@@ -21,6 +23,7 @@
 * power counter value
 * S0 pulses per KwH value (LS120 only)
 * S0 counter value (LS120 only)
+* S0 counter timeout (LS120 only)
 * optical sensor luminance
 
 
@@ -32,7 +35,7 @@
 
 
 ### Note:
-This package has been developed and tested with the Enelogic (-EL) firmware and PVOutput (-PO) firmware ^1.4.4.
+This package has been developed and tested with the Enelogic (-EL) firmware and PVOutput (-PO) firmware ^1.6.0.
 Other firmware versions (-EO, and -PO below 1.4.4) might not be fully supported, especially for the function getAdvancedStatus().
 
 ### Install:

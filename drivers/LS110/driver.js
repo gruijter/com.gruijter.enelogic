@@ -43,6 +43,7 @@ class LS110Driver extends Homey.Driver {
 				const options = {
 					password: data.password,
 					host: data.youLessIp,
+					port: data.port,
 				};
 				const youless = new Youless(options);	// password, host, [port]
 				await youless.login();
@@ -52,6 +53,7 @@ class LS110Driver extends Homey.Driver {
 					data: { id: `LS110_${info.mac}` },
 					settings: {
 						youLessIp: options.host,
+						port: options.port,
 						password: options.password,
 						model: info.model,
 						mac: info.mac,

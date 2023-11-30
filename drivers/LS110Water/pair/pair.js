@@ -34,7 +34,8 @@ function testSettings() {
 	const host = $('#host').val();
 	if (host !== '') {
 		const data = {
-			youLessIp: host,
+			youLessIp: host.split(':')[0],
+			port: Number(host.split(':')[1]) || 80,
 			password: $('#password').val(),
 		};
 		// Continue to back-end, pass along data
@@ -57,3 +58,8 @@ function testSettings() {
 		// Homey.done();
 	}
 }
+
+$(document).ready(() => {
+	// console.log('doc is ready');
+	discover();
+});

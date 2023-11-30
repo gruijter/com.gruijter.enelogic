@@ -41,6 +41,7 @@ class LS120Device extends Device {
 			const options = {
 				password: settings.password,
 				host: settings.youLessIp,
+				port: settings.port,
 				timeout: (settings.pollingInterval * 900),
 			};
 			this.youless = new Youless(options);
@@ -84,7 +85,7 @@ class LS120Device extends Device {
 		// this.destroyListeners();
 		const dly = delay || 2000;
 		this.log(`Device will restart in ${dly / 1000} seconds`);
-		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		// this.setUnavailable('Device is restarting. Wait a few minutes!').catch(this.error);
 		await setTimeoutPromise(dly).then(() => this.onInit());
 	}
 
@@ -112,6 +113,7 @@ class LS120Device extends Device {
 			const options = {
 				password: newSettings.password,
 				host: newSettings.youLessIp,
+				port: newSettings.port,
 				timeout: (newSettings.pollingInterval * 900),
 			};
 			await this.youless.login(options);
@@ -119,16 +121,16 @@ class LS120Device extends Device {
 			this.youless.setS0Counter(newSettings.set_meter_s0)
 				.catch(this.error);
 			if (newSettings.homey_energy_type === 'solarpanel') {
-				this.setEnergy({ cumulative: false });
-				this.setClass('solarpanel');
+				this.setEnergy({ cumulative: false }).catch(this.error);
+				this.setClass('solarpanel').catch(this.error);
 			} else if (newSettings.homey_energy_type === 'cumulative') {
-				this.setEnergy({ cumulative: true });
-				this.setClass('sensor');
+				this.setEnergy({ cumulative: true }).catch(this.error);
+				this.setClass('sensor').catch(this.error);
 			} else {
-				this.setEnergy({ cumulative: false });
-				this.setClass('sensor');
+				this.setEnergy({ cumulative: false }).catch(this.error);
+				this.setClass('sensor').catch(this.error);
 			}
-			this.restartDevice(1000);
+			this.restartDevice(1000).catch(this.error);
 			return Promise.resolve(true);
 		} catch (error) {
 			this.error(error.message);
@@ -157,18 +159,17 @@ class LS120Device extends Device {
 			if (!this.youless.loggedIn) {
 				await this.youless.login()
 					.catch((error) => {
-						this.setUnavailable(error)
-							.catch(this.error);
+						this.setUnavailable(error).catch(this.error);
 						// throw Error('Failed to login');
 					});
 			}
 			if (!this.youless.loggedIn) { return; }
 			const readings = await this.youless.getAdvancedStatus();
-			this.setAvailable();
+			this.setAvailable().catch(this.error);
 			this.handleNewReadings(readings);
 			this.watchDogCounter = 10;
 		} catch (error) {
-			this.setUnavailable(error.message);
+			this.setUnavailable(error.message).catch(this.error);
 			this.watchDogCounter -= 1;
 			this.error('Poll error', error.message);
 		}
@@ -209,10 +210,9 @@ class LS120Device extends Device {
 			this.setCapability('meter_gas', meters.meterGas);
 			// update meter in device settings
 			const settings = this.getSettings();
-			const meter = Math.round((meters.meterPower || meters.meterWater || meters.meterGas) * 10000) / 10000;
+			const meter = Math.round((meters.meterPower || meters.meterWater || meters.meterGas || null) * 10000) / 10000;
 			if (meter !== settings.set_meter_s0) {
-				this.setSettings({ set_meter_s0: meter })
-					.catch(this.error);
+				this.setSettings({ set_meter_s0: meter }).catch(this.error);
 			}
 			// update the device info
 			// const deviceInfo = this.youless.info;
@@ -370,7 +370,7 @@ class LS120Device extends Device {
 	async reboot(source) {
 		this.log(`Rebooting ${this.getName()} via ${source}`);
 		await this.youless.reboot();
-		this.setUnavailable('rebooting now');
+		this.setUnavailable('rebooting now').catch(this.error);
 	}
 
 }

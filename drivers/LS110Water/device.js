@@ -43,6 +43,7 @@ class LS110WaterDevice extends Device {
 			const options = {
 				password: this.settings.password,
 				host: this.settings.youLessIp,
+				port: this.settings.port,
 				timeout: (this.settings.pollingInterval * 900),
 			};
 			this.youless = new Youless(options);
@@ -86,7 +87,7 @@ class LS110WaterDevice extends Device {
 		// this.destroyListeners();
 		const dly = delay || 2000;
 		this.log(`Device will restart in ${dly / 1000} seconds`);
-		// this.setUnavailable('Device is restarting. Wait a few minutes!');
+		// this.setUnavailable('Device is restarting. Wait a few minutes!').catch(this.error);
 		await setTimeoutPromise(dly).then(() => this.onInit());
 	}
 
@@ -141,8 +142,7 @@ class LS110WaterDevice extends Device {
 			if (!this.youless.loggedIn) {
 				await this.youless.login()
 					.catch((error) => {
-						this.setUnavailable(error)
-							.catch(this.error);
+						this.setUnavailable(error).catch(this.error);
 						// throw Error('Failed to login');
 					});
 				if (!this.youless.loggedIn) { return; }
@@ -152,17 +152,15 @@ class LS110WaterDevice extends Device {
 					if (error.message.includes('Connection timeout')) {
 						return;
 					}
-					this.setUnavailable(error)
-						.catch(this.error);
+					this.setUnavailable(error).catch(this.error);
 					throw error;
 				});
 			if (!readings) { return; }
-			this.setAvailable()
-				.catch(this.error);
+			this.setAvailable().catch(this.error);
 			this.handleNewReadings(readings);
 			return;
 		} catch (error) {
-			this.setUnavailable(error.message);
+			this.setUnavailable(error.message).catch(this.error);
 			this.watchDogCounter -= 1;
 			this.error('Poll error', error.message);
 		}
@@ -201,8 +199,7 @@ class LS110WaterDevice extends Device {
 			const settings = this.getSettings();
 			const meterWater = Math.round(this.meters.lastMeterWater * 10000) / 10000;
 			if (meterWater !== settings.meter_water_offset) {
-				this.setSettings({ meter_water_offset: meterWater })
-					.catch(this.error);
+				this.setSettings({ meter_water_offset: meterWater }).catch(this.error);
 			}
 			// reset watchdog
 			this.watchDogCounter = 10;
@@ -226,7 +223,7 @@ class LS110WaterDevice extends Device {
 				};
 				log = await this.homey.insights.createLog('optical_sensor_raw', options);
 			}
-			log.createEntry(opticalSensorRaw);
+			await log.createEntry(opticalSensorRaw);
 		} catch (error) {
 			this.log(error);
 		}
@@ -276,8 +273,7 @@ class LS110WaterDevice extends Device {
 				if (Math.abs(opticalSensorRaw - this.settings.optical_sensor_raw_min) > 15) {
 					const newSetting = Math.round((this.settings.optical_sensor_raw_min + opticalSensorRaw) / 2);
 					this.log(`adapting min to ${newSetting}`);
-					this.setSettings({ optical_sensor_raw_min: newSetting })
-						.catch(this.error);
+					this.setSettings({ optical_sensor_raw_min: newSetting }).catch(this.error);
 					this.settings.optical_sensor_raw_min = newSetting;
 				}
 			}
@@ -287,8 +283,7 @@ class LS110WaterDevice extends Device {
 				if (Math.abs(opticalSensorRaw - this.settings.optical_sensor_raw_max) > 15) {
 					const newSetting = Math.round((this.settings.optical_sensor_raw_max + opticalSensorRaw) / 2);
 					this.log(`adapting max to ${newSetting}`);
-					this.setSettings({ optical_sensor_raw_max: newSetting })
-						.catch(this.error);
+					this.setSettings({ optical_sensor_raw_max: newSetting }).catch(this.error);
 					this.settings.optical_sensor_raw_max = newSetting;
 				}
 			}
@@ -349,7 +344,7 @@ class LS110WaterDevice extends Device {
 	async reboot(source) {
 		this.log(`Rebooting ${this.getName()} via ${source}`);
 		await this.youless.reboot();
-		this.setUnavailable('rebooting now');
+		this.setUnavailable('rebooting now').catch(this.error);
 	}
 }
 

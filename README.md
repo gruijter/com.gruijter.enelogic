@@ -28,16 +28,17 @@ With the P1 connection on the LS120 or Enelogic you get the following extra's:
 - Gas meter (m3, 1 hour updates)
 - Tariff change (off-peak, true or false)
 
+### P1 Water meter Belgium ###
+With the P1 connection on the LS120 you get the following extra's with Belgian Smart Meters:
+- Actual water flow (L/min)
+- Water meter (m3)
+
 ### S0 Water meter ###
 The LS120 S0 driver can be used with a pulse water meter.
 It provides logs and flow cards for the following data:
 - Actual water flow (L/min)
 - Water meter (m3)
 The required pulse meter depends on your type of water meter. See for more info here: [pulse meters]
-
-**Ledring screensaver:**
-- See how much energy you are using or producing just by looking at your Homey!
-- Is the wash-dryer ready? Am I now producing power to the grid?
 
 The power is totalized for consumed and produced power, during off-peak and peak hours. Production to the powergrid is displayed as negative watts. Only changed values are logged.
 
@@ -71,6 +72,8 @@ To setup, go to "Devices" and choose the correct driver. Homey will try to disco
 <img src="https://aws1.discourse-cdn.com/business4/uploads/athom/original/2X/6/66edb77ec4f82b4818916068ba4eb114334f3b4b.png" alt="meter selection" width="300"/>
 
 **S0 Energy meter**: choose the LS120-S0 driver, and select 'power' as meter type.
+
+**P1 Water meter**: Works in Belgium only! Choose the LS120-P1 driver. 
 
 **S0 Water meter**: choose the LS120-S0 driver, and select 'water' as meter type. 
 

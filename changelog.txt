@@ -1,3 +1,4 @@
+v4.4.0  2023.11.28 youless@2.8.1. Added Belgian P1 water meter. Added custom port setting. Minimum poll lowered to 1 second. Pairing fixes. Stability fixes.
 v4.3.1  2023.05.31 youless@2.7.1. Fixed compatibility with Youless firmware ^1.6.0. Fixed HP2023 compatibility.
 v4.3.0  2022.06.25 youless@2.7.0. Added 3 phase info. Changed capabilities order.
 v4.2.7  2022.03.30 Reduced decimals for gas via LS120 S0 m3/hour rate.

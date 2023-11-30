@@ -1,4 +1,5 @@
-Werkt via een lokale IP verbinding, dus een internet verbinding is niet nodig.
+Met de LS120 is het mogelijk om zowel je elektriciteits gebruik, je elektriciteits opbrengst, je gasverbruik, en je waterverbruik, gelijktijdig te meten!
+Werkt via een lokale IP verbinding, dus een internet verbinding is niet nodig. 
 
 De app registreert en heeft flow kaarten voor de volgende data:
 - Totale energie meter (kWh)
@@ -11,6 +12,3 @@ De app registreert en heeft flow kaarten voor de volgende data:
 - Water meter (m3)
 - Actueel water verbruik (L/min)
 
-Ledring screensaver:
-- Kijk naar Homey en zie direct hoeveel energie je gebruikt of levert!
-- Is de wasdroger klaar? Lever ik nu aan het net?

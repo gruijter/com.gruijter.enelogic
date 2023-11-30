@@ -52,5 +52,8 @@
   },
   "4.3.1": {
     "en": "youless@2.7.1. Fixed compatibility with Youless firmware ^1.6.0. Fixed HP2023 compatibility."
+  },
+  "4.4.0": {
+    "en": "youless@2.8.1. Added Belgian P1 water meter. Added custom port setting. Minimum poll lowered to 1 second. Pairing fixes. Stability fixes."
   }
 }
