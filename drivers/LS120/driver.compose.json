@@ -152,6 +152,9 @@
     },
     "meter_water": {
       "decimals": 3
+    },
+    "meter_gas": {
+      "decimals": 3
     }
   },
   "energy": {

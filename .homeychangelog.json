@@ -55,5 +55,8 @@
   },
   "4.4.0": {
     "en": "youless@2.8.1. Added Belgian P1 water meter. Added custom port setting. Minimum poll lowered to 1 second. Pairing fixes. Stability fixes."
+  },
+  "4.4.1": {
+    "en": "Gas meter decimals extended to 3."
   }
 }
