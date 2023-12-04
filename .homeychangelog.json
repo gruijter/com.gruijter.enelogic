@@ -58,5 +58,8 @@
   },
   "4.4.1": {
     "en": "Gas meter decimals extended to 3."
+  },
+  "4.4.2": {
+    "en": "Fix for firmware below 1.6-EL"
   }
 }

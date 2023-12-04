@@ -116,7 +116,7 @@ class LS120Device extends Device {
 			this.log(`checking migration for ${this.getName()}`);
 			await setTimeoutPromise(5 * 1000); // wait a bit for Homey to settle
 			const settings = await this.getSettings();
-			const p1Status = await this.youless.getP1Status();
+			const p1Status = await this.youless.getP1Status().catch(this.error);
 
 			const correctCaps = [];
 			if (settings.include_off_peak) {
