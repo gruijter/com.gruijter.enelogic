@@ -1,60 +1,62 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
+
+'use strict';
+
 function displayLogs(lines) {
-	$('#loglines').html(lines);
+  $('#loglines').html(lines);
 }
 
 function updateLogs() {
-	try {
-		Homey.api('GET', 'getlogs/', null, (err, result) => {
-			if (!err) {
-				let lines = '';
-				result
-					.reverse()
-					.forEach((line) => {
-						const logLine = line
-							.replace(' [MyApp]', '')
-							.replace(' [ManagerDrivers] ', '');
-						lines += `${logLine}<br />`;
-
-					});
-				displayLogs(lines);
-			} else {
-				displayLogs(err);
-			}
-		});
-	} catch (e) {
-		displayLogs(e);
-	}
+  try {
+    Homey.api('GET', 'getLogs/', null, (err, result) => {
+      if (!err) {
+        let lines = '';
+        result
+          .reverse()
+          .forEach((line) => {
+            const logLine = line
+              .replace(' [MyApp]', '')
+              .replace(' [ManagerDrivers] ', '');
+            lines += `${logLine}<br />`;
+          });
+        displayLogs(lines);
+      } else {
+        displayLogs(err);
+      }
+    });
+  } catch (e) {
+    displayLogs(e);
+  }
 }
 
 function deleteLogs() {
-	Homey.confirm(Homey.__('settings.tab2.deleteWarning'), 'warning', (error, result) => {
-		if (result) {
-			Homey.api('GET', 'deletelogs/', null, (err) => {
-				if (err) {
-					Homey.alert(err.message, 'error'); // [, String icon], Function callback )
-				} else {
-					Homey.alert(Homey.__('settings.tab2.deleted'), 'info');
-					updateLogs();
-				}
-			});
-		}
-	});
+  Homey.confirm(Homey.__('settings.tab2.deleteWarning'), 'warning', (error, result) => {
+    if (result) {
+      Homey.api('GET', 'deleteLogs/', null, (err) => {
+        if (err) {
+          Homey.alert(err.message, 'error'); // [, String icon], Function callback )
+        } else {
+          Homey.alert(Homey.__('settings.tab2.deleted'), 'info');
+          updateLogs();
+        }
+      });
+    }
+  });
 }
 
 function showTab(tab) {
-	$('.tab').removeClass('tab-active');
-	$('.tab').addClass('tab-inactive');
-	$(`#tabb${tab}`).removeClass('tab-inactive');
-	$(`#tabb${tab}`).addClass('active');
-	$('.panel').hide();
-	$(`#tab${tab}`).show();
-	updateLogs();
+  $('.tab').removeClass('tab-active');
+  $('.tab').addClass('tab-inactive');
+  $(`#tabb${tab}`).removeClass('tab-inactive');
+  $(`#tabb${tab}`).addClass('active');
+  $('.panel').hide();
+  $(`#tab${tab}`).show();
+  updateLogs();
 }
 
 function onHomeyReady(homeyReady) {
-	Homey = homeyReady;
-	showTab(1);
-	Homey.ready();
+  Homey = homeyReady;
+  showTab(1);
+  Homey.ready();
 }

@@ -1,8 +1,11 @@
 {
   "name": "com.gruijter.enelogic",
-  "version": "4.4.0",
+  "version": "4.5.1",
   "description": "Enelogic and YouLess - Reduce your CO2 footprint",
   "main": "app.js",
+  "engines": {
+    "node": ">=12.16.1"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +26,9 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gruijter/com.gruijter.enelogic.git"
+  },
+  "devDependencies": {
+    "eslint": "^7.32.0",
+    "eslint-config-athom": "^3.1.3"
   }
 }

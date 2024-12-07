@@ -37,9 +37,9 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.4.2",
+  "version": "4.5.1",
   "sdk": 3,
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=8.0.0",
   "author": {
     "name": "Robin Gruijter",
     "email": "gruijter@hotmail.com"
@@ -88,11 +88,11 @@
   "api": {
     "getLogs": {
       "method": "get",
-      "path": "/getlogs"
+      "path": "/getLogs"
     },
     "deleteLogs": {
       "method": "get",
-      "path": "/deletelogs"
+      "path": "/deleteLogs"
     }
   }
 }

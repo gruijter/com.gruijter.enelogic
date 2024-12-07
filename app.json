@@ -38,9 +38,9 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.4.2",
+  "version": "4.5.1",
   "sdk": 3,
-  "compatibility": ">=5.0.0",
+  "compatibility": ">=8.0.0",
   "author": {
     "name": "Robin Gruijter",
     "email": "gruijter@hotmail.com"
@@ -89,11 +89,11 @@
   "api": {
     "getLogs": {
       "method": "get",
-      "path": "/getlogs"
+      "path": "/getLogs"
     },
     "deleteLogs": {
       "method": "get",
-      "path": "/deletelogs"
+      "path": "/deleteLogs"
     }
   },
   "flow": {
@@ -608,6 +608,11 @@
         "small": "./drivers/LS120/assets/images/small.jpg"
       },
       "class": "sensor",
+      "energy": {
+        "cumulative": true,
+        "cumulativeImportedCapability": "meter_power.imported",
+        "cumulativeExportedCapability": "meter_power.exported"
+      },
       "capabilities": [
         "measure_gas",
         "meter_offPeak",
@@ -621,6 +626,8 @@
         "measure_voltage.l1",
         "measure_voltage.l2",
         "measure_voltage.l3",
+        "meter_power.imported",
+        "meter_power.exported",
         "meter_power.peak",
         "meter_power.offPeak",
         "meter_power.producedPeak",
@@ -645,38 +652,45 @@
           },
           "decimals": 4
         },
+        "meter_power.imported": {
+          "title": {
+            "en": "Imported energy",
+            "nl": "Energie import"
+          },
+          "decimals": 4
+        },
+        "meter_power.exported": {
+          "title": {
+            "en": "Exported energy",
+            "nl": "Energie export"
+          },
+          "decimals": 4
+        },
         "meter_power.peak": {
           "title": {
-            "en": "Energy meter peak",
-            "nl": "Energie piek"
+            "en": "Imported peak",
+            "nl": "Import piek"
           },
           "decimals": 4
         },
         "meter_power.offPeak": {
-          "meter_power": {
-            "title": {
-              "en": "Energy meter total",
-              "nl": "Energie totaal"
-            },
-            "decimals": 4
-          },
           "title": {
-            "en": "Energy meter off-peak",
-            "nl": "Energie dal"
+            "en": "Imported off-peak",
+            "nl": "Import dal"
           },
           "decimals": 4
         },
         "meter_power.producedPeak": {
           "title": {
-            "en": "Production peak",
-            "nl": "Productie piek"
+            "en": "Exported peak",
+            "nl": "Export piek"
           },
           "decimals": 4
         },
         "meter_power.producedOffPeak": {
           "title": {
-            "en": "Production off-peak",
-            "nl": "Productie dal"
+            "en": "Exportef off-peak",
+            "nl": "Export dal"
           },
           "decimals": 4
         },
@@ -749,9 +763,6 @@
         "meter_gas": {
           "decimals": 3
         }
-      },
-      "energy": {
-        "cumulative": true
       },
       "pair": [
         {

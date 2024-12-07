@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2023, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -37,125 +37,126 @@ const regexPowerOffpeakProduced = new RegExp(/<reading id="e_produced_1" unit="k
 const regexGas = new RegExp(/<reading id="consumed" unit="m3">(.*?)<\/reading>/);
 const regexValve = new RegExp(/<text id="valve">(.*?)<\/text>/);
 
+// Represents a session to a enelogic device.
 class Enelogic {
-	// Represents a session to a enelogic device.
-	constructor(host, port) {
-		this.host = host;
-		this.port = port || defaultPort;
-	}
 
-	getEMeter(host, port) {
-		this.host = host || this.host;
-		this.port = port || this.port;
-		return new Promise((resolve, reject) => {
-			this._makeRequest(eMeterPath)
-				.then((result) => {
-					let readings = {};
-					try {
-						const detected = regexDetected.exec(result.body)[1];
-						const swtch = regexSwtch.exec(result.body)[1];
-						const measurePower = 1000 * Number(regexMeasurePower.exec(result.body)[1]);
-						const measurePowerProduced = 1000 * Number(regexMeasurePowerProduced.exec(result.body)[1]);
-						const powerPeak = Number(regexPowerPeak.exec(result.body)[1]);
-						const powerOffpeak = Number(regexPowerOffpeak.exec(result.body)[1]);
-						const powerPeakProduced = Number(regexPowerPeakProduced.exec(result.body)[1]);
-						const powerOffpeakProduced = Number(regexPowerOffpeakProduced.exec(result.body)[1]);
-						readings = {
-							detected,
-							swtch,
-							measurePower,
-							measurePowerProduced,
-							powerPeak,
-							powerOffpeak,
-							powerPeakProduced,
-							powerOffpeakProduced,
-						};
-					}	catch (error) {
-						reject(Error('Error parsing power information'));
-						return readings;
-					}
-					return resolve(readings);
-				})
-				.catch((error) => {
-					reject(error);	// request failed
-				});
-		});
-	}
+  constructor(host, port) {
+    this.host = host;
+    this.port = port || defaultPort;
+  }
 
-	getGMeter(host, port) {
-		this.host = host || this.host;
-		this.port = port || this.port;
-		return new Promise((resolve, reject) => {
-			this._makeRequest(gMeterPath)
-				.then((result) => {
-					let readings = {};
-					try {
-						const detected = regexDetected.exec(result.body)[1];
-						const valve = regexValve.exec(result.body)[1];
-						const gas = Number(regexGas.exec(result.body)[1]);
-						readings = {
-							detected,
-							valve,
-							gas,
-						};
-					}	catch (error) {
-						reject(Error('Error parsing gas information'));
-						return readings;
-					}
-					return resolve(readings);
-				})
-				.catch((error) => {
-					reject(error);	// request failed
-				});
-		});
-	}
+  getEMeter(host, port) {
+    this.host = host || this.host;
+    this.port = port || this.port;
+    return new Promise((resolve, reject) => {
+      this._makeRequest(eMeterPath)
+        .then((result) => {
+          let readings = {};
+          try {
+            const detected = regexDetected.exec(result.body)[1];
+            const swtch = regexSwtch.exec(result.body)[1];
+            const measurePower = 1000 * Number(regexMeasurePower.exec(result.body)[1]);
+            const measurePowerProduced = 1000 * Number(regexMeasurePowerProduced.exec(result.body)[1]);
+            const powerPeak = Number(regexPowerPeak.exec(result.body)[1]);
+            const powerOffpeak = Number(regexPowerOffpeak.exec(result.body)[1]);
+            const powerPeakProduced = Number(regexPowerPeakProduced.exec(result.body)[1]);
+            const powerOffpeakProduced = Number(regexPowerOffpeakProduced.exec(result.body)[1]);
+            readings = {
+              detected,
+              swtch,
+              measurePower,
+              measurePowerProduced,
+              powerPeak,
+              powerOffpeak,
+              powerPeakProduced,
+              powerOffpeakProduced,
+            };
+          } catch (error) {
+            reject(Error('Error parsing power information'));
+            return readings;
+          }
+          return resolve(readings);
+        })
+        .catch((error) => {
+          reject(error); // request failed
+        });
+    });
+  }
 
-	_makeRequest(action) {
-		return new Promise((resolve, reject) => {
-			const headers = {
-				Connection: 'keep-alive',
-			};
-			const options = {
-				hostname: this.host,
-				port: 1000,
-				path: action,
-				headers,
-				method: 'GET',
-			};
-			const req = http.request(options, (res) => {
-				const { statusCode } = res;
-				const contentType = res.headers['content-type'];
-				let error;
-				if (statusCode !== 200) {
-					error = new Error(`Request Failed. Status Code: ${statusCode}`);
-				} else if (!/^text\/xml/.test(contentType)) {
-					error = new Error(`Invalid content-type. Expected text/xml but received ${contentType}`);
-				}
-				if (error) {
-					// consume response data to free up memory
-					res.resume();
-					reject(error);
-					return;
-				}
-				let resBody = '';
-				res.on('data', (chunk) => {
-					resBody += chunk;
-				});
-				res.on('end', () => {
-					res.body = resBody;
-					resolve(res); // resolve the request
-				});
-			});
-			req.on('error', (e) => {
-				reject(e);
-			});
-			req.setTimeout(8000, () => {
-				req.abort();
-				reject(Error('Connection timeout'));
-			});
-			req.end();
-		});
-	}
+  getGMeter(host, port) {
+    this.host = host || this.host;
+    this.port = port || this.port;
+    return new Promise((resolve, reject) => {
+      this._makeRequest(gMeterPath)
+        .then((result) => {
+          let readings = {};
+          try {
+            const detected = regexDetected.exec(result.body)[1];
+            const valve = regexValve.exec(result.body)[1];
+            const gas = Number(regexGas.exec(result.body)[1]);
+            readings = {
+              detected,
+              valve,
+              gas,
+            };
+          } catch (error) {
+            reject(Error('Error parsing gas information'));
+            return readings;
+          }
+          return resolve(readings);
+        })
+        .catch((error) => {
+          reject(error); // request failed
+        });
+    });
+  }
+
+  _makeRequest(action) {
+    return new Promise((resolve, reject) => {
+      const headers = {
+        Connection: 'keep-alive',
+      };
+      const options = {
+        hostname: this.host,
+        port: 1000,
+        path: action,
+        headers,
+        method: 'GET',
+      };
+      const req = http.request(options, (res) => {
+        const { statusCode } = res;
+        const contentType = res.headers['content-type'];
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed. Status Code: ${statusCode}`);
+        } else if (!/^text\/xml/.test(contentType)) {
+          error = new Error(`Invalid content-type. Expected text/xml but received ${contentType}`);
+        }
+        if (error) {
+          // consume response data to free up memory
+          res.resume();
+          reject(error);
+          return;
+        }
+        let resBody = '';
+        res.on('data', (chunk) => {
+          resBody += chunk;
+        });
+        res.on('end', () => {
+          res.body = resBody;
+          resolve(res); // resolve the request
+        });
+      });
+      req.on('error', (e) => {
+        reject(e);
+      });
+      req.setTimeout(8000, () => {
+        req.abort();
+        reject(Error('Connection timeout'));
+      });
+      req.end();
+    });
+  }
 
 }
 
@@ -164,39 +165,39 @@ module.exports = Enelogic;
 /*
 gasMeter xml:
 <update>
-	<detected>true</detected>
-	<reading id="consumed" unit="m3">5349.409000</reading>
-	<text id="valve">off</text>
+  <detected>true</detected>
+  <reading id="consumed" unit="m3">5349.409000</reading>
+  <text id="valve">off</text>
 </update>
 
 gasMeter JSON:
 {
-	detected: 'false',
-	valve: 'off',
-	gas: 5349.409,
+  detected: 'false',
+  valve: 'off',
+  gas: 5349.409,
 };
 
 eMeter xml:
 <update>
-	<detected>true</detected>
-	<reading id="e_consumed_1" unit="kWh">9773.940000</reading>
-	<reading id="e_consumed_2" unit="kWh">8459.415000</reading>
-	<reading id="e_produced_1" unit="kWh">0.001000</reading>
-	<reading id="e_produced_2" unit="kWh">0.000000</reading>
-	<reading id="p_consumed" unit="kW">0.260000</reading>
-	<reading id="p_produced" unit="kW">0.000000</reading>
-	<text id="e_switch">out</text>
+  <detected>true</detected>
+  <reading id="e_consumed_1" unit="kWh">9773.940000</reading>
+  <reading id="e_consumed_2" unit="kWh">8459.415000</reading>
+  <reading id="e_produced_1" unit="kWh">0.001000</reading>
+  <reading id="e_produced_2" unit="kWh">0.000000</reading>
+  <reading id="p_consumed" unit="kW">0.260000</reading>
+  <reading id="p_produced" unit="kW">0.000000</reading>
+  <text id="e_switch">out</text>
 </update>
 
 eMeter JSON:
 {
-	detected: 'true',
-	swtch: 'out',
-	measurePower: 0.26,
-	measurePowerProduced: 0,
-	powerPeak: 8459.415,
-	powerOffpeak: 9773.94,
-	powerPeakProduced: 0,
-	powerOffpeakProduced: 0.001,
+  detected: 'true',
+  swtch: 'out',
+  measurePower: 0.26,
+  measurePowerProduced: 0,
+  powerPeak: 8459.415,
+  powerOffpeak: 9773.94,
+  powerPeakProduced: 0,
+  powerOffpeakProduced: 0.001,
 };
 */

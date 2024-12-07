@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2023, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -25,54 +25,54 @@ const Ledring = require('../../ledring');
 
 class LS110Driver extends Homey.Driver {
 
-	onInit() {
-		this.log('entering LS110 driver');
-		this.ledring = new Ledring({ screensaver: 'youless_power', homey: this.homey });
-	}
+  onInit() {
+    this.log('entering LS110 driver');
+    this.ledring = new Ledring({ screensaver: 'youless_power', homey: this.homey });
+  }
 
-	async onPair(session) {
-		session.setHandler('discover', async () => {
-			this.log('device discovery started');
-			const youless = new Youless();	// password, host, [port]
-			const discovered = await youless.discover();
-			return JSON.stringify(discovered); // report success to frontend
-		});
-		session.setHandler('validate', async (data) => {
-			try {
-				this.log('save button pressed in frontend');
-				const options = {
-					password: data.password,
-					host: data.youLessIp,
-					port: data.port,
-				};
-				const youless = new Youless(options);	// password, host, [port]
-				await youless.login();
-				const info = await youless.getInfo();
-				const device = {
-					name: `${info.model}_${info.host}`,
-					data: { id: `LS110_${info.mac}` },
-					settings: {
-						youLessIp: options.host,
-						port: options.port,
-						password: options.password,
-						model: info.model,
-						mac: info.mac,
-						ledring_usage_limit: 3000,
-					},
-					capabilities: [
-						'measure_power',
-						'meter_power',
-					],
-				};
-				return JSON.stringify(device); // report success to frontend
-			}	catch (error) {
-				this.error('Pair error', error);
-				if (error.code === 'EHOSTUNREACH') {
-					throw Error('Incorrect IP address');
-				} else throw error;
-			}
-		});
-	}
+  async onPair(session) {
+    session.setHandler('discover', async () => {
+      this.log('device discovery started');
+      const youless = new Youless(); // password, host, [port]
+      const discovered = await youless.discover();
+      return JSON.stringify(discovered); // report success to frontend
+    });
+    session.setHandler('validate', async (data) => {
+      try {
+        this.log('save button pressed in frontend');
+        const options = {
+          password: data.password,
+          host: data.youLessIp,
+          port: data.port,
+        };
+        const youless = new Youless(options); // password, host, [port]
+        await youless.login();
+        const info = await youless.getInfo();
+        const device = {
+          name: `${info.model}_${info.host}`,
+          data: { id: `LS110_${info.mac}` },
+          settings: {
+            youLessIp: options.host,
+            port: options.port,
+            password: options.password,
+            model: info.model,
+            mac: info.mac,
+            ledring_usage_limit: 3000,
+          },
+          capabilities: [
+            'measure_power',
+            'meter_power',
+          ],
+        };
+        return JSON.stringify(device); // report success to frontend
+      } catch (error) {
+        this.error('Pair error', error);
+        if (error.code === 'EHOSTUNREACH') {
+          throw Error('Incorrect IP address');
+        } else throw error;
+      }
+    });
+  }
 
 }
 

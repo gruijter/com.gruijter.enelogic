@@ -61,5 +61,11 @@
   },
   "4.4.2": {
     "en": "Fix for firmware below 1.6-EL"
+  },
+  "4.5.0": {
+    "en": "Added Homey total imported/exported energy capability. Minor fixes."
+  },
+  "4.5.1": {
+    "en": "Fixed Homey total imported/exported energy capability. Minor fixes."
   }
 }

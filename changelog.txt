@@ -1,3 +1,5 @@
+v4.5.1  2024.12.07 Fixed Homey total imported/exported energy capability. Minor fixes.
+v4.5.0  2024.12.06 Added Homey total imported/exported energy capability. Minor fixes.
 v4.4.2  2023.12.04 Fix for firmware below 1.6-EL.
 v4.4.1  2023.12.03 Gas meter decimals extended to 3.
 v4.4.0  2023.11.28 youless@2.8.1. Added Belgian P1 water meter. Added custom port setting. Minimum poll lowered to 1 second. Pairing fixes. Stability fixes.

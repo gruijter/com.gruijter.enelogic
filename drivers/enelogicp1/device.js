@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2023, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 

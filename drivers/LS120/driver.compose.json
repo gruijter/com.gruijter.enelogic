@@ -8,6 +8,11 @@
     "small": "./drivers/LS120/assets/images/small.jpg"
   },
   "class": "sensor",
+  "energy": {
+    "cumulative": true,
+		"cumulativeImportedCapability": "meter_power.imported",
+    "cumulativeExportedCapability": "meter_power.exported"
+  },
   "capabilities": [
     "measure_gas",
 
@@ -26,6 +31,8 @@
     "measure_voltage.l2",
     "measure_voltage.l3",
 
+    "meter_power.imported",
+    "meter_power.exported",
     "meter_power.peak",
     "meter_power.offPeak",
     "meter_power.producedPeak",
@@ -52,38 +59,45 @@
       },
       "decimals": 4
     },
+    "meter_power.imported": {
+			"title": {
+				"en": "Imported energy",
+				"nl": "Energie import"
+			},
+			"decimals": 4
+		},
+		"meter_power.exported": {
+			"title": {
+				"en": "Exported energy",
+				"nl": "Energie export"
+			},
+			"decimals": 4
+		},
     "meter_power.peak": {
       "title": {
-        "en": "Energy meter peak",
-        "nl": "Energie piek"
+        "en": "Imported peak",
+        "nl": "Import piek"
       },
       "decimals": 4
     },
     "meter_power.offPeak": {
-      "meter_power": {
-        "title": {
-          "en": "Energy meter total",
-          "nl": "Energie totaal"
-        },
-        "decimals": 4
-      },
       "title": {
-        "en": "Energy meter off-peak",
-        "nl": "Energie dal"
+        "en": "Imported off-peak",
+        "nl": "Import dal"
       },
       "decimals": 4
     },
     "meter_power.producedPeak": {
       "title": {
-        "en": "Production peak",
-        "nl": "Productie piek"
+        "en": "Exported peak",
+        "nl": "Export piek"
       },
       "decimals": 4
     },
     "meter_power.producedOffPeak": {
       "title": {
-        "en": "Production off-peak",
-        "nl": "Productie dal"
+        "en": "Exportef off-peak",
+        "nl": "Export dal"
       },
       "decimals": 4
     },
@@ -156,9 +170,6 @@
     "meter_gas": {
       "decimals": 3
     }
-  },
-  "energy": {
-    "cumulative": true
   },
   "pair": [
     {

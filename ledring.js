@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2023, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -20,72 +20,67 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 'use strict';
 
 class Ledring {
-	constructor(opts) {
-		this.homey = opts.homey;
-		this.animation = {};
-		this.registerScreensaver(opts.screensaver);
-	}
 
-	async registerScreensaver(screenSaverId) {
-		try {
-			if (this.homey.platformVersion !== 1) return;
-			// init frames cyclops
-			const frame = [];
-			frame.push({ r: 80, g: 0, b: 0 }); // first pixel is red
-			for (let pixel = 1; pixel < 24; pixel += 1) {
-				frame.push({ r: 0, g: 80, b: 0 });
-			}
-			// create the animation
-			this.animation = await this.homey.ledring.createAnimation({
-				options: {
-					fps: 1, 	// real frames per second
-					tfps: 60, 	// target frames per second. this means that every frame will be interpolated 60 times
-					rpm: 10,	// rotations per minute
-				},
-				frames: [frame],
-				priority: 'INFORMATIVE',
-				duration: false,
-			});
-			// register the animation as screensaver
-			await this.animation.registerScreensaver(screenSaverId);
-			this.homey.log(`${screenSaverId} ledring screensaver ready!`);
-		} catch (error) {
-			this.homey.error(error);
-		}
-	}
+  constructor(opts) {
+    this.homey = opts.homey;
+    this.animation = {};
+    this.registerScreensaver(opts.screensaver).catch((error) => this.homey.error(error));
+  }
 
-	change(deviceSettings, measurepower) {
-		try {
-			if (!this.animation || !this.animation.updateFrames) return;
-			const frame = [];
-			let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
-			if (measurepower >= 0) {	// consuming power makes ledring red
-				if (deviceSettings.ledring_usage_limit === 0) {	// ignore change when limit setting is 0
-					return;
-				}
-				if (limit > 24) { limit = 24; }
-				for (let pixel = 0; pixel < 24; pixel += 1) {
-					if (pixel < limit) {
-						frame[pixel] = { r: 80,	g: 0,	b: 0	};
-					} else { frame[pixel] = { r: 0, g: 80, b: 0 }; }
-				}
-			} else {	// producing power makes ledring blue
-				if (deviceSettings.ledring_production_limit === 0) {	// ignore change when limit setting is 0
-					return;
-				}
-				limit = -((24 * measurepower) / deviceSettings.ledring_production_limit).toFixed(0);
-				if (limit > 24) { limit = 24; }
-				for (let pixel = 0; pixel < 24; pixel += 1) {
-					if (pixel < limit) {
-						frame[pixel] = { r: 0,	g: 0,	b: 120 };
-					} else { frame[pixel] = { r: 0, g: 80, b: 0 }; }
-				}
-			}
-			this.animation.updateFrames([frame]);
-		} catch (error) {
-			this.homey.error(error);
-		}
-	}
+  async registerScreensaver(screenSaverId) {
+    try {
+      if (this.homey.platformVersion !== 1) return;
+      // init frames cyclops
+      const frame = [];
+      frame.push({ r: 80, g: 0, b: 0 }); // first pixel is red
+      for (let pixel = 1; pixel < 24; pixel += 1) {
+        frame.push({ r: 0, g: 80, b: 0 });
+      }
+      // create the animation
+      this.animation = await this.homey.ledring.createAnimation({
+        options: {
+          fps: 1, // real frames per second
+          tfps: 60, // target frames per second. this means that every frame will be interpolated 60 times
+          rpm: 10, // rotations per minute
+        },
+        frames: [frame],
+        priority: 'INFORMATIVE',
+        duration: false,
+      });
+      // register the animation as screensaver
+      await this.animation.registerScreensaver(screenSaverId);
+      this.homey.log(`${screenSaverId} ledring screensaver ready!`);
+    } catch (error) {
+      this.homey.error(error);
+    }
+  }
+
+  change(deviceSettings, measurepower) {
+    try {
+      if (!this.animation || !this.animation.updateFrames) return;
+      const frame = [];
+      let limit = ((24 * measurepower) / deviceSettings.ledring_usage_limit).toFixed(0);
+      if (measurepower >= 0) { // consuming power makes ledring red
+        if (deviceSettings.ledring_usage_limit === 0) return; // ignore change when limit setting is 0
+        if (limit > 24) limit = 24;
+        for (let pixel = 0; pixel < 24; pixel += 1) {
+          if (pixel < limit) frame[pixel] = { r: 80, g: 0, b: 0 };
+          else frame[pixel] = { r: 0, g: 80, b: 0 };
+        }
+      } else { // producing power makes ledring blue
+        if (deviceSettings.ledring_production_limit === 0) return; // ignore change when limit setting is 0
+        limit = -((24 * measurepower) / deviceSettings.ledring_production_limit).toFixed(0);
+        if (limit > 24) limit = 24;
+        for (let pixel = 0; pixel < 24; pixel += 1) {
+          if (pixel < limit) frame[pixel] = { r: 0, g: 0, b: 120 };
+          else frame[pixel] = { r: 0, g: 80, b: 0 };
+        }
+      }
+      this.animation.updateFrames([frame]);
+    } catch (error) {
+      this.homey.error(error);
+    }
+  }
 
 }
 
