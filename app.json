@@ -38,9 +38,9 @@
     ]
   },
   "brandColor": "#469f00",
-  "version": "4.5.1",
+  "version": "4.6.0",
   "sdk": 3,
-  "compatibility": ">=8.0.0",
+  "compatibility": ">=12.9.0",
   "author": {
     "name": "Robin Gruijter",
     "email": "gruijter@hotmail.com"

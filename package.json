@@ -4,7 +4,7 @@
   "description": "Enelogic and YouLess - Reduce your CO2 footprint",
   "main": "app.js",
   "engines": {
-    "node": ">=12.16.1"
+    "node": ">=22.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

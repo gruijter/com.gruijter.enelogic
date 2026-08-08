@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2026, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -175,7 +175,7 @@ class EnelogicDevice extends Device {
 	handleNewReadings(readings) {
 		// this.log(`handling new readings for ${this.getName()}`);
 		// gas readings from device
-		const meterGas = readings.g && readings.g.gas; // gas_cumulative_meter
+		const meterGas = readings.g?.gas; // gas_cumulative_meter
 		const meterGasTm = (meterGas && (meterGas !== this.lastMeters.meterGas)) ? Date.now() / 1000 : this.lastMeters.meterGasTm;
 		let { measureGas } = this.lastMeters;
 

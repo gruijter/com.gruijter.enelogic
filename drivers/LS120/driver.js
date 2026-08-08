@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable prefer-destructuring */
 /*
-Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2026, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -102,7 +102,7 @@ class LS120Driver extends Homey.Driver {
           correctCaps.push('meter_offPeak');
         }
         correctCaps.push('measure_power'); // always include measure_power
-        if (p1Status && p1Status.l1) { //  has current and power per phase
+        if (p1Status?.l1) { //  has current and power per phase
           correctCaps.push('measure_power.l1');
           if (settings.include3phase) {
             correctCaps.push('measure_power.l2');
@@ -114,7 +114,7 @@ class LS120Driver extends Homey.Driver {
             correctCaps.push('measure_current.l3');
           }
         }
-        if (p1Status && p1Status.v1) { // has voltage per phase
+        if (p1Status?.v1) { // has voltage per phase
           correctCaps.push('measure_voltage.l1');
           if (settings.include3phase) {
             correctCaps.push('measure_voltage.l2');

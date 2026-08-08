@@ -1,5 +1,5 @@
 /*
-Copyright 2017 - 2024, Robin de Gruijter (gruijter@hotmail.com)
+Copyright 2017 - 2026, Robin de Gruijter (gruijter@hotmail.com)
 
 This file is part of com.gruijter.enelogic.
 
@@ -18,9 +18,6 @@ along with com.gruijter.enelogic.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 'use strict';
-
-const http = require('http');
-// const util = require('util');
 
 const eMeterPath = '/cgi/electricityMeter/update';
 const gMeterPath = '/cgi/gasMeter/update';
@@ -111,51 +108,37 @@ class Enelogic {
     });
   }
 
-  _makeRequest(action) {
-    return new Promise((resolve, reject) => {
-      const headers = {
-        Connection: 'keep-alive',
-      };
-      const options = {
-        hostname: this.host,
-        port: 1000,
-        path: action,
-        headers,
-        method: 'GET',
-      };
-      const req = http.request(options, (res) => {
-        const { statusCode } = res;
-        const contentType = res.headers['content-type'];
-        let error;
-        if (statusCode !== 200) {
-          error = new Error(`Request Failed. Status Code: ${statusCode}`);
-        } else if (!/^text\/xml/.test(contentType)) {
-          error = new Error(`Invalid content-type. Expected text/xml but received ${contentType}`);
-        }
-        if (error) {
-          // consume response data to free up memory
-          res.resume();
-          reject(error);
-          return;
-        }
-        let resBody = '';
-        res.on('data', (chunk) => {
-          resBody += chunk;
-        });
-        res.on('end', () => {
-          res.body = resBody;
-          resolve(res); // resolve the request
-        });
-      });
-      req.on('error', (e) => {
-        reject(e);
-      });
-      req.setTimeout(8000, () => {
-        req.abort();
-        reject(Error('Connection timeout'));
-      });
-      req.end();
-    });
+  async _makeRequest(action) {
+    const url = `http://${this.host}:${this.port}${action}`;
+    const headers = {
+      Connection: 'keep-alive',
+    };
+    const controller = new AbortController();
+    // eslint-disable-next-line homey-app/global-timers
+    const timeoutHandle = setTimeout(() => controller.abort(), 8000);
+    let res;
+    try {
+      res = await fetch(url, { headers, signal: controller.signal });
+    } catch (error) {
+      if (error.name === 'AbortError') throw Error('Connection timeout');
+      // preserve the underlying socket error code (e.g. EHOSTUNREACH), which fetch
+      // moves to error.cause.code instead of error.code
+      const wrapped = Error(error.message);
+      if (error.cause && error.cause.code) wrapped.code = error.cause.code;
+      throw wrapped;
+    } finally {
+      clearTimeout(timeoutHandle);
+    }
+    const { status } = res;
+    const contentType = res.headers.get('content-type');
+    const body = await res.text(); // always consume the body to free up the connection
+    if (status !== 200) {
+      throw Error(`Request Failed. Status Code: ${status}`);
+    }
+    if (!/^text\/xml/.test(contentType)) {
+      throw Error(`Invalid content-type. Expected text/xml but received ${contentType}`);
+    }
+    return { body };
   }
 
 }
