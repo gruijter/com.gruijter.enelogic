@@ -435,6 +435,7 @@ class LS120Device extends Device {
       // setup custom trigger flowcards
       const tariffChanged = (this.lastMeters.offPeak !== null) && (offPeak !== this.getCapabilityValue('meter_offPeak'));
       const powerChanged = (this.lastMeters.meterPowerTm !== null) && (measurePower !== this.lastMeters.measurePower);
+      const waterChanged = meterWaterTmChanged && (measureWater !== this.lastMeters.measureWater);
 
       // update the ledring screensavers
       if (measurePower !== this.lastMeters.measurePower) this.driver.ledring.change(this.getSettings(), measurePower);
@@ -478,6 +479,10 @@ class LS120Device extends Device {
           power_delta: measurePowerDelta,
         };
         this.homey.app.triggerPowerChanged(this, tokens, {});
+      }
+      if (waterChanged && this.hasCapability('measure_water')) {
+        const tokens = { flow: measureWater };
+        this.homey.app.triggerMeasureWaterChanged(this, tokens, {});
       }
 
       // console.log(meters);

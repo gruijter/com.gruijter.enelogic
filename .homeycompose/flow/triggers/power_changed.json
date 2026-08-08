@@ -7,7 +7,7 @@
     {
       "name": "device",
       "type": "device",
-      "filter": "driver_id=LS120|LS110|LS12S0|enelogicp1"
+      "filter": "driver_id=LS120|LS110|LS120S0|enelogicp1"
     }
   ],
   "tokens":[

@@ -1,6 +1,6 @@
 {
   "name": "com.gruijter.enelogic",
-  "version": "4.5.1",
+  "version": "4.6.0",
   "description": "Enelogic and YouLess - Reduce your CO2 footprint",
   "main": "app.js",
   "engines": {
