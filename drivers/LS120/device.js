@@ -48,17 +48,9 @@ class LS120Device extends Device {
       };
       this.youless = new Youless(options);
 
-      // sync time in youless
-      this.youless.login()
-        .then(() => {
-          this.youless.syncTime()
-            .catch((error) => {
-              this.error(error.message);
-            });
-        })
-        .catch((error) => {
-          this.error(error.message);
-        });
+      // login before checking migration, so getP1Status() during migrate() doesn't race a still-pending login
+      await this.youless.login().catch((error) => this.error(error.message));
+      this.youless.syncTime().catch((error) => this.error(error.message));
 
       // check for version migration or capability change
       if (!this.migrated) await this.migrate();
@@ -165,8 +157,9 @@ class LS120Device extends Device {
       }
 
       // store the capability states before migration
-      const sym = Object.getOwnPropertySymbols(this).find((s) => String(s) === 'Symbol(state)');
-      const state = this[sym];
+      const existingCaps = await this.getCapabilities();
+      const state = {};
+      existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
 
       // check and repair incorrect capability(order)
       for (let index = 0; index <= correctCaps.length; index += 1) {
