@@ -91,6 +91,7 @@ class EnelogicDevice extends Device {
 	async onSettings({ newSettings }) {
 		this.log(`${this.getName()} device settings changed`);
 		this.log(newSettings);
+		this.restartDevice(1000).catch((error) => this.error(error));
 	}
 
 	async doPoll() {

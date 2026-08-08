@@ -58,10 +58,26 @@ class LS120Device extends Device {
           this.error(error.message);
         });
 
+      // make sure Homey Energy behaviour matches the setting, also for freshly paired devices
+      this.applyEnergyType(settings);
+
       // start polling device for info
       this.startPolling(settings.pollingInterval);
     } catch (error) {
       this.error(error);
+    }
+  }
+
+  applyEnergyType(settings) {
+    if (settings.homey_energy_type === 'solarpanel') {
+      this.setEnergy({ cumulative: false }).catch(this.error);
+      this.setClass('solarpanel').catch(this.error);
+    } else if (settings.homey_energy_type === 'cumulative') {
+      this.setEnergy({ cumulative: true }).catch(this.error);
+      this.setClass('sensor').catch(this.error);
+    } else {
+      this.setEnergy({ cumulative: false }).catch(this.error);
+      this.setClass('sensor').catch(this.error);
     }
   }
 
@@ -120,16 +136,7 @@ class LS120Device extends Device {
       // set the new power meter in the youless device
       this.youless.setS0Counter(newSettings.set_meter_s0)
         .catch(this.error);
-      if (newSettings.homey_energy_type === 'solarpanel') {
-        this.setEnergy({ cumulative: false }).catch(this.error);
-        this.setClass('solarpanel').catch(this.error);
-      } else if (newSettings.homey_energy_type === 'cumulative') {
-        this.setEnergy({ cumulative: true }).catch(this.error);
-        this.setClass('sensor').catch(this.error);
-      } else {
-        this.setEnergy({ cumulative: false }).catch(this.error);
-        this.setClass('sensor').catch(this.error);
-      }
+      this.applyEnergyType(newSettings);
       this.restartDevice(1000).catch((error) => this.error(error));
       return Promise.resolve(true);
     } catch (error) {

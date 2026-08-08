@@ -159,7 +159,9 @@ class LS120Device extends Device {
       // store the capability states before migration
       const existingCaps = await this.getCapabilities();
       const state = {};
-      existingCaps.forEach((cap) => { state[cap] = this.getCapabilityValue(cap); });
+      existingCaps.forEach((cap) => {
+        state[cap] = this.getCapabilityValue(cap);
+      });
 
       // check and repair incorrect capability(order)
       for (let index = 0; index <= correctCaps.length; index += 1) {
