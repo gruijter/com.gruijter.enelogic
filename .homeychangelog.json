@@ -67,5 +67,8 @@
   },
   "4.5.1": {
     "en": "Fixed Homey total imported/exported energy capability. Minor fixes."
+  },
+  "4.6.0": {
+    "en": "Fixed migration hang. Fixed disappearing 3-phase capabilities. Fixed flow trigger bugs. Fixed Enelogic P1 settings bug. Raised compatibility to Homey >=12.9.0."
   }
 }

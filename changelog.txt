@@ -1,3 +1,4 @@
+v4.6.0  2026.08.08 Fixed migration hang. Fixed disappearing 3-phase capabilities. Fixed flow trigger bugs. Fixed Enelogic P1 settings bug. Raised compatibility to Homey >=12.9.0.
 v4.5.1  2024.12.07 Fixed Homey total imported/exported energy capability. Minor fixes.
 v4.5.0  2024.12.06 Added Homey total imported/exported energy capability. Minor fixes.
 v4.4.2  2023.12.04 Fix for firmware below 1.6-EL.
